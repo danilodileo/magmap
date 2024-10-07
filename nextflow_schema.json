@@ -211,7 +211,27 @@
                 },
                 "save_sourmash": {
                     "type": "boolean",
-                    "description": "Save Sourmash outuput"
+                    "description": "Save Sourmash outuput",
+                    "fa_icon": "fas fa-download"
+                },
+                "save_unassigned": {
+                    "type": "boolean",
+                    "default": true,
+                    "fa_icon": "fas fa-download"
+                },
+                "save_matches_sig": {
+                    "type": "boolean",
+                    "default": true,
+                    "fa_icon": "fas fa-download"
+                },
+                "save_prefetch": {
+                    "type": "boolean",
+                    "default": true,
+                    "fa_icon": "fas fa-download"
+                },
+                "save_prefetch_csv": {
+                    "type": "boolean",
+                    "fa_icon": "fas fa-download"
                 }
             },
             "fa_icon": "fas fa-filter"
@@ -435,7 +455,7 @@
             "$ref": "#/definitions/prokka_option"
         },
         {
-            "$ref": "#/definitions/Sourmash_options"
+            "$ref": "#/definitions/sourmash_options"
         },
         {
             "$ref": "#/definitions/institutional_config_options"
