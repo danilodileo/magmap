@@ -43,8 +43,15 @@ process FILTER_GENOMES {
         inner_join(genomes, by = 'accno') %>%
         write_tsv("${prefix}_filtered_genomes.tsv.gz")
 
-        writeLines(c("\\"${task.process}\\":", paste0("    R: ", paste0(R.Version()[c("major","minor")], collapse = ".")), paste0("    dplyr: ", packageVersion('dplyr')),
-            paste0("    dtplyr: ", packageVersion('dtplyr')), paste0("    data.table: ", packageVersion('data.table')) ), "versions.yml")
-
+        writeLines(
+            c(
+                "\\"${task.process}\\":",
+                paste0("    R: ", paste0(R.Version()[c("major","minor")], collapse = ".")),
+                paste0("    dplyr: ", packageVersion('dplyr')),
+                paste0("    dtplyr: ", packageVersion('dtplyr')),
+                paste0("    data.table: ", packageVersion('data.table'))
+                ),
+            "versions.yml"
+        )
         """
 }

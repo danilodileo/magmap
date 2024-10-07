@@ -36,8 +36,15 @@ process FILTER_ACCNO {
         select(-x,-col) %>%
         write_tsv("${prefix}_filtered_accno.tsv.gz")
 
-        writeLines(c("\\"${task.process}\\":", paste0("    R: ", paste0(R.Version()[c("major","minor")], collapse = ".")), paste0("    dplyr: ", packageVersion('dplyr')),
-            paste0("    dtplyr: ", packageVersion('dtplyr')), paste0("    data.table: ", packageVersion('data.table')) ), "versions.yml")
-
+        writeLines(
+            c(
+                "\\"${task.process}\\":",
+                paste0("    R: ", paste0(R.Version()[c("major","minor")], collapse = ".")),
+                paste0("    dplyr: ", packageVersion('dplyr')),
+                paste0("    dtplyr: ", packageVersion('dtplyr')),
+                paste0("    data.table: ", packageVersion('data.table'))
+                ),
+            "versions.yml"
+        )
         """
 }
