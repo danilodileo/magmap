@@ -28,7 +28,7 @@
                     "format": "file-path",
                     "mimetype": "text/tsv",
                     "fa_icon": "fas fa-dna",
-                    "description": "Path to comma-separated file containing information about the genomes.",
+                    "description": "Path to comma-separated file containing information about the genomes to be mapped to.",
                     "schema": "assets/schema_genomeinfo.json"
                 },
                 "gtdbtk_metadata": {
@@ -192,7 +192,7 @@
             },
             "fa_icon": "fas fa-phone-alt"
         },
-        "Sourmash_options": {
+        "sourmash_options": {
             "title": "Sourmash",
             "type": "object",
             "description": "All the options available for Sourmash",
