@@ -485,7 +485,17 @@ workflow MAGMAP {
     //
     // we create a channel for ncbi genomes only when sourmash is called
     if ( params.sourmash ) {
-        SOURMASH(ch_clean_reads, ch_indexes, ch_genomeinfo, ch_genome_infos, params.ksize)
+        SOURMASH(
+                ch_clean_reads,
+                ch_indexes,
+                ch_genomeinfo,
+                ch_genome_infos,
+                params.ksize,
+                params.save_unassigned,
+                params.save_matches_sig,
+                params.save_prefetch,
+                params.save_prefetch_csv
+            )
         ch_versions = ch_versions.mix(SOURMASH.out.versions)
         ch_genomes = SOURMASH.out.filtered_genomes
     } else {

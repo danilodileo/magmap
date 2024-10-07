@@ -14,16 +14,12 @@ workflow SOURMASH {
         ch_user_genomeinfo
         ch_ncbi_genomeinfo_files
         ksize
+        save_unassigned
+        save_matches_sig
+        save_prefetch
+        save_prefetch_csv
 
     main:
-        // I like that you create named variables for these, but they look more like config file
-        // params than module arguments. Now, they *are* module arguments so we need to handle them,
-        // but wouldn't it be better to let the subworkflow take them, and expose them via parameters?
-        save_unassigned    = true
-        save_matches_sig   = true
-        save_prefetch      = true
-        save_prefetch_csv  = false
-
         ch_versions = Channel.empty()
 
         ch_ncbi_genomeinfo_files
@@ -127,11 +123,11 @@ workflow SOURMASH {
                     if (genomeInfos == null || genomeInfos.isEmpty()) {
                         return [] // Discard tuples with null or empty genomeInfos
                     }
-        
+
                     // Extract values from the map
                     def genomeFna = genomeInfos.genome_fna ?: ''
                     def genomeGff = genomeInfos.genome_gff ?: ''
-    
+
                 // Return the formatted result
                 return [[accno: accno, genome_fna: genomeFna, genome_gff: genomeGff]]
             }
