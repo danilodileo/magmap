@@ -6,6 +6,7 @@ include { SOURMASH_GATHER                   } from '../../modules/nf-core/sourma
 include { SOURMASH_SKETCH as GENOMES_SKETCH } from '../../modules/nf-core/sourmash/sketch/main'
 include { SOURMASH_INDEX  as GENOMES_INDEX  } from '../../modules/nf-core/sourmash/index/main'
 include { SOURMASH_SKETCH as SAMPLES_SKETCH } from '../../modules/nf-core/sourmash/sketch/main'
+include { CHECK_BROKEN_LINKS                } from '../../modules/local/check_broken_links'
 
 workflow SOURMASH {
     take:
@@ -140,9 +141,25 @@ workflow SOURMASH {
             .mix(ch_matching_user_non_ncbi_genomes)
             .set { ch_filtered_genomes }
 
+    // Check presence of broken links
+    CHECK_BROKEN_LINKS(ch_filtered_genomes)
+
+    // Filter out null entries after link validation
+    ch_valid_genomes_filtered =
+        CHECK_BROKEN_LINKS.out.valid_genomes_ch
+            .filter { it != null }
+            .map{ 
+                [
+                    accno: it[0],
+                    genome_fna: it[1],
+                    genome_gff: it[2]
+                ]
+            }
+
+    ch_valid_genomes_filtered.view()
     emit:
         gindex           = GENOMES_SKETCH.out.signatures
         sindex           = SAMPLES_SKETCH.out.signatures
-        filtered_genomes = ch_filtered_genomes
+        filtered_genomes = ch_valid_genomes_filtered
         versions         = ch_versions
 }

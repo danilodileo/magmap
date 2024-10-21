@@ -435,7 +435,7 @@
             "$ref": "#/definitions/prokka_option"
         },
         {
-            "$ref": "#/definitions/Sourmash_options"
+            "$ref": "#/definitions/sourmash_options"
         },
         {
             "$ref": "#/definitions/institutional_config_options"
