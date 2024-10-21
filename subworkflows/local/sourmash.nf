@@ -157,7 +157,6 @@ workflow SOURMASH {
                 ]
             }
 
-    ch_valid_genomes_filtered.view()
     emit:
         gindex           = GENOMES_SKETCH.out.signatures
         sindex           = SAMPLES_SKETCH.out.signatures
