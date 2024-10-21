@@ -15,7 +15,6 @@ process CHECK_BROKEN_LINKS {
 
     script:
     """
-    echo "Checking URL: ${genome_fna}"
     # Use curl to check if the URL returns 404
     if curl -Is "${genome_fna}" | grep -q "404 Not Found"; then
         echo "Broken link: ${genome_fna}"
