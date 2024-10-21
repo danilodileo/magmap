@@ -128,11 +128,11 @@ workflow SOURMASH {
                     if (genomeInfos == null || genomeInfos.isEmpty()) {
                         return [] // Discard tuples with null or empty genomeInfos
                     }
-        
+
                     // Extract values from the map
                     def genomeFna = genomeInfos.genome_fna ?: ''
                     def genomeGff = genomeInfos.genome_gff ?: ''
-    
+
                 // Return the formatted result
                 return [[accno: accno, genome_fna: genomeFna, genome_gff: genomeGff]]
             }
@@ -143,12 +143,13 @@ workflow SOURMASH {
 
     // Check presence of broken links
     CHECK_BROKEN_LINKS(ch_filtered_genomes)
+    ch_versions = ch_versions.mix(CHECK_BROKEN_LINKS.out.versions)
 
     // Filter out null entries after link validation
     ch_valid_genomes_filtered =
         CHECK_BROKEN_LINKS.out.valid_genomes_ch
             .filter { it != null }
-            .map{ 
+            .map{
                 [
                     accno: it[0],
                     genome_fna: it[1],
