@@ -11,6 +11,7 @@ process CHECK_BROKEN_LINKS {
 
     output:
     tuple val(accno), val(genome_fna), val(genome_gff), emit: valid_genomes_ch
+    path "versions.yml"                               , emit: versions
 
     script:
     """
