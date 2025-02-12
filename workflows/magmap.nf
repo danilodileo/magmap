@@ -67,23 +67,39 @@ workflow MAGMAP {
 
     // Conditionally execute the RENAME_CONTIGS process
     if ( params.rename_contigs ) {
-        ch_genomeinfo
-            .map { it -> [ it.accno, it.genome_fna ] }
-            .collect()
-            .set { contigs_ch }
 
-        RENAME_CONTIGS(contigs_ch)
-        ch_test = RENAME_CONTIGS.out.renamed_contigs
-        ch_versions = ch_versions.mix(RENAME_CONTIGS.out.versions)
-        ch_test
-            .map {
-                [
-                    accno: it[0],
-                    genome_fna: it[1],
-                    genome_gff: []
-                ]
+        // Create a channel of samples that need renaming
+        samples_to_rename = CHECK_DUPLICATES.out.duplicate_list
+            .splitText()
+            .map { line ->
+                def (count, contig) = line.trim().split(/\s+/, 2)
+                contig.split('_')[0] // Assuming the sample name is the first part of the contig name
             }
-            .set { ch_genomeinfo }
+            .unique()
+            .combine(ch_genomeinfo)
+            .filter { sample, genome_info -> sample == genome_info.accno }
+            .map { sample, genome_info -> genome_info }
+
+        // Run RENAME_CONTIGS on samples that need renaming
+        RENAME_CONTIGS(samples_to_rename)
+
+        // ch_genomeinfo
+        //     .map { it -> [ it.accno, it.genome_fna ] }
+        //     .collect()
+        //     .set { contigs_ch }
+
+        // RENAME_CONTIGS(contigs_ch)
+        // ch_test = RENAME_CONTIGS.out.renamed_contigs
+        // ch_versions = ch_versions.mix(RENAME_CONTIGS.out.versions)
+        // ch_test
+        //     .map {
+        //         [
+        //             accno: it[0],
+        //             genome_fna: it[1],
+        //             genome_gff: []
+        //         ]
+        //     }
+        //     .set { ch_genomeinfo }
     }
 
     //

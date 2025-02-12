@@ -1,5 +1,5 @@
 process RENAME_CONTIGS {
-    tag "${meta}"  // Directly use meta as it's already an ID
+    tag "${meta}"
     label 'process_low'
 
     conda "bioconda::seqkit=2.3.1"
@@ -15,7 +15,7 @@ process RENAME_CONTIGS {
     path "versions.yml", emit: versions
 
     script:
-    def prefix = task.ext.prefix ?: "${meta}"  // Use meta directly as the prefix
+    def prefix = task.ext.prefix ?: "${meta}"
 
     """
     seqkit replace -p "^" -r "${prefix}_" $contigs > ${prefix}_renamed_contigs.fa
