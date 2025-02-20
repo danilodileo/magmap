@@ -61,46 +61,40 @@ workflow MAGMAP {
     //
     // Check presence of duplicates contigs in the local genome collection
     //
-    CHECK_DUPLICATES( ch_genomeinfo.map{ it.genome_fna }.collect() )
+    CHECK_DUPLICATES(ch_genomeinfo.map{ it.genome_fna }.collect())
     ch_versions = ch_versions.mix(CHECK_DUPLICATES.out.versions)
 
+    CHECK_DUPLICATES.out.duplicates_file
+        .map { it -> it.size() > 0 }
+        .filter { it }
+        .ifEmpty { null }
+        .combine(ch_genomeinfo.map { [ it.accno, it.genome_fna ] })
+        .branch {
+            to_rename: it[0] != null
+            to_skip: true
+        }
+        .set { ch_rename_branches }
 
-    // Conditionally execute the RENAME_CONTIGS process
-    if ( params.rename_contigs ) {
+    ch_rename_branches.to_rename
+        .map { it -> 
+            log.info "Duplicates found in the genome collection. Renaming contigs to avoid conflicts."
+            return it[1..-1]  // Return all elements except the first (which was the trigger)
+        }
+        .set { ch_fna_to_rename }
+    
+    RENAME_CONTIGS( ch_fna_to_rename )
+    ch_versions = ch_versions.mix(RENAME_CONTIGS.out.versions)
 
-        // Create a channel of samples that need renaming
-        samples_to_rename = CHECK_DUPLICATES.out.duplicate_list
-            .splitText()
-            .map { line ->
-                def (count, contig) = line.trim().split(/\s+/, 2)
-                contig.split('_')[0] // Assuming the sample name is the first part of the contig name
+    RENAME_CONTIGS.out.renamed_contigs
+        .map {
+            meta, fna ->
+                [
+                accno: meta,
+                genome_fna: fna,
+                genome_gff: ''
+                ] 
             }
-            .unique()
-            .combine(ch_genomeinfo)
-            .filter { sample, genome_info -> sample == genome_info.accno }
-            .map { sample, genome_info -> genome_info }
-
-        // Run RENAME_CONTIGS on samples that need renaming
-        RENAME_CONTIGS(samples_to_rename)
-
-        // ch_genomeinfo
-        //     .map { it -> [ it.accno, it.genome_fna ] }
-        //     .collect()
-        //     .set { contigs_ch }
-
-        // RENAME_CONTIGS(contigs_ch)
-        // ch_test = RENAME_CONTIGS.out.renamed_contigs
-        // ch_versions = ch_versions.mix(RENAME_CONTIGS.out.versions)
-        // ch_test
-        //     .map {
-        //         [
-        //             accno: it[0],
-        //             genome_fna: it[1],
-        //             genome_gff: []
-        //         ]
-        //     }
-        //     .set { ch_genomeinfo }
-    }
+        .set { ch_genomeinfo }
 
     //
     // INPUT: genome info from ncbi

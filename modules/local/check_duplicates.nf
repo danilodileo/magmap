@@ -10,23 +10,31 @@ process CHECK_DUPLICATES {
     path fnas
 
     output:
-    path "duplicate-contigs.txt" , emit: duplicate_list, optional: true
-    path "versions.yml"          , emit: versions
-
-    when:
-    task.ext.when == null || task.ext.when
+    path "duplicates.txt"            , emit: duplicates_file, optional: true
+    path "versions.yml"              , emit: versions
 
     script:
-
     """
-    # Try to find and count duplicate contig headers
-    zgrep -h '>' *.fna.gz | sort | uniq -c | grep -v ' 1 ' > ./duplicate-contigs.txt || true
+    # Find duplicate contig names across all files
+    zgrep -H '>' *.fna.gz | sed 's/^[^:]*://' | sort | uniq -d > duplicate_contig_names.txt
 
-    # Check if duplicate-contigs.txt has any real content
-    if [ \$(wc -l < ./duplicate-contigs.txt) -gt 0 ]; then
-        echo "You have duplicate contig names"
-        cat ./duplicate-contigs.txt
-        exit 2
+    # If duplicates are found, identify which files contain them
+    if [ -s duplicate_contig_names.txt ]; then
+        while read contig; do
+            for file in *.fna.gz; do
+                if zgrep -q "\$contig" \$file; then
+                    echo "\$file" >> duplicates.txt
+                fi
+            done
+        done < duplicate_contig_names.txt
+
+        # Remove duplicates and sort the file list
+        sort -u duplicates.txt -o duplicates.txt
+    fi
+
+        # Remove duplicates.txt if it is empty
+    if [ ! -s duplicates.txt ]; then
+        rm -f duplicates.txt
     fi
 
     cat <<-END_VERSIONS > versions.yml
