@@ -47,6 +47,7 @@ workflow MAGMAP {
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
+
     //
     // INPUT: if user provides, populate ch_genomeinfo with a table that provides the genomes to filter with sourmash
     //
@@ -64,37 +65,21 @@ workflow MAGMAP {
     CHECK_DUPLICATES(ch_genomeinfo.map{ it.genome_fna }.collect())
     ch_versions = ch_versions.mix(CHECK_DUPLICATES.out.versions)
 
-    CHECK_DUPLICATES.out.duplicates_file
-        .map { it -> it.size() > 0 }
-        .filter { it }
-        .ifEmpty { null }
-        .combine(ch_genomeinfo.map { [ it.accno, it.genome_fna ] })
-        .branch {
-            to_rename: it[0] != null
-            to_skip: true
-        }
-        .set { ch_rename_branches }
+    if( params.rename_contigs ) {
+        RENAME_CONTIGS( ch_genomeinfo.map{ [ it.accno, it.genome_fna ] } )
+        ch_versions = ch_versions.mix(RENAME_CONTIGS.out.versions)
 
-    ch_rename_branches.to_rename
-        .map { it -> 
-            log.info "Duplicates found in the genome collection. Renaming contigs to avoid conflicts."
-            return it[1..-1]  // Return all elements except the first (which was the trigger)
-        }
-        .set { ch_fna_to_rename }
-    
-    RENAME_CONTIGS( ch_fna_to_rename )
-    ch_versions = ch_versions.mix(RENAME_CONTIGS.out.versions)
-
-    RENAME_CONTIGS.out.renamed_contigs
-        .map {
-            meta, fna ->
+        RENAME_CONTIGS.out.renamed_contigs
+            .map {
+                meta, fna ->
                 [
-                accno: meta,
-                genome_fna: fna,
-                genome_gff: ''
-                ] 
+                    accno: meta,
+                    genome_fna: fna,
+                    genome_gff: ''
+                ]
             }
-        .set { ch_genomeinfo }
+            .set { ch_genomeinfo }
+    }
 
     //
     // INPUT: genome info from ncbi
@@ -110,7 +95,7 @@ workflow MAGMAP {
     //
     ch_indexes = Channel.empty()
 
-    if ( params.indexes) {
+    if ( params.indexes ) {
         Channel
             .fromPath( params.indexes )
             .set { ch_indexes }
@@ -121,7 +106,7 @@ workflow MAGMAP {
     //
     ch_gtdb_metadata = Channel.empty()
 
-    if ( params.gtdb_metadata) {
+    if ( params.gtdb_metadata ) {
         Channel
             .of(params.gtdb_metadata.split(','))
             .map { file(it) }
@@ -146,7 +131,7 @@ workflow MAGMAP {
     // INPUT: CheckM metadata
     //
     ch_checkm_metadata = Channel.empty()
-    if ( params.checkm_metadata) {
+    if ( params.checkm_metadata ) {
         Channel
             .of(params.checkm_metadata.split(','))
             .map { file(it) }
@@ -167,7 +152,7 @@ workflow MAGMAP {
     // INPUT: GTDB-Tk metadata
     //
     ch_gtdbtk_metadata = Channel.empty()
-    if ( params.gtdbtk_metadata) {
+    if ( params.gtdbtk_metadata ) {
         Channel
             .of(params.gtdbtk_metadata.split(','))
             .map { file(it) }
@@ -185,7 +170,7 @@ workflow MAGMAP {
     //
     // gtdbtk_metadata and checkm_metadata need to be joined
     //
-    if ( params.gtdbtk_metadata && params.checkm_metadata && params.gtdb_metadata) {
+    if ( params.gtdbtk_metadata && params.checkm_metadata && params.gtdb_metadata ) {
         ch_gtdbtk_metadata
         .map{ accno, gtdbtk -> [ accno, gtdbtk ]}
         .join( ch_checkm_metadata
