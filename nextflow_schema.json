@@ -64,7 +64,7 @@
                 },
                 "rename_contigs": {
                     "type": "boolean",
-                    "description": "Activate when you want rename contigs header name. Useful when you run magmap after nf-core/mag."
+                    "description": "Activate when you want rename to contig names. Useful when you run magmap after nf-core/mag or in any other case when there's a risk you have the same name of contigs in different genomes."
                 },
                 "email": {
                     "type": "string",
