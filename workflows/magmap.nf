@@ -62,10 +62,23 @@ workflow MAGMAP {
     //
     // Check presence of duplicates contigs in the local genome collection
     //
-    CHECK_DUPLICATES(ch_genomeinfo.map{ it.genome_fna }.collect())
-    ch_versions = ch_versions.mix(CHECK_DUPLICATES.out.versions)
+    if (params.check_duplicates) {
+        CHECK_DUPLICATES(ch_genomeinfo.map{ it.genome_fna }.collect().map { [ [id: 'test'], it ] } )
+        ch_versions = ch_versions.mix(CHECK_DUPLICATES.out.versions)
 
-    if( params.rename_contigs ) {
+        // Check for duplicates and emit a value to rename_trigger if needed
+        CHECK_DUPLICATES.out.duplicates_file
+        .countLines()
+        .map { it.toInteger() }
+        .subscribe { count ->
+            if (count > 0) {
+                error """Your genomes have duplicate contig names. Either set --rename_duplicates and resume the pipeline to let the pipeline fix this, or fix the genome files manually and resume the pipeline. NB! deactivate params.check_duplicates and resume the pipeline."""
+            }
+        }
+    }
+
+    // RENAME_CONTIGS(rename_input)
+    if(  params.rename_contigs ) {
         RENAME_CONTIGS( ch_genomeinfo.map{ [ it.accno, it.genome_fna ] } )
         ch_versions = ch_versions.mix(RENAME_CONTIGS.out.versions)
 

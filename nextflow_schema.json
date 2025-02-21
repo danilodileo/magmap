@@ -62,6 +62,11 @@
                     "description": "Activate when you work with single ends reads.",
                     "fa_icon": "fas fa-arrows-alt-h"
                 },
+                "check_duplicates": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "Always active. If it finds duplicates in your contigs files, it will return an error with suggestions."
+                },
                 "rename_contigs": {
                     "type": "boolean",
                     "description": "Activate when you want rename to contig names. Useful when you run magmap after nf-core/mag or in any other case when there's a risk you have the same name of contigs in different genomes."
