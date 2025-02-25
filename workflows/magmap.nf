@@ -65,7 +65,7 @@ workflow MAGMAP {
     CHECK_DUPLICATES(ch_genomeinfo.map{ it.genome_fna }.collect().map { [ [id: 'check_duplicates'], it ] } )
     ch_versions = ch_versions.mix(CHECK_DUPLICATES.out.versions)
 
-    ch_duplicates = CHECK_DUPLICATES.out.result
+    ch_duplicates = CHECK_DUPLICATES.out.duplicate_genomes
         .flatMap { it.tokenize('\n') }
         .map {
             [
