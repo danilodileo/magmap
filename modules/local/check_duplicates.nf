@@ -8,7 +8,7 @@ process CHECK_DUPLICATES {
         'biocontainers/ubuntu:24.04' }"
 
     input:
-    tuple val(meta), path(fna)
+    tuple val(meta), path(fnas)
 
     output:
     stdout emit: result
