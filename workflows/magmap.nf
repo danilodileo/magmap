@@ -70,7 +70,7 @@ workflow MAGMAP {
         .map {
             [
                 it.replaceAll(/.*\//, '').replaceAll(/\.fna\.gz$/, '')
-            
+
             ]
         }.flatten()
 
