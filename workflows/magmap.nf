@@ -74,8 +74,8 @@ workflow MAGMAP {
         }.flatten()
 
     ch_check_duplicates = ch_genomeinfo.map { row ->
-    def basename = row.genome_fna.replaceAll(/.*\//, '').replaceAll(/\.fna\.gz$/, '')
-    row + [basename: basename]
+        def basename = row.genome_fna.replaceAll(/.*\//, '').replaceAll(/\.fna\.gz$/, '')
+        row + [basename: basename]
     }
 
     ch_check_duplicates = ch_check_duplicates.map {
