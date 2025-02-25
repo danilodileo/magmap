@@ -108,7 +108,7 @@ workflow MAGMAP {
         .map {
             meta, fna ->
             [
-                accno: meta,
+                accno: meta.id,
                 genome_fna: fna,
                 genome_gff: ''
             ]
@@ -557,9 +557,10 @@ workflow MAGMAP {
         .filter{ it.genome_gff }
         .set{ ch_genomes_with_gff }
 
+
     GUNZIP(ch_no_gff)
 
-    PROKKA(GUNZIP.out.gunzip, [], [])
+    PROKKA(GUNZIP.out.gunzip.map { meta, fna -> [ meta.id, fna ] }.view(), [], [])
 
     ch_genomes_with_gff
         .mix(PROKKA.out.gff
