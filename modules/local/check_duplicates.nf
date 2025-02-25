@@ -11,35 +11,17 @@ process CHECK_DUPLICATES {
     tuple val(meta), path(fna)
 
     output:
-    path "duplicates.txt"            , emit: duplicates_file, optional: true
-    tuple val(meta), path(fna)       , emit: fna, optional: true
+    stdout emit: result
     path "versions.yml"              , emit: versions
 
     script:
     prefix = task.ext.prefix ?: meta.id
 
     """
-    # Find duplicate contig names across all files
-    zgrep -H '>' *.fna.gz | sed 's/^[^:]*://' | sort | uniq -d > duplicate_contig_names.txt
-
-    # If duplicates are found, identify which files contain them
-    if [ -s duplicate_contig_names.txt ]; then
-        while read contig; do
-            for file in *.fna.gz; do
-                if zgrep -q "\$contig" \$file; then
-                    echo "\$file" >> duplicates.txt
-                fi
-            done
-        done < duplicate_contig_names.txt
-
-        # Remove duplicates and sort the file list
-        sort -u duplicates.txt -o duplicates.txt
-    fi
-
-        # Remove duplicates.txt if it is empty
-    if [ ! -s duplicates.txt ]; then
-        rm -f duplicates.txt
-    fi
+    zgrep -H '>' *.fna.gz | sed 's/^[^:]*://' | sort | uniq -d > temp_dupes.txt
+    zgrep -l -F -f temp_dupes.txt *.fna.gz | sort -u > duplicate_contig_names.txt || touch duplicate_contig_names.txt
+    rm temp_dupes.txt
+    cat duplicate_contig_names.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

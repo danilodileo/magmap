@@ -62,44 +62,62 @@ workflow MAGMAP {
     //
     // Check presence of duplicates contigs in the local genome collection
     //
-    if (params.check_duplicates) {
-        CHECK_DUPLICATES(ch_genomeinfo.map{ it.genome_fna }.collect().map { [ [id: 'test'], it ] } )
-        ch_versions = ch_versions.mix(CHECK_DUPLICATES.out.versions)
+    CHECK_DUPLICATES(ch_genomeinfo.map{ it.genome_fna }.collect().map { [ [id: 'check_duplicates'], it ] } )
+    ch_versions = ch_versions.mix(CHECK_DUPLICATES.out.versions)
 
-        // Check for duplicates and emit a value to rename_trigger if needed
-        CHECK_DUPLICATES.out.duplicates_file
-        .countLines()
-        .map { it.toInteger() }
-        .subscribe { count ->
-            if (count > 0) {
-                error """Your genomes have duplicate contig names. Either set --rename_duplicates and resume the pipeline to let the pipeline fix this, or fix the genome files manually and resume the pipeline. NB! deactivate params.check_duplicates and resume the pipeline."""
-            }
+    ch_duplicates = CHECK_DUPLICATES.out.result
+        .flatMap { it.tokenize('\n') }
+        .map { 
+            [
+                it.replaceAll(/.*\//, '').replaceAll(/\.fna\.gz$/, '')
+                
+            ] 
+        }.flatten()
+
+    ch_check_duplicates = ch_genomeinfo.map { row ->
+    def basename = row.genome_fna.replaceAll(/.*\//, '').replaceAll(/\.fna\.gz$/, '')
+    row + [basename: basename]
+    }
+
+    ch_check_duplicates = ch_check_duplicates.map {
+        [it.basename, it.accno, it.genome_fna, it.genome_gff]
+    }
+
+    ch_genomes_to_rename = ch_check_duplicates.
+        join(ch_duplicates)
+
+    ch_non_duplicates = ch_check_duplicates
+    .mix(ch_duplicates.map { dup -> [ dup, 1 ] }) // Add a sentinel value
+    .groupTuple()
+    .filter { 1 !in it[1] } // Keep only non-duplicates
+    .transpose()
+    .map { basename, accno, genome_fna, genome_gff -> [ accno: accno, genome_fna: genome_fna, genome_gff: genome_gff ] }
+    .set { ch_genome_no_duplicates }
+
+    RENAME_CONTIGS( ch_genomes_to_rename.map{ 
+            basename, accno, genome_fna, genome_gff -> [ accno, genome_fna ]
+        })
+    ch_versions = ch_versions.mix(RENAME_CONTIGS.out.versions)
+
+    RENAME_CONTIGS.out.renamed_contigs
+        .map {
+            meta, fna ->
+            [
+                accno: meta,
+                genome_fna: fna,
+                genome_gff: ''
+            ]
         }
-    }
+        .set { ch_renamed_contigs }
 
-    // RENAME_CONTIGS(rename_input)
-    if(  params.rename_contigs ) {
-        RENAME_CONTIGS( ch_genomeinfo.map{ [ it.accno, it.genome_fna ] } )
-        ch_versions = ch_versions.mix(RENAME_CONTIGS.out.versions)
-
-        RENAME_CONTIGS.out.renamed_contigs
-            .map {
-                meta, fna ->
-                [
-                    accno: meta,
-                    genome_fna: fna,
-                    genome_gff: ''
-                ]
-            }
-            .set { ch_genomeinfo }
-    }
+    ch_genomeinfo = ch_genome_no_duplicates.mix(ch_renamed_contigs)
 
     //
     // INPUT: genome info from ncbi
     //
     if ( params.ncbi_genome_infos) {
         Channel
-            .fromPath( params.ncbi_genome_infos )
+            .fromPath( params.ncbi_genome_infos ) 
             .set { ch_genome_infos }
     }
 
