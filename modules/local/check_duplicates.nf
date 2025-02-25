@@ -11,8 +11,11 @@ process CHECK_DUPLICATES {
     tuple val(meta), path(fnas)
 
     output:
-    stdout emit: result
+    stdout emit: duplicate_genomes
     path "versions.yml"              , emit: versions
+    
+    when:
+    task.ext.when == null || task.ext.when
 
     script:
     prefix = task.ext.prefix ?: meta.id
