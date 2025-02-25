@@ -67,11 +67,11 @@ workflow MAGMAP {
 
     ch_duplicates = CHECK_DUPLICATES.out.result
         .flatMap { it.tokenize('\n') }
-        .map { 
+        .map {
             [
                 it.replaceAll(/.*\//, '').replaceAll(/\.fna\.gz$/, '')
-                
-            ] 
+            
+            ]
         }.flatten()
 
     ch_check_duplicates = ch_genomeinfo.map { row ->
@@ -94,7 +94,7 @@ workflow MAGMAP {
     .map { basename, accno, genome_fna, genome_gff -> [ accno: accno, genome_fna: genome_fna, genome_gff: genome_gff ] }
     .set { ch_genome_no_duplicates }
 
-    RENAME_CONTIGS( ch_genomes_to_rename.map{ 
+    RENAME_CONTIGS( ch_genomes_to_rename.map{
             basename, accno, genome_fna, genome_gff -> [ [ id: accno ], genome_fna ]
         })
     ch_versions = ch_versions.mix(RENAME_CONTIGS.out.versions)
@@ -117,7 +117,7 @@ workflow MAGMAP {
     //
     if ( params.ncbi_genome_infos) {
         Channel
-            .fromPath( params.ncbi_genome_infos ) 
+            .fromPath( params.ncbi_genome_infos )
             .set { ch_genome_infos }
     }
 
