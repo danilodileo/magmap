@@ -86,12 +86,18 @@ workflow MAGMAP {
         join(ch_duplicates)
 
     ch_non_duplicates = ch_check_duplicates
-    .mix(ch_duplicates.map { dup -> [ dup, 1 ] }) // Add a sentinel value
-    .groupTuple()
-    .filter { 1 !in it[1] } // Keep only non-duplicates
-    .transpose()
-    .map { basename, accno, genome_fna, genome_gff -> [ accno: accno, genome_fna: genome_fna, genome_gff: genome_gff ] }
-    .set { ch_genome_no_duplicates }
+        .mix(ch_duplicates.map { dup -> [ dup, 1 ] }) // Add a sentinel value
+        .groupTuple()
+        .filter { 1 !in it[1] } // Keep only non-duplicates
+        .transpose()
+        .map {
+            basename, accno, genome_fna, genome_gff -> [
+                accno: accno,
+                genome_fna: genome_fna,
+                genome_gff: genome_gff 
+            ]
+        }
+        .set { ch_genome_no_duplicates }
 
     RENAME_CONTIGS( ch_genomes_to_rename.map{
             basename, accno, genome_fna, genome_gff -> [ [ id: accno ], genome_fna ]
