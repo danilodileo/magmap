@@ -25,4 +25,15 @@ process RENAME_CONTIGS {
         seqkit: \$(seqkit version | sed 's/seqkit v//' | sed 's/ Build.*//')
     END_VERSIONS
     """
+
+    stub:
+    def prefix = task.ext.prefix ?: meta.id
+    """
+    touch ${prefix}_renamed_contigs.fna.gz
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        seqkit: 2.3.1
+    END_VERSIONS
+    """
 }

@@ -13,6 +13,7 @@ process CHECK_DUPLICATES {
     output:
     stdout emit: duplicate_genomes
     path "versions.yml"              , emit: versions
+    path "${prefix}.genomes_with_duplicates.txt", emit: genomes_with_duplicates
     
     when:
     task.ext.when == null || task.ext.when
@@ -22,9 +23,9 @@ process CHECK_DUPLICATES {
 
     """
     zgrep -H '>' *.fna.gz | sed 's/^[^:]*://' | sort | uniq -d > temp_dupes.txt
-    zgrep -l -F -f temp_dupes.txt *.fna.gz | sort -u > duplicate_contig_names.txt || touch duplicate_contig_names.txt
+    zgrep -l -F -f temp_dupes.txt *.fna.gz | sort -u > ${prefix}.genomes_with_duplicates.txt || touch ${prefix}.genomes_with_duplicates.txt
     rm temp_dupes.txt
-    cat duplicate_contig_names.txt
+    cat ${prefix}.genomes_with_duplicates.txt
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
