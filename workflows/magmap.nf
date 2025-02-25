@@ -95,7 +95,7 @@ workflow MAGMAP {
     .set { ch_genome_no_duplicates }
 
     RENAME_CONTIGS( ch_genomes_to_rename.map{ 
-            basename, accno, genome_fna, genome_gff -> [ accno, genome_fna ]
+            basename, accno, genome_fna, genome_gff -> [ [ id: accno ], genome_fna ]
         })
     ch_versions = ch_versions.mix(RENAME_CONTIGS.out.versions)
 

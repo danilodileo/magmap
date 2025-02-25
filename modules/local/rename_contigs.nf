@@ -11,7 +11,7 @@ process RENAME_CONTIGS {
     tuple val(meta), path(contigs)
 
     output:
-    tuple val(meta), path("${meta}_renamed_contigs.fna.gz"), emit: renamed_contigs
+    tuple val(meta), path("${meta.id}_renamed_contigs.fna.gz"), emit: renamed_contigs
     path "versions.yml", emit: versions
 
     script:
