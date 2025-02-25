@@ -94,7 +94,7 @@ workflow MAGMAP {
             basename, accno, genome_fna, genome_gff -> [
                 accno: accno,
                 genome_fna: genome_fna,
-                genome_gff: genome_gff 
+                genome_gff: genome_gff
             ]
         }
         .set { ch_genome_no_duplicates }
