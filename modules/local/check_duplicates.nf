@@ -12,8 +12,8 @@ process CHECK_DUPLICATES {
 
     output:
     stdout emit: duplicate_genomes
-    path "versions.yml"              , emit: versions
     path "${prefix}.genomes_with_duplicates.txt", emit: genomes_with_duplicates
+    path "versions.yml"              , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
