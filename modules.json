@@ -98,7 +98,8 @@
                     "subread/featurecounts": {
                         "branch": "master",
                         "git_sha": "9508616bf800acc767de4678d6b86cfcb27b9aeb",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/subread/featurecounts/subread-featurecounts.diff"
                     },
                     "trimgalore": {
                         "branch": "master",
