@@ -611,7 +611,7 @@ workflow MAGMAP {
 
     ch_featurecounts = ch_stage_counts
         .combine(ch_features)
-        .map { meta, bam, gff, feature -> 
+        .map { meta, bam, gff, feature ->
             [ meta + [feature: feature], bam, gff ]
         }
 
@@ -624,7 +624,7 @@ workflow MAGMAP {
     FEATURECOUNTS.out.counts
     .map { meta, file -> [meta.feature, [meta, file]] }
     .groupTuple()
-    .map { feature, data -> 
+    .map { feature, data ->
         def metas = data.collect { it[0] }
         def files = data.collect { it[1] }
         [metas[0] + [feature: feature], files]

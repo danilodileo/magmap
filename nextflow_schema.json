@@ -192,6 +192,19 @@
             },
             "fa_icon": "fas fa-phone-alt"
         },
+        "featurecounts_option": {
+            "title": "FeatureCounts option",
+            "type": "object",
+            "description": "FeatureCounts option",
+            "default": "",
+            "properties": {
+                "features": {
+                    "type": "string",
+                    "description": "Specify which features to count",
+                    "default": "CDS,rRNA,tRNA,tmRNA"
+                }
+            }
+        },
         "sourmash_options": {
             "title": "Sourmash",
             "type": "object",
@@ -215,19 +228,6 @@
                 }
             },
             "fa_icon": "fas fa-filter"
-        },
-        "institutional_config_options": {
-            "title": "FeatureCounts options",
-            "type": "object",
-            "description": "All the options available for FeatureCounts",
-            "help_text": "FeatureCounts is a highly efficient general-purpose read summarization program that assigns mapped reads to genomic features such as genes, exons, promoter, gene bodies, genomic bins and other user-defined features.",
-            "properties": {
-                "features": {
-                    "type": "string",
-                    "description": "Comma-separated list of features to annotate.",
-                    "default": "CDS,rRNA,tRNA,tmRNA"
-                }
-            }
         },
         "institutional_config_options": {
             "title": "Institutional config options",
