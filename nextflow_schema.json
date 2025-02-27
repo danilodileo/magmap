@@ -192,6 +192,19 @@
             },
             "fa_icon": "fas fa-phone-alt"
         },
+        "featurecounts_option": {
+            "title": "FeatureCounts option",
+            "type": "object",
+            "description": "FeatureCounts option",
+            "default": "",
+            "properties": {
+                "features": {
+                    "type": "string",
+                    "description": "Specify which features to count",
+                    "default": "CDS,rRNA,tRNA,tmRNA"
+                }
+            }
+        },
         "sourmash_options": {
             "title": "Sourmash",
             "type": "object",
@@ -377,6 +390,9 @@
         },
         {
             "$ref": "#/$defs/prokka_option"
+        },
+        {
+            "$ref": "#/$defs/featurecounts_option"
         },
         {
             "$ref": "#/$defs/sourmash_options"

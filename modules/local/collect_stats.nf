@@ -54,7 +54,7 @@ process COLLECT_STATS {
     library(tidyr)
     library(stringr)
 
-    TYPE_ORDER = c('n_trimmed', 'n_non_contaminated', 'idxs_n_mapped', 'idxs_n_unmapped', 'n_feature_count')
+    TYPE_ORDER = c('n_trimmed', 'n_non_contaminated', 'idxs_n_mapped', 'idxs_n_unmapped', 'n_feature_count', 'n_feature_cds')
 
     # Collect stats for each sample, create a table in long format that can be appended to
     t <- tibble(sample = c("${samples.join('", "')}")) ${read_trimlogs}
@@ -78,7 +78,7 @@ process COLLECT_STATS {
         pivot_longer(2:ncol(.), names_to = 'm', values_to = 'v') %>%
         union(
             # Total observation after featureCounts
-            tibble(file = Sys.glob('magmap.all_samples.counts.tsv.gz')) %>%
+            tibble(file = Sys.glob('*.counts.tsv.gz')) %>%
                 mutate(
                     d = map(
                         file,
@@ -91,6 +91,23 @@ process COLLECT_STATS {
                 unnest(d) %>%
                 mutate(sample = as.character(sample)) %>%
                 group_by(sample) %>% summarise(n_feature_count = sum(count), .groups = 'drop') %>%
+                pivot_longer(2:ncol(.), names_to = 'm', values_to = 'v')
+        ) %>%
+        union(
+            # Total CDS observation after featureCounts
+            tibble(file = Sys.glob('*.CDS.counts.tsv.gz')) %>%
+                mutate(
+                    d = map(
+                        file,
+                        function(f) fread(cmd = sprintf("gunzip -c %s", f),
+                        sep = '\\t'
+                        )
+                    )
+                ) %>%
+                as_tibble() %>%
+                unnest(d) %>%
+                mutate(sample = as.character(sample)) %>%
+                group_by(sample) %>% summarise(n_feature_cds = sum(count), .groups = 'drop') %>%
                 pivot_longer(2:ncol(.), names_to = 'm', values_to = 'v')
         )
 

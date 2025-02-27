@@ -595,7 +595,7 @@ workflow MAGMAP {
 
     BAM_SORT_STATS_SAMTOOLS.out.bam
         .combine(CAT_GFFS.out.gff.map { it[1] })
-        .set { ch_featurecounts }
+        .set { ch_stage_counts }
 
     ch_collect_stats
         .combine(BAM_SORT_STATS_SAMTOOLS.out.idxstats.collect { it[1]}.map { [ it ] })
@@ -604,6 +604,17 @@ workflow MAGMAP {
     //
     // MODULE: FeatureCounts
     //
+    ch_features = Channel.of(
+        ['CDS'] + params.features.split(','))
+        .flatten()
+        .unique()
+
+    ch_featurecounts = ch_stage_counts
+        .combine(ch_features)
+        .map { meta, bam, gff, feature ->
+            [ meta + [feature: feature], bam, gff ]
+        }
+
     FEATURECOUNTS ( ch_featurecounts )
     ch_versions = ch_versions.mix(FEATURECOUNTS.out.versions)
 
@@ -611,11 +622,19 @@ workflow MAGMAP {
     // MODULE: Collect featurecounts output counts in one table
     //
     FEATURECOUNTS.out.counts
-        .collect() { it[1] }
-        .map { [ [ id:'all_samples'], it ] }
-        .set { ch_collect_features }
+    .map { meta, file -> [meta.feature, [meta, file]] }
+    .groupTuple()
+    .map { feature, data ->
+        def metas = data.collect { it[0] }
+        def files = data.collect { it[1] }
+        [metas[0] + [feature: feature], files]
+    }
+    .map { meta, data ->
+        [ [id: meta.feature ], data ]
+    }
+    .set { ch_collect_featurecounts }
 
-    COLLECT_FEATURECOUNTS ( ch_collect_features )
+    COLLECT_FEATURECOUNTS ( ch_collect_featurecounts )
     ch_versions           = ch_versions.mix(COLLECT_FEATURECOUNTS.out.versions)
     ch_fcs_for_stats      = COLLECT_FEATURECOUNTS.out.counts.collect { it[1]}.map { [ it ] }
     ch_fcs_for_summary    = COLLECT_FEATURECOUNTS.out.counts.map { it[1]}
