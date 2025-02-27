@@ -392,6 +392,9 @@
             "$ref": "#/$defs/prokka_option"
         },
         {
+            "$ref": "#/$defs/featurecounts_option"
+        },
+        {
             "$ref": "#/$defs/sourmash_options"
         },
         {
