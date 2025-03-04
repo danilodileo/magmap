@@ -8,7 +8,8 @@ include { CAT_CAT as GINDEX_CAT } from '../../modules/nf-core/cat/cat'
 include { PROKKAGFF2TSV         } from '../../modules/local/prokkagff2tsv'
 
 workflow CAT_GFFS {
-    take: ch_genome_gffs
+    take:
+    ch_genome_gffs
 
     main:
         ch_versions = Channel.empty()
@@ -17,9 +18,10 @@ workflow CAT_GFFS {
         ch_versions = ch_versions.mix(CAT_GFF.out.versions)
 
         GENOMEINDEX(ch_genome_gffs.collect())
+        ch_genomeindex = GENOMEINDEX.out.genomes2id.collect().map { [ [id: 'genomes_index'], it ] }
         ch_versions = ch_versions.mix(GENOMEINDEX.out.versions)
 
-        GINDEX_CAT(GENOMEINDEX.out.genomes2id.collect().map { [ [id: 'genomes_index'], it ] })
+        GINDEX_CAT(ch_genomeindex)
         ch_versions = ch_versions.mix(GINDEX_CAT.out.versions)
 
         PROKKAGFF2TSV(CAT_GFF.out.concatenated_files)

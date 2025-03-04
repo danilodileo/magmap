@@ -14,16 +14,12 @@ workflow SOURMASH {
         ch_user_genomeinfo
         ch_ncbi_genomeinfo_files
         ksize
+        save_unassigned
+        save_matches_sig
+        save_prefetch
+        save_prefetch_csv
 
     main:
-        // I like that you create named variables for these, but they look more like config file
-        // params than module arguments. Now, they *are* module arguments so we need to handle them,
-        // but wouldn't it be better to let the subworkflow take them, and expose them via parameters?
-        save_unassigned    = true
-        save_matches_sig   = true
-        save_prefetch      = true
-        save_prefetch_csv  = false
-
         ch_versions = Channel.empty()
 
         ch_ncbi_genomeinfo_files
@@ -64,7 +60,7 @@ workflow SOURMASH {
             .collect()
             .set{ ch_database }
 
-        SOURMASH_GATHER ( ch_sample_sigs, ch_database, save_unassigned, save_matches_sig, save_prefetch, save_prefetch_csv )
+        SOURMASH_GATHER ( ch_sample_sigs, ch_database, params.save_unassigned, params.save_matches_sig, params.save_prefetch, params.save_prefetch_csv )
         ch_versions = ch_versions.mix(SOURMASH_GATHER.out.versions)
 
         SOURMASH_GATHER.out.result
