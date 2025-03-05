@@ -53,10 +53,9 @@ workflow MAGMAP {
     //
     ch_genomeinfo = Channel.empty()
     if ( params.genomeinfo) {
-        Channel
+        ch_genomeinfo = Channel
             .fromPath( params.genomeinfo )
             .splitCsv( sep: ',', header: true )
-            .set { ch_genomeinfo }
     }
 
     //
@@ -97,14 +96,13 @@ workflow MAGMAP {
                 genome_gff: genome_gff
             ]
         }
-        .set { ch_genome_no_duplicates }
 
     RENAME_CONTIGS( ch_genomes_to_rename.map{
             basename, accno, genome_fna, genome_gff -> [ [ id: accno ], genome_fna ]
         })
     ch_versions = ch_versions.mix(RENAME_CONTIGS.out.versions)
 
-    RENAME_CONTIGS.out.renamed_contigs
+    ch_renamed_contigs = RENAME_CONTIGS.out.renamed_contigs
         .map {
             meta, fna ->
             [
@@ -113,7 +111,6 @@ workflow MAGMAP {
                 genome_gff: ''
             ]
         }
-        .set { ch_renamed_contigs }
 
     ch_genomeinfo = ch_genome_no_duplicates.mix(ch_renamed_contigs)
 
@@ -121,9 +118,8 @@ workflow MAGMAP {
     // INPUT: genome info from ncbi
     //
     if ( params.ncbi_genome_infos) {
-        Channel
+        ch_genome_infos = Channel
             .fromPath( params.ncbi_genome_infos )
-            .set { ch_genome_infos }
     }
 
     //
@@ -132,9 +128,8 @@ workflow MAGMAP {
     ch_indexes = Channel.empty()
 
     if ( params.indexes ) {
-        Channel
+        ch_indexes = Channel
             .fromPath( params.indexes )
-            .set { ch_indexes }
     }
 
     //
@@ -143,7 +138,7 @@ workflow MAGMAP {
     ch_gtdb_metadata = Channel.empty()
 
     if ( params.gtdb_metadata ) {
-        Channel
+        ch_gtdb_metadata = Channel
             .of(params.gtdb_metadata.split(','))
             .map { file(it) }
             .splitCsv( sep: '\t', header: true)
@@ -160,7 +155,6 @@ workflow MAGMAP {
                     gtdb_taxonomy: it.gtdb_taxonomy
                 ]
             }
-            .set { ch_gtdb_metadata }
     }
 
     //
@@ -168,7 +162,7 @@ workflow MAGMAP {
     //
     ch_checkm_metadata = Channel.empty()
     if ( params.checkm_metadata ) {
-        Channel
+        ch_checkm_metadata = Channel
             .of(params.checkm_metadata.split(','))
             .map { file(it) }
             .splitCsv( sep: '\t', header: true)
@@ -181,7 +175,6 @@ workflow MAGMAP {
                     genome_size: it["Genome size (bp)"]
                 ] ]
             }
-            .set { ch_checkm_metadata }
     }
 
     //
@@ -189,7 +182,7 @@ workflow MAGMAP {
     //
     ch_gtdbtk_metadata = Channel.empty()
     if ( params.gtdbtk_metadata ) {
-        Channel
+        ch_gtdbtk_metadata = Channel
             .of(params.gtdbtk_metadata.split(','))
             .map { file(it) }
             .splitCsv( sep: '\t', header: true)
@@ -200,14 +193,13 @@ workflow MAGMAP {
                     gtdb_taxonomy: it.classification
                 ] ]
             }
-            .set { ch_gtdbtk_metadata }
     }
 
     //
     // gtdbtk_metadata and checkm_metadata need to be joined
     //
     if ( params.gtdbtk_metadata && params.checkm_metadata && params.gtdb_metadata ) {
-        ch_gtdbtk_metadata
+        ch_checkm_gtdb_metadata = ch_gtdbtk_metadata
         .map{ accno, gtdbtk -> [ accno, gtdbtk ]}
         .join( ch_checkm_metadata
             .map{ accno, checkm -> [ accno, checkm ] }
@@ -228,9 +220,8 @@ workflow MAGMAP {
                     ]
                 ]
             }
-    .set { ch_checkm_gtdb_metadata }
 
-    ch_checkm_gtdb_metadata
+        ch_gtdbtk_checkm_filtered = ch_checkm_gtdb_metadata
             .map {
                 accno, gtdbtk_checkm -> accno[0]
             }
@@ -243,9 +234,8 @@ workflow MAGMAP {
                 ch_checkm_gtdb_metadata.map { accno, gtdbtk_checkm -> [ gtdbtk_checkm.accno, gtdbtk_checkm ] }
             )
             .map{ it[1]}
-        .set{ ch_gtdbtk_checkm_filtered }
 
-        ch_checkm_gtdb_metadata
+        ch_metadata = ch_checkm_gtdb_metadata
             .map {
                 accno, gtdbtk_checkm -> accno[0]
             }
@@ -259,10 +249,9 @@ workflow MAGMAP {
             )
             .map{ it[1]}
             .mix(ch_gtdbtk_checkm_filtered)
-            .set{ ch_metadata }
 
     } else if ( !params.gtdbtk_metadata && params.checkm_metadata && params.gtdb_metadata) {
-        ch_checkm_metadata
+        ch_checkm_metadata = ch_checkm_metadata
             .map{ accno, checkm -> [
                     accno,
                     [
@@ -278,9 +267,8 @@ workflow MAGMAP {
                     ]
                 ]
             }
-            .set { ch_checkm_metadata }
 
-        ch_checkm_metadata
+        ch_checkm_filtered = ch_checkm_metadata
             .map {
                 accno, checkm -> accno[0]
             }
@@ -293,9 +281,8 @@ workflow MAGMAP {
                 ch_checkm_metadata.map { accno, checkm -> [ checkm.accno, checkm ] }
             )
             .map{ it[1]}
-        .set{ ch_checkm_filtered }
 
-        ch_checkm_metadata
+        ch_metadata = ch_checkm_metadata
             .map {
                 accno, checkm -> accno[0]
             }
@@ -309,10 +296,9 @@ workflow MAGMAP {
             )
             .map{ it[1] }
             .mix(ch_checkm_filtered)
-        .set{ ch_metadata }
 
     } else if( params.gtdbtk_metadata && !params.checkm_metadata && params.gtdb_metadata) {
-        ch_gtdbtk_metadata
+        ch_gtdbtk_metadata = ch_gtdbtk_metadata
         .map{ accno, gtdbtk -> [ accno, gtdbtk ] }
         .map { accno, gtdbtk ->
                 [
@@ -330,9 +316,8 @@ workflow MAGMAP {
                     ]
                 ]
             }
-        .set { ch_gtdbtk_metadata }
 
-    ch_gtdbtk_metadata
+        ch_gtdbtk_filtered = ch_gtdbtk_metadata
             .map {
                 accno, gtdbtk -> accno[0]
             }
@@ -345,9 +330,8 @@ workflow MAGMAP {
                 ch_gtdbtk_metadata.map { accno, gtdbtk -> [ gtdbtk.accno, gtdbtk ] }
             )
             .map{ it[1]}
-        .set{ ch_gtdbtk_filtered }
 
-        ch_gtdbtk_metadata
+        ch_metadata = ch_gtdbtk_metadata
             .map {
                 accno, gtdbtk -> accno[0]
             }
@@ -361,9 +345,9 @@ workflow MAGMAP {
             )
             .map{ it[1]}
             .mix(ch_gtdbtk_filtered)
-        .set{ ch_metadata }
+
     } else if( params.gtdbtk_metadata && params.checkm_metadata && !params.gtdb_metadata) {
-        ch_gtdbtk_metadata
+        ch_metadata = ch_gtdbtk_metadata
             .map{ accno, gtdbtk -> [ accno, gtdbtk ] }
             .join( ch_checkm_metadata
             .map{ accno, checkm -> [ accno, checkm ] }
@@ -381,11 +365,12 @@ workflow MAGMAP {
                     gtdb_taxonomy: gtdbtk.gtdb_taxonomy
                     ]
             }
-        .set { ch_metadata }
+
     } else if( !params.gtdbtk_metadata && !params.checkm_metadata && !params.gtdb_metadata) {
         ch_metadata = Channel.empty()
+
     } else if( !params.gtdbtk_metadata && params.checkm_metadata && !params.gtdb_metadata) {
-        ch_checkm_metadata
+        ch_metadata = ch_checkm_metadata
             .map{ accno, checkm ->
                 [
                     accno: accno[0],
@@ -399,9 +384,9 @@ workflow MAGMAP {
                     gtdb_taxonomy: ""
                 ]
             }
-            .set { ch_metadata }
+
     } else if( params.gtdbtk_metadata && !params.checkm_metadata && !params.gtdb_metadata) {
-        ch_gtdbtk_metadata
+        ch_metadata = ch_gtdbtk_metadata
         .map{ accno, gtdbtk -> [ accno, gtdbtk ] }
         .map { accno, gtdbtk ->
                 [
@@ -416,7 +401,7 @@ workflow MAGMAP {
                     gtdb_taxonomy: gtdbtk.gtdb_taxonomy
                 ]
             }
-        .set { ch_metadata }
+
     } else if( !params.gtdbtk_metadata && !params.checkm_metadata && params.gtdb_metadata) {
         ch_metadata = ch_gtdb_metadata
     }
@@ -463,19 +448,18 @@ workflow MAGMAP {
 
     ch_collect_stats = ch_short_reads.collect { meta, fasta -> meta.id }.map { [ [ id:"magmap" ], it ] }
     if ( params.skip_trimming ) {
-        ch_collect_stats
+        ch_collect_stats = ch_collect_stats
             .map { meta, samples -> [ meta, samples, [] ] }
-            .set { ch_collect_stats }
 
     } else {
         if ( params.se_reads ) {
-            ch_collect_stats
+            ch_collect_stats = ch_collect_stats
                 .combine(FASTQC_TRIMGALORE.out.trim_log.collect { meta, report -> report }.map { [ it ] })
-                .set { ch_collect_stats }
+
         } else {
-            ch_collect_stats
+            ch_collect_stats = ch_collect_stats
                 .combine(FASTQC_TRIMGALORE.out.trim_log.collect { meta, report -> report[0] }.map { [ it ] })
-                .set { ch_collect_stats }
+
         }
     }
 
@@ -487,15 +471,15 @@ workflow MAGMAP {
         ch_clean_reads  = BBMAP_BBDUK.out.reads
         ch_bbduk_logs = BBMAP_BBDUK.out.log.collect { it[1] }.map { [ it ] }
         ch_versions   = ch_versions.mix(BBMAP_BBDUK.out.versions)
-        ch_collect_stats
+        ch_collect_stats = ch_collect_stats
             .combine(ch_bbduk_logs)
-            .set {ch_collect_stats}
+
     } else {
         ch_clean_reads  = FASTQC_TRIMGALORE.out.reads
         ch_bbduk_logs = Channel.empty()
-        ch_collect_stats
+        ch_collect_stats = ch_collect_stats
             .map { [ it[0], it[1], it[2], [] ] }
-            .set { ch_collect_stats }
+
     }
 
     //
@@ -516,14 +500,15 @@ workflow MAGMAP {
         )
         ch_versions = ch_versions.mix(SOURMASH.out.versions)
         ch_genomes = SOURMASH.out.filtered_genomes
+
     } else {
-        ch_genomeinfo
+        ch_genomes = ch_genomeinfo
             .map { [
                 accno: it.accno,
                 genome_fna: file(it.genome_fna),
                 genome_gff: it.genome_gff ? file(it.genome_gff) : ''
                 ] }
-            .set{ ch_genomes }
+
     }
 
     // filter the genomes for the metadata and save it in results/summary_tables directory
@@ -533,7 +518,7 @@ workflow MAGMAP {
             checkm_strain_heterogeneity\tcontig_count\tgenome_size\t \
             gtdb_genome_representative\tgtdb_representative\tgtdb_taxonomy")
 
-        ch_metadata
+        ch_metadata = ch_metadata
             .map { [ it.accno, it ] }
             .join( ch_genomes
                 .map{it.accno}
@@ -545,7 +530,6 @@ workflow MAGMAP {
                 $it.contig_count\t$it.genome_size\t \
                 $it.gtdb_genome_representative\t$it.gtdb_representative\t \
                 $it.gtdb_taxonomy" }
-        .set { ch_metadata }
 
         ch_header
             .concat( ch_metadata )
@@ -557,27 +541,24 @@ workflow MAGMAP {
     //
     // MODULE: Prokka - get gff for all genomes that lack of it
     //
-    ch_genomes
+    ch_no_gff = ch_genomes
         .filter{ !it.genome_gff }
         .map{ [ [id: it.accno ] , it.genome_fna ] }
-        .set { ch_no_gff }
 
     // GUNZIP gff files provided by the user
-    ch_genomes
+    ch_genomes_with_gff = ch_genomes
         .filter{ it.genome_gff }
-        .set{ ch_genomes_with_gff }
 
     GUNZIP(ch_no_gff)
 
     // PROKKA on the genomes that lack of gff
     PROKKA(GUNZIP.out.gunzip, [], [])
 
-    ch_genomes_with_gff
+    ch_ready_genomes = ch_genomes_with_gff
         .mix(PROKKA.out.gff
             .map{ meta, gff -> [ meta.id  , [ meta.id, gff ] ] }
             .join(ch_no_gff.map { meta, fna -> [ meta.id , [ meta.id, fna ] ] } )
             .map{ meta, gff, fna -> [ accno: gff[0], genome_fna: fna[1], genome_gff: gff[1] ] })
-        .set{ ch_ready_genomes }
 
     //
     // SUBWORKFLOW: Concatenate the genome fasta files and create a BBMap index
@@ -603,13 +584,11 @@ workflow MAGMAP {
     BAM_SORT_STATS_SAMTOOLS ( BBMAP_ALIGN.out.bam, CREATE_BBMAP_INDEX.out.genomes_fnas)
     ch_versions = ch_versions.mix(BAM_SORT_STATS_SAMTOOLS.out.versions)
 
-    BAM_SORT_STATS_SAMTOOLS.out.bam
+    ch_stage_counts = BAM_SORT_STATS_SAMTOOLS.out.bam
         .combine(CAT_GFFS.out.gff.map { it[1] })
-        .set { ch_stage_counts }
 
-    ch_collect_stats
+    ch_collect_stats = ch_collect_stats
         .combine(BAM_SORT_STATS_SAMTOOLS.out.idxstats.collect { it[1]}.map { [ it ] })
-        .set { ch_collect_stats }
 
     //
     // MODULE: FeatureCounts
@@ -631,7 +610,7 @@ workflow MAGMAP {
     //
     // MODULE: Collect featurecounts output counts in one table
     //
-    FEATURECOUNTS.out.counts
+    ch_collect_featurecounts = FEATURECOUNTS.out.counts
     .map { meta, file -> [meta.feature, [meta, file]] }
     .groupTuple()
     .map { feature, data ->
@@ -642,15 +621,13 @@ workflow MAGMAP {
     .map { meta, data ->
         [ [id: meta.feature ], data ]
     }
-    .set { ch_collect_featurecounts }
 
     COLLECT_FEATURECOUNTS ( ch_collect_featurecounts )
     ch_versions           = ch_versions.mix(COLLECT_FEATURECOUNTS.out.versions)
     ch_fcs_for_stats      = COLLECT_FEATURECOUNTS.out.counts.collect { it[1]}.map { [ it ] }
     ch_fcs_for_summary    = COLLECT_FEATURECOUNTS.out.counts.map { it[1]}
-    ch_collect_stats
+    ch_collect_stats = ch_collect_stats
         .combine(ch_fcs_for_stats)
-        .set { ch_collect_stats }
 
     //
     // Collect statistics from the pipeline
@@ -667,14 +644,12 @@ workflow MAGMAP {
     //
     // Collate and save software versions
     //
-    softwareVersionsToYAML(ch_versions)
+    ch_collated_versions = softwareVersionsToYAML(ch_versions)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
             name: 'nf_core_'  +  'magmap_software_'  + 'mqc_'  + 'versions.yml',
             sort: true,
             newLine: true
-        ).set { ch_collated_versions }
-
 
     //
     // MODULE: MultiQC
