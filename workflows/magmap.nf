@@ -30,8 +30,6 @@ include { paramsSummaryMap                       } from 'plugin/nf-schema'
 include { methodsDescriptionText                 } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
 include { softwareVersionsToYAML                 } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { BAM_SORT_STATS_SAMTOOLS                } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
-include { UTILS_NEXTFLOW_PIPELINE                } from '../subworkflows/nf-core/utils_nextflow_pipeline/main'
-include { UTILS_NFCORE_PIPELINE                  } from '../subworkflows/nf-core/utils_nfcore_pipeline/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
