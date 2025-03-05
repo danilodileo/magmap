@@ -60,7 +60,7 @@ workflow SOURMASH {
             .collect()
             .set{ ch_database }
 
-        SOURMASH_GATHER ( ch_sample_sigs, ch_database, params.save_unassigned, params.save_matches_sig, params.save_prefetch, params.save_prefetch_csv )
+        SOURMASH_GATHER ( ch_sample_sigs, ch_database, save_unassigned, save_matches_sig, save_prefetch, save_prefetch_csv )
         ch_versions = ch_versions.mix(SOURMASH_GATHER.out.versions)
 
         SOURMASH_GATHER.out.result

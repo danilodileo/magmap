@@ -84,7 +84,7 @@ workflow MAGMAP {
     ch_genomes_to_rename = ch_check_duplicates.
         join(ch_duplicates)
 
-    ch_non_duplicates = ch_check_duplicates
+    ch_genome_no_duplicates = ch_check_duplicates
         .mix(ch_duplicates.map { dup -> [ dup, 1 ] }) // Add a sentinel value
         .groupTuple()
         .filter { 1 !in it[1] } // Keep only non-duplicates
@@ -200,11 +200,11 @@ workflow MAGMAP {
     //
     if ( params.gtdbtk_metadata && params.checkm_metadata && params.gtdb_metadata ) {
         ch_checkm_gtdb_metadata = ch_gtdbtk_metadata
-        .map{ accno, gtdbtk -> [ accno, gtdbtk ]}
-        .join( ch_checkm_metadata
+            .map{ accno, gtdbtk -> [ accno, gtdbtk ]}
+            .join( ch_checkm_metadata
             .map{ accno, checkm -> [ accno, checkm ] }
-        )
-        .map { accno, gtdbtk, checkm ->
+            )
+            .map { accno, gtdbtk, checkm ->
                 [
                     accno,
                     [
@@ -280,7 +280,7 @@ workflow MAGMAP {
             .join(
                 ch_checkm_metadata.map { accno, checkm -> [ checkm.accno, checkm ] }
             )
-            .map{ it[1]}
+            .map{ it[1] }
 
         ch_metadata = ch_checkm_metadata
             .map {
@@ -329,7 +329,7 @@ workflow MAGMAP {
             .join(
                 ch_gtdbtk_metadata.map { accno, gtdbtk -> [ gtdbtk.accno, gtdbtk ] }
             )
-            .map{ it[1]}
+            .map{ it[1] }
 
         ch_metadata = ch_gtdbtk_metadata
             .map {
@@ -343,7 +343,7 @@ workflow MAGMAP {
             .join(
                 ch_gtdb_metadata.map { gtdb -> [ gtdb.accno, gtdb ] }
             )
-            .map{ it[1]}
+            .map{ it[1] }
             .mix(ch_gtdbtk_filtered)
 
     } else if( params.gtdbtk_metadata && params.checkm_metadata && !params.gtdb_metadata) {
@@ -387,7 +387,7 @@ workflow MAGMAP {
 
     } else if( params.gtdbtk_metadata && !params.checkm_metadata && !params.gtdb_metadata) {
         ch_metadata = ch_gtdbtk_metadata
-        .map{ accno, gtdbtk -> [ accno, gtdbtk ] }
+        .map { accno, gtdbtk -> [ accno, gtdbtk ] }
         .map { accno, gtdbtk ->
                 [
                     accno: accno[0],
@@ -555,10 +555,12 @@ workflow MAGMAP {
     PROKKA(GUNZIP.out.gunzip, [], [])
 
     ch_ready_genomes = ch_genomes_with_gff
-        .mix(PROKKA.out.gff
+        .mix(
+            PROKKA.out.gff
             .map{ meta, gff -> [ meta.id  , [ meta.id, gff ] ] }
             .join(ch_no_gff.map { meta, fna -> [ meta.id , [ meta.id, fna ] ] } )
-            .map{ meta, gff, fna -> [ accno: gff[0], genome_fna: fna[1], genome_gff: gff[1] ] })
+            .map{ meta, gff, fna -> [ accno: gff[0], genome_fna: fna[1], genome_gff: gff[1] ] }
+        )
 
     //
     // SUBWORKFLOW: Concatenate the genome fasta files and create a BBMap index
@@ -650,6 +652,7 @@ workflow MAGMAP {
             name: 'nf_core_'  +  'magmap_software_'  + 'mqc_'  + 'versions.yml',
             sort: true,
             newLine: true
+        )
 
     //
     // MODULE: MultiQC
@@ -691,7 +694,8 @@ workflow MAGMAP {
         []
     )
 
-    emit:multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
+    emit:
+    multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 
 }

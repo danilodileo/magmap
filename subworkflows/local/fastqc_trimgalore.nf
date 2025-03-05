@@ -20,7 +20,7 @@ workflow FASTQC_TRIMGALORE {
     fastqc_zip     = Channel.empty()
 
     if (!skip_fastqc) {
-        fastqc_html    = FASTQC ( reads ).html.
+        fastqc_html    = FASTQC ( reads ).html
         fastqc_zip     = FASTQC.out.zip
         ch_versions = ch_versions.mix(FASTQC.out.versions.first())
     }
