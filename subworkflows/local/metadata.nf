@@ -6,7 +6,7 @@ workflow METADATA {
     take:
     gtdb_metadata
     gtdbtk_metadata
-    checkm_metadata  
+    checkm_metadata 
 
     main:
     //
