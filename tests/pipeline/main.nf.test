@@ -19,13 +19,17 @@ nextflow_pipeline {
         assertAll(
             { assert new File("$outputDir/trimgalore/s0_1.fastq.gz_trimming_report.txt").exists() },
             { assert new File("$outputDir/trimgalore/fastqc/s0_1_val_1_fastqc.html").exists() },
-            { assert new File("$outputDir/samtools/s0.sorted.bam.bai").exists() },
             { assert new File("$outputDir/bbmap/logs/s0.bbmap.log").exists() },
-            { assert new File("$outputDir/featurecounts/s0.featureCounts.txt.summary").exists() },
-            { assert new File("$outputDir/summary_tables/all_samples_counts.tsv.gz").exists() },
-            { assert new File("$outputDir/summary_tables/magmap_overall_stats.tsv").exists() },
+            { assert new File("$outputDir/featurecounts/s0.CDS.featureCounts.tsv.summary").exists() },
+            { assert new File("$outputDir/summary_tables/magmap.CDS.counts.tsv.gz").exists() },
+            { assert new File("$outputDir/summary_tables/magmap.overall_stats.tsv.gz").exists() },
             { assert new File("$outputDir/multiqc/multiqc_report.html").exists() },
-            { assert new File("$outputDir/pipeline_info/nf_core_magmap_software_mqc_versions.yml").exists() }
+            { assert new File("$outputDir/pipeline_info/nf_core_magmap_software_mqc_versions.yml").exists() },
+            { assert snapshot(
+                        file("$outputDir/summary_tables/magmap.overall_stats.tsv.gz").name,
+                        file("$outputDir/summary_tables/magmap.all_samples_cds.counts.tsv.gz").name
+                    ).match()
+                }
             )
         }
     }
