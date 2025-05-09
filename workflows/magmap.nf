@@ -3,12 +3,34 @@
     IMPORT MODULES / SUBWORKFLOWS / FUNCTIONS
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
-include { FASTQC                 } from '../modules/nf-core/fastqc/main'
-include { MULTIQC                } from '../modules/nf-core/multiqc/main'
-include { paramsSummaryMap       } from 'plugin/nf-schema'
-include { paramsSummaryMultiqc   } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { methodsDescriptionText } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
+
+include { COLLECT_FEATURECOUNTS                  } from '../modules/local/collect_featurecounts'
+include { COLLECT_STATS                          } from '../modules/local/collect_stats'
+include { FILTER_GENOMES                         } from '../modules/local/filter_genomes'
+include { CHECK_DUPLICATES                       } from '../modules/local/check_duplicates'
+include { RENAME_CONTIGS                         } from '../modules/local/rename_contigs'
+include { validateInputSamplesheet               } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
+include { FASTQC_TRIMGALORE                      } from '../subworkflows/local/fastqc_trimgalore'
+include { CAT_GFFS                               } from '../subworkflows/local/concatenate_gff'
+include { CREATE_BBMAP_INDEX                     } from '../subworkflows/local/create_bbmap_index'
+include { SOURMASH                               } from '../subworkflows/local/sourmash'
+include { PIPELINE_INITIALISATION                } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
+include { PIPELINE_COMPLETION                    } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
+include { FASTQC                                 } from '../modules/nf-core/fastqc/main'
+include { MULTIQC                                } from '../modules/nf-core/multiqc/main'
+include { BBMAP_BBDUK                            } from '../modules/nf-core/bbmap/bbduk/main'
+include { BBMAP_ALIGN                            } from '../modules/nf-core/bbmap/align/main'
+include { SUBREAD_FEATURECOUNTS as FEATURECOUNTS } from '../modules/nf-core/subread/featurecounts/main'
+include { GUNZIP                                 } from '../modules/nf-core/gunzip/main'
+include { GUNZIP as GUNZIP_GFFS                  } from '../modules/nf-core/gunzip/main'
+include { PROKKA                                 } from '../modules/nf-core/prokka/main'
+include { CAT_FASTQ            	                 } from '../modules/nf-core/cat/fastq/main'
+include { METADATA                               } from '../subworkflows/local/metadata/'
+include { paramsSummaryMultiqc                   } from '../subworkflows/nf-core/utils_nfcore_pipeline/'
+include { paramsSummaryMap                       } from 'plugin/nf-schema'
+include { methodsDescriptionText                 } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
+include { softwareVersionsToYAML                 } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { BAM_SORT_STATS_SAMTOOLS                } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -25,8 +47,326 @@ workflow MAGMAP {
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
     //
-    // MODULE: Run FastQC
+    // INPUT: if user provides, populate ch_genomeinfo with a table that provides the genomes to filter with sourmash
     //
+    ch_genomeinfo = Channel.empty()
+    if ( params.genomeinfo) {
+        ch_genomeinfo = Channel
+            .fromPath( params.genomeinfo )
+            .splitCsv( sep: ',', header: true )
+    }
+
+    //
+    // Check presence of duplicates contigs in the local genome collection
+    //
+    CHECK_DUPLICATES(ch_genomeinfo.map{ it.genome_fna }.collect().map { [ [id: 'check_duplicates'], it ] } )
+    ch_versions = ch_versions.mix(CHECK_DUPLICATES.out.versions)
+
+    ch_duplicates = CHECK_DUPLICATES.out.duplicate_genomes
+        .flatMap { it.tokenize('\n') }
+        .map {
+            [
+                it.replaceAll(/.*\//, '').replaceAll(/\.fna\.gz$/, '')
+            ]
+        }.flatten()
+
+    ch_check_duplicates = ch_genomeinfo.map { row ->
+        def basename = row.genome_fna.replaceAll(/.*\//, '').replaceAll(/\.fna\.gz$/, '')
+        row + [basename: basename]
+    }
+
+    ch_check_duplicates = ch_check_duplicates.map {
+        [it.basename, it.accno, it.genome_fna, it.genome_gff]
+    }
+
+    ch_genomes_to_rename = ch_check_duplicates.
+        join(ch_duplicates)
+
+    ch_genome_no_duplicates = ch_check_duplicates
+        .mix(ch_duplicates.map { dup -> [ dup, 1 ] }) // Add a sentinel value
+        .groupTuple()
+        .filter { 1 !in it[1] } // Keep only non-duplicates
+        .transpose()
+        .map {
+            basename, accno, genome_fna, genome_gff -> [
+                accno: accno,
+                genome_fna: genome_fna,
+                genome_gff: genome_gff
+            ]
+        }
+
+    RENAME_CONTIGS( ch_genomes_to_rename.map{
+            basename, accno, genome_fna, genome_gff -> [ [ id: accno ], genome_fna ]
+        })
+    ch_versions = ch_versions.mix(RENAME_CONTIGS.out.versions)
+
+    ch_renamed_contigs = RENAME_CONTIGS.out.renamed_contigs
+        .map {
+            meta, fna ->
+            [
+                accno: meta.id,
+                genome_fna: fna,
+                genome_gff: ''
+            ]
+        }
+
+    ch_genomeinfo = ch_genome_no_duplicates.mix(ch_renamed_contigs)
+
+    //
+    // INPUT: genome info from ncbi
+    //
+    if ( params.ncbi_genome_infos) {
+        ch_genome_infos = Channel
+            .fromPath( params.ncbi_genome_infos )
+    }
+
+    //
+    // INPUT: if user provides, populate ch_indexes
+    //
+    ch_indexes = Channel.empty()
+
+    if ( params.indexes ) {
+        ch_indexes = Channel
+            .fromPath( params.indexes )
+    }
+
+    //
+    // SUBWORKFLOW: Read in metadata files and if presents, manipulate them and mix them with the genome info
+    //
+    METADATA(params.gtdb_metadata, params.gtdbtk_metadata, params.checkm_metadata)
+    ch_metadata = METADATA.out.metadata
+
+    //
+    // SUBWORKFLOW: Read in samplesheet, validate and stage input files
+    //
+    ch_short_reads_forcat = ch_samplesheet
+        .map { meta, reads ->
+            def meta_new = meta - meta.subMap('run')
+            [meta_new, reads]
+        }
+        .groupTuple()
+            .branch { meta, reads ->
+                cat: reads.size() >= 2
+                skip_cat: true
+        }
+    //
+    // MODULE: Concatenate FastQ files from same sample if required
+    //
+    CAT_FASTQ (ch_short_reads_forcat.cat.map { meta, reads -> [meta, reads.flatten()] })
+    ch_versions = ch_versions.mix(CAT_FASTQ.out.versions.first())
+
+    // Ensure we don't have nests of nests so that structure is in form expected for assembly
+    ch_short_reads_catskipped = ch_short_reads_forcat.skip_cat.map { meta, reads ->
+        def new_reads = meta.single_end ? reads[0] : reads.flatten()
+            [meta, new_reads]
+    }
+
+    // Combine single run and multi-run-merged data
+    ch_short_reads = Channel.empty()
+    ch_short_reads = CAT_FASTQ.out.reads.mix(ch_short_reads_catskipped)
+    ch_versions = ch_versions.mix(CAT_FASTQ.out.versions.first())
+
+    //
+    // SUBWORKFLOW: Read QC and trim adapters
+    //
+    FASTQC_TRIMGALORE (
+        ch_short_reads,
+        params.skip_fastqc || params.skip_qc,
+        params.skip_trimming
+    )
+    ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
+
+    ch_collect_stats = ch_short_reads.collect { meta, fasta -> meta.id }.map { [ [ id:"magmap" ], it ] }
+    if ( params.skip_trimming ) {
+        ch_collect_stats = ch_collect_stats
+            .map { meta, samples -> [ meta, samples, [] ] }
+
+    } else {
+        if ( params.se_reads ) {
+            ch_collect_stats = ch_collect_stats
+                .combine(FASTQC_TRIMGALORE.out.trim_log.collect { meta, report -> report }.map { [ it ] })
+
+        } else {
+            ch_collect_stats = ch_collect_stats
+                .combine(FASTQC_TRIMGALORE.out.trim_log.collect { meta, report -> report[0] }.map { [ it ] })
+
+        }
+    }
+
+    //
+    // MODULE: Run BBDuk to clean out whatever sequences the user supplied via params.sequence_filter
+    //
+    if ( params.sequence_filter ) {
+        BBMAP_BBDUK ( FASTQC_TRIMGALORE.out.reads, params.sequence_filter )
+        ch_clean_reads  = BBMAP_BBDUK.out.reads
+        ch_bbduk_logs = BBMAP_BBDUK.out.log.collect { it[1] }.map { [ it ] }
+        ch_versions   = ch_versions.mix(BBMAP_BBDUK.out.versions)
+        ch_collect_stats = ch_collect_stats
+            .combine(ch_bbduk_logs)
+
+    } else {
+        ch_clean_reads  = FASTQC_TRIMGALORE.out.reads
+        ch_bbduk_logs = Channel.empty()
+        ch_collect_stats = ch_collect_stats
+            .map { [ it[0], it[1], it[2], [] ] }
+
+    }
+
+    //
+    // SUBWORKFLOW: Use SOURMASH on samples reads and genomes to reduce the number of the latter
+    //
+    // we create a channel for ncbi genomes only when sourmash is called
+    if ( params.sourmash ) {
+        SOURMASH(
+            ch_clean_reads,
+            ch_indexes,
+            ch_genomeinfo,
+            ch_genome_infos,
+            params.ksize,
+            params.save_unassigned,
+            params.save_matches_sig,
+            params.save_prefetch,
+            params.save_prefetch_csv
+        )
+        ch_versions = ch_versions.mix(SOURMASH.out.versions)
+        ch_genomes = SOURMASH.out.filtered_genomes
+
+    } else {
+        ch_genomes = ch_genomeinfo
+            .map { [
+                accno: it.accno,
+                genome_fna: file(it.genome_fna),
+                genome_gff: it.genome_gff ? file(it.genome_gff) : ''
+                ] }
+
+    }
+
+    // filter the genomes for the metadata and save it in results/summary_tables directory
+    if( params.gtdbtk_metadata || params.checkm_metadata || params.gtdb_metadata) {
+        ch_header = Channel
+            .of( "accno\tcheckm_completeness\tcheckm_contamination\t \
+            checkm_strain_heterogeneity\tcontig_count\tgenome_size\t \
+            gtdb_genome_representative\tgtdb_representative\tgtdb_taxonomy")
+
+        ch_metadata = ch_metadata
+            .map { [ it.accno, it ] }
+            .join( ch_genomes
+                .map{it.accno}
+            )
+            .map{ it[1] }
+            .map {
+                "$it.accno\t$it.checkm_completeness\t \
+                $it.checkm_contamination\t$it.checkm_strain_heterogeneity\t \
+                $it.contig_count\t$it.genome_size\t \
+                $it.gtdb_genome_representative\t$it.gtdb_representative\t \
+                $it.gtdb_taxonomy" }
+
+        ch_header
+            .concat( ch_metadata )
+            .collectFile(name: "magmap.summary_table.taxonomy.tsv",
+            newLine: true,
+            storeDir: "${params.outdir}/summary_tables")
+    }
+
+    //
+    // MODULE: Prokka - get gff for all genomes that lack of it
+    //
+    ch_no_gff = ch_genomes
+        .filter{ !it.genome_gff }
+        .map{ [ [id: it.accno ] , it.genome_fna ] }
+
+    // GUNZIP gff files provided by the user
+    ch_genomes_with_gff = ch_genomes
+        .filter{ it.genome_gff }
+
+    GUNZIP(ch_no_gff)
+
+    // PROKKA on the genomes that lack of gff
+    PROKKA(GUNZIP.out.gunzip, [], [])
+
+    ch_ready_genomes = ch_genomes_with_gff
+        .mix(
+            PROKKA.out.gff
+            .map{ meta, gff -> [ meta.id  , [ meta.id, gff ] ] }
+            .join(ch_no_gff.map { meta, fna -> [ meta.id , [ meta.id, fna ] ] } )
+            .map{ meta, gff, fna -> [ accno: gff[0], genome_fna: fna[1], genome_gff: gff[1] ] }
+        )
+
+    //
+    // SUBWORKFLOW: Concatenate the genome fasta files and create a BBMap index
+    //
+    CREATE_BBMAP_INDEX ( ch_ready_genomes.map{ it.genome_fna } )
+    ch_versions = ch_versions.mix(CREATE_BBMAP_INDEX.out.versions)
+
+    //
+    // SUBWORKFLOW: Concatenate gff files
+    //
+    CAT_GFFS ( ch_ready_genomes.map{ it.genome_gff } )
+    ch_versions = ch_versions.mix(CAT_GFFS.out.versions)
+
+    //
+    // BBMAP ALIGN. Call BBMap with the index once per sample
+    //
+    BBMAP_ALIGN ( ch_clean_reads, CREATE_BBMAP_INDEX.out.index )
+    ch_versions = ch_versions.mix(BBMAP_ALIGN.out.versions)
+
+    //
+    // SUBWORKFLOW: sort bam file and produce statistics
+    //
+    BAM_SORT_STATS_SAMTOOLS ( BBMAP_ALIGN.out.bam, CREATE_BBMAP_INDEX.out.genomes_fnas)
+    ch_versions = ch_versions.mix(BAM_SORT_STATS_SAMTOOLS.out.versions)
+
+    ch_stage_counts = BAM_SORT_STATS_SAMTOOLS.out.bam
+        .combine(CAT_GFFS.out.gff.map { it[1] })
+
+    ch_collect_stats = ch_collect_stats
+        .combine(BAM_SORT_STATS_SAMTOOLS.out.idxstats.collect { it[1]}.map { [ it ] })
+
+    //
+    // MODULE: FeatureCounts
+    //
+    ch_features = Channel.of(
+        ['CDS'] + params.features.split(','))
+        .flatten()
+        .unique()
+
+    ch_featurecounts = ch_stage_counts
+        .combine(ch_features)
+        .map { meta, bam, gff, feature ->
+            [ meta + [feature: feature], bam, gff ]
+        }
+
+    FEATURECOUNTS ( ch_featurecounts )
+    ch_versions = ch_versions.mix(FEATURECOUNTS.out.versions)
+
+    //
+    // MODULE: Collect featurecounts output counts in one table
+    //
+    ch_collect_featurecounts = FEATURECOUNTS.out.counts
+    .map { meta, file -> [meta.feature, [meta, file]] }
+    .groupTuple()
+    .map { feature, data ->
+        def metas = data.collect { it[0] }
+        def files = data.collect { it[1] }
+        [metas[0] + [feature: feature], files]
+    }
+    .map { meta, data ->
+        [ [id: meta.feature ], data ]
+    }
+
+    COLLECT_FEATURECOUNTS ( ch_collect_featurecounts )
+    ch_versions           = ch_versions.mix(COLLECT_FEATURECOUNTS.out.versions)
+    ch_fcs_for_stats      = COLLECT_FEATURECOUNTS.out.counts.collect { it[1]}.map { [ it ] }
+    ch_fcs_for_summary    = COLLECT_FEATURECOUNTS.out.counts.map { it[1]}
+    ch_collect_stats = ch_collect_stats
+        .combine(ch_fcs_for_stats)
+
+    //
+    // Collect statistics from the pipeline
+    //
+    COLLECT_STATS(ch_collect_stats)
+    ch_versions     = ch_versions.mix(COLLECT_STATS.out.versions)
+
     FASTQC (
         ch_samplesheet
     )
@@ -36,14 +376,13 @@ workflow MAGMAP {
     //
     // Collate and save software versions
     //
-    softwareVersionsToYAML(ch_versions)
+    ch_collated_versions = softwareVersionsToYAML(ch_versions)
         .collectFile(
             storeDir: "${params.outdir}/pipeline_info",
             name: 'nf_core_'  +  'magmap_software_'  + 'mqc_'  + 'versions.yml',
             sort: true,
             newLine: true
         ).set { ch_collated_versions }
-
 
     //
     // MODULE: MultiQC

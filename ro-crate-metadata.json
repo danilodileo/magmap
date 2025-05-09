@@ -100,6 +100,7 @@
             "mentions": [
                 {
                     "@id": "#eaa1e7fb-ba94-464a-8ee8-bfc5718fcda4"
+                    "@id": "#69f49e1c-0ef8-45ee-bfdb-f3504ac22ac6"
                 }
             ],
             "name": "nf-core/magmap"
