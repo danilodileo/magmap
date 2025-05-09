@@ -51,8 +51,6 @@ process COLLECT_STATS {
     """
     #!/usr/bin/env Rscript
 
-    #library(data.table)
-    #library(dtplyr)
     library(dplyr)
     library(readr)
     library(purrr)
