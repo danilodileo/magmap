@@ -33,7 +33,7 @@ process GENOMEINDEX {
         else
             cat "\$f"
         fi | grep -o 'ID=[A-Z0-9_]\\+' | \
-            sed "s/^/\$ac\\t\$fn\\t/; s/ID=//" >> ${params.outfile_name}
+            sed "s/^/\$ac\\t\$fn\\t/; s/ID=//" >> ${outfilename}
     done
 
 
