@@ -4,7 +4,6 @@
 
 include { CAT_MANY as CAT_GFF   } from '../../modules/local/cat_many'
 include { GENOMES2ORFS          } from '../../modules/local/genomes2orfs'
-//include { CAT_CAT as G2ORFS_CAT } from '../../modules/nf-core/cat/cat'
 include { PROKKAGFF2TSV         } from '../../modules/local/prokkagff2tsv'
 
 workflow CAT_GFFS {
@@ -14,17 +13,11 @@ workflow CAT_GFFS {
     main:
         ch_versions = Channel.empty()
 
-        CAT_GFF([id:'cat.gff'], ch_genome_gffs.collect())
+        CAT_GFF([id:'genomes'], ch_genome_gffs.collect())
         ch_versions = ch_versions.mix(CAT_GFF.out.versions)
 
         GENOMES2ORFS(ch_genome_gffs.collect().map { gffs -> [ [ id: 'genomes' ], gffs ] })
-        //ch_genomeindex = GENOMES2ORFS.out.genomes2id.collect().map { [ [id: 'genome_index'], it ] }
         ch_versions = ch_versions.mix(GENOMES2ORFS.out.versions)
-
-        /**
-        G2ORFS_CAT(ch_genomeindex)
-        ch_versions = ch_versions.mix(G2ORFS_CAT.out.versions)
-        **/
 
         PROKKAGFF2TSV(CAT_GFF.out.concatenated_files)
         ch_versions = ch_versions.mix(PROKKAGFF2TSV.out.versions)
