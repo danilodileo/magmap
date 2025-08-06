@@ -2,7 +2,7 @@ process RENAME_CONTIGS {
     tag "${meta.id}"
     label 'process_low'
 
-    conda "bioconda::seqkit=2.3.1"
+    conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
         'https://depot.galaxyproject.org/singularity/seqkit:2.3.1--h9ee0642_0' :
         'quay.io/biocontainers/seqkit:2.3.1--h9ee0642_0' }"
@@ -11,14 +11,14 @@ process RENAME_CONTIGS {
     tuple val(meta), path(contigs)
 
     output:
-    tuple val(meta), path("${meta.id}_renamed_contigs.fna.gz"), emit: renamed_contigs
-    path "versions.yml", emit: versions
+    tuple val(meta), path("*.renamed.fna.gz"), emit: renamed_contigs
+    path "versions.yml"                      , emit: versions
 
     script:
     def prefix = task.ext.prefix ?: meta.id
 
     """
-    seqkit replace -p "^" -r "${prefix}_" $contigs | gzip -c > ${prefix}_renamed_contigs.fna.gz
+    seqkit replace -p "^" -r "${prefix}_" $contigs | gzip -c > ${prefix}.renamed.fna.gz
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
