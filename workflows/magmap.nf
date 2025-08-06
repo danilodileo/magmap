@@ -46,7 +46,6 @@ workflow MAGMAP {
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
-
     //
     // INPUT: if user provides, populate ch_genomeinfo with a table that provides the genomes to filter with sourmash
     //
@@ -406,8 +405,7 @@ workflow MAGMAP {
     )
 
     emit:
-    // NOTE multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
-    multiqc_report = Channel.empty()
+    multiqc_report = MULTIQC.out.report.toList() // channel: /path/to/multiqc_report.html
     versions       = ch_versions                 // channel: [ path(versions.yml) ]
 
 }
