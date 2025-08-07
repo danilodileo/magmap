@@ -54,9 +54,9 @@ workflow MAGMAP {
         Channel
             .fromPath( params.genomeinfo )
             .splitCsv( sep: ',', header: true )
-            .map { it -> [ 
-                    accno: it.accno, 
-                    genome_fna: file(it.genome_fna), 
+            .map { it -> [
+                    accno: it.accno,
+                    genome_fna: file(it.genome_fna),
                     genome_gff: it.genome_gff ? file(it.genome_gff) : []
                 ]
             }
@@ -69,7 +69,7 @@ workflow MAGMAP {
     ch_check_duplicates = ch_genomeinfo
         .map { it.genome_fna }
         .collect()
-        .map { [ [id: 'genomes'], it ] } 
+        .map { [ [id: 'genomes'], it ] }
     CHECK_DUPLICATES(ch_check_duplicates)
     ch_versions = ch_versions.mix(CHECK_DUPLICATES.out.versions)
 
@@ -77,7 +77,7 @@ workflow MAGMAP {
         .flatMap { it.tokenize('\n') }
         .map { fname -> [ fname.replaceAll(/.*\//, ''), true ] }
     ch_genomes_pre_renaming = ch_genomeinfo
-        .map { row -> [ row.genome_fna.getName(), row ] } 
+        .map { row -> [ row.genome_fna.getName(), row ] }
         .join(ch_duplicates, remainder: true)
         .map { row -> [ row[1], row[2] ] }
         .branch { row ->
