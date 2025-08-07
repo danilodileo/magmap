@@ -26,7 +26,7 @@ output:
       type: list
       description: List of filenames containing duplicates
   - genomes_with_duplicates:
-      - *.genomes_with_duplicates.txt:
+      - "*.genomes_with_duplicates.txt":
           type: file
           description: File with names of genomes containing duplicates
   - versions:

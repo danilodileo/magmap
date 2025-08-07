@@ -23,9 +23,9 @@ input:
           A gzipped fasta file with contigs
 output:
   - rename_contigs:
-      - *.renamed.fna.gz:
-        type: file
-        description: Gzipped fasta file with sequence names prepended with meta.id
+      - "*.renamed.fna.gz":
+          type: file
+          description: Gzipped fasta file with sequence names prepended with meta.id
   - versions:
       - versions.yml:
           type: file

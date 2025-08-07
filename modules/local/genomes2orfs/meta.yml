@@ -23,7 +23,7 @@ input:
           List of input gzipped or not gff files
 output:
   - genomes2id:
-      - *.genomes2orfs.tsv:
+      - "*.genomes2orfs.tsv":
           type: file
           description: TSV file with genome/orf information
   - versions:
