@@ -278,7 +278,6 @@
                 "s2.flagstat:md5,c68f046578ddd9c910e20c3a6bcbb528",
                 "s2.idxstats:md5,ad646291771f6deb791eb57cb760b780",
                 "s2.stats:md5,d432ddf3767d4c21254b079df6a4de61",
-                "genomes.genomes2orfs.tsv.gz:md5,2e1f911a8bc69b025e4a17f1f86f3942",
                 "magmap.CDS.counts.tsv.gz:md5,d30d72c90e9dabab6adc69c798a1c81f",
                 "magmap.genomes.prokka-annotations.tsv.gz:md5,f66fff5a178644f342d2553ffbacc510",
                 "magmap.overall_stats.tsv.gz:md5,9898c954c6344325a48ee3db8a31f46c",
@@ -298,6 +297,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.04.6"
         },
-        "timestamp": "2025-08-14T16:25:31.324065909"
+        "timestamp": "2025-08-14T17:09:35.337794219"
     }
 }
