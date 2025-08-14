@@ -4,7 +4,7 @@ lint:
     - docs/images/nf-core-metatdenovo_logo_light.png
   nextflow_config:
     - config_defaults:
-      - params.ncbi_genome_infos
+        - params.ncbi_genome_infos
 nf_core_version: 3.3.2
 repository_type: pipeline
 template:
