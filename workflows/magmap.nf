@@ -236,9 +236,7 @@ workflow MAGMAP {
 
         ch_metadata = ch_metadata
             .map { [ it.accno, it ] }
-            .join( ch_genomes
-                .map{it.accno}
-            )
+            .join(ch_genomes.map { it.accno })
             .map{ it[1] }
             .map {
                 "$it.accno\t$it.checkm_completeness\t \
@@ -299,7 +297,7 @@ workflow MAGMAP {
     //
     // SUBWORKFLOW: sort bam file and produce statistics
     //
-    BAM_SORT_STATS_SAMTOOLS ( BBMAP_ALIGN.out.bam, CREATE_BBMAP_INDEX.out.genomes_fnas)
+    BAM_SORT_STATS_SAMTOOLS ( BBMAP_ALIGN.out.bam, CREATE_BBMAP_INDEX.out.genome_fnas)
     ch_versions = ch_versions.mix(BAM_SORT_STATS_SAMTOOLS.out.versions)
 
     ch_stage_counts = BAM_SORT_STATS_SAMTOOLS.out.bam

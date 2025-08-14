@@ -1,8 +1,8 @@
 //
 // Create a BBMap index out of a set of fasta nucleotide files.
 //
-include { CAT_MANY as CAT_FNA } from '../../modules/local/cat_many'
-include { BBMAP_INDEX         } from '../../modules/nf-core/bbmap/index/main'
+include { CAT_MANY as CAT_FNA } from '../../../modules/local/cat_many'
+include { BBMAP_INDEX         } from '../../../modules/nf-core/bbmap/index/main'
 
 workflow CREATE_BBMAP_INDEX {
     take:
@@ -18,6 +18,6 @@ workflow CREATE_BBMAP_INDEX {
 
     emit:
     index         = BBMAP_INDEX.out.index.collect()
-    genomes_fnas  = CAT_FNA.out.concatenated_files.collect()
+    genome_fnas   = CAT_FNA.out.concatenated_files.collect()
     versions      = ch_versions
 }

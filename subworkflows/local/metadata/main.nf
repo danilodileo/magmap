@@ -1,5 +1,5 @@
 //
-// Manipulate the metadata tables to extract the genome information.
+// Manipulate GTDB metadata tables, GTDB-Tk and CheckM output to extract the genome information we want.
 //
 
 workflow METADATA {

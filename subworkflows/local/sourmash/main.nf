@@ -1,23 +1,23 @@
 //
-// select genomes from the downstream analysis that are identified by Sourmash
+// Select genomes from the downstream analysis that are identified by Sourmash
 //
 
-include { SOURMASH_GATHER                   } from '../../modules/nf-core/sourmash/gather/main'
-include { SOURMASH_SKETCH as GENOMES_SKETCH } from '../../modules/nf-core/sourmash/sketch/main'
-include { SOURMASH_INDEX  as GENOMES_INDEX  } from '../../modules/nf-core/sourmash/index/main'
-include { SOURMASH_SKETCH as SAMPLES_SKETCH } from '../../modules/nf-core/sourmash/sketch/main'
+include { SOURMASH_GATHER                   } from '../../../modules/nf-core/sourmash/gather/main'
+include { SOURMASH_SKETCH as GENOMES_SKETCH } from '../../../modules/nf-core/sourmash/sketch/main'
+include { SOURMASH_INDEX  as GENOMES_INDEX  } from '../../../modules/nf-core/sourmash/index/main'
+include { SOURMASH_SKETCH as SAMPLES_SKETCH } from '../../../modules/nf-core/sourmash/sketch/main'
 
 workflow SOURMASH {
     take:
-        ch_samples_reads
-        ch_indexes
-        ch_user_genomeinfo
-        ch_ncbi_genomeinfo_files
-        ksize
-        save_unassigned
-        save_matches_sig
-        save_prefetch
-        save_prefetch_csv
+        ch_sample_reads             // Fastq files with reads for each sample [ val(meta), [ path(reads) ] ]
+        ch_indexes                  // List of Sourmash indexs [ path(index) ]
+        ch_user_genomeinfo          // User provided genomes [ path(genome) ]
+        ch_ncbi_genomeinfo_files    // CSV file with paths to genome information in NCBI format, i.e. containing at least the assembly_accession and ftp_path fields: path(csvfile)
+        ksize                       // K-mere size to use: val(odd_int)
+        save_unassigned             // Boolean value passed to sourmash/gather
+        save_matches_sig            // Boolean value passed to sourmash/gather
+        save_prefetch               // Boolean value passed to sourmash/gather
+        save_prefetch_csv           // Boolean value passed to sourmash/gather
 
     main:
         ch_versions = Channel.empty()
@@ -37,7 +37,7 @@ workflow SOURMASH {
         GENOMES_SKETCH(ch_user_genomeinfo.map { [ [ id: it.accno ], it.genome_fna ] })
         ch_versions = ch_versions.mix(GENOMES_SKETCH.out.versions)
 
-        SAMPLES_SKETCH(ch_samples_reads)
+        SAMPLES_SKETCH(ch_sample_reads)
         ch_versions = ch_versions.mix(SAMPLES_SKETCH.out.versions)
 
         ch_sample_sigs = SAMPLES_SKETCH.out.signatures
