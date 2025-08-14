@@ -217,9 +217,6 @@
                 "trimgalore/s2_2.fastq.gz_trimming_report.txt"
             ],
             [
-                "s0.bbmap.log:md5,49fed73ccf00e8fa585fb49402173f34",
-                "s1.bbmap.log:md5,13579922d68d72f09bd8e65ddff654ae",
-                "s2.bbmap.log:md5,786b099860180f1740f178bdea30a1f3",
                 "genomes.genomes_with_duplicates.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
                 "s0.CDS.featureCounts.tsv:md5,c46ad2f282d938b1822cd180e80af3b5",
                 "s0.CDS.featureCounts.tsv.summary:md5,cce142e4d8a19d734d198d112b937f5b",
@@ -287,6 +284,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.04.6"
         },
-        "timestamp": "2025-08-14T10:20:02.698100397"
+        "timestamp": "2025-08-14T11:59:49.733507305"
     }
 }
