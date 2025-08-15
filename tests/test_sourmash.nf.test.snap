@@ -1,7 +1,7 @@
 {
     "-profile test_sourmash": {
         "content": [
-            59,
+            57,
             {
                 "BBMAP_ALIGN": {
                     "bbmap": 39.18,
@@ -50,12 +50,6 @@
                 },
                 "GENOMES_SKETCH": {
                     "sourmash": "4.8.14"
-                },
-                "GUNZIP": {
-                    "gunzip": 1.13
-                },
-                "PROKKA": {
-                    "prokka": "1.14.6"
                 },
                 "PROKKAGFF2TSV": {
                     "R": "4.2.3",
@@ -236,30 +230,6 @@
             ],
             [
                 "genomes.genomes_with_duplicates.txt:md5,d41d8cd98f00b204e9800998ecf8427e",
-                "s0.CDS.featureCounts.tsv:md5,d1c0337dad39dd805d77dca5ebe92616",
-                "s0.CDS.featureCounts.tsv.summary:md5,cce142e4d8a19d734d198d112b937f5b",
-                "s0.rRNA.featureCounts.tsv:md5,8176b84367787993bdd1a73e7d7aabb7",
-                "s0.rRNA.featureCounts.tsv.summary:md5,b9244610eb0035e6ab51c2dd09777a56",
-                "s0.tRNA.featureCounts.tsv:md5,a1b4abf0c52c52705fbb28b349e3b8e2",
-                "s0.tRNA.featureCounts.tsv.summary:md5,0b043e6c97ffeaffa0ceec9920c1b872",
-                "s0.tmRNA.featureCounts.tsv:md5,a34816dcb217180cb02aac0ade795874",
-                "s0.tmRNA.featureCounts.tsv.summary:md5,0dae4feb46c09241cae7b169f9eb70ee",
-                "s1.CDS.featureCounts.tsv:md5,ea3935d8f7468c3b861d0aa7d165a7ee",
-                "s1.CDS.featureCounts.tsv.summary:md5,463d9fb12bfaf9a1e45b3b347bae8435",
-                "s1.rRNA.featureCounts.tsv:md5,40ab0d58587a0a18874555cdfd07e133",
-                "s1.rRNA.featureCounts.tsv.summary:md5,bcca181c262a0551058b4aaa1833aecf",
-                "s1.tRNA.featureCounts.tsv:md5,ec524d4a97b9521b37d4449e10d12ea1",
-                "s1.tRNA.featureCounts.tsv.summary:md5,3676e7344f64b60585df464ba96b90e7",
-                "s1.tmRNA.featureCounts.tsv:md5,9bc3c01da8410d99abb388ca2a13f831",
-                "s1.tmRNA.featureCounts.tsv.summary:md5,cb927566558e2d08c7aca47e07a2b580",
-                "s2.CDS.featureCounts.tsv:md5,2d5b506a24ccb4806ea239822ebab402",
-                "s2.CDS.featureCounts.tsv.summary:md5,23cae669e4683d87fd7a1bcc013df35d",
-                "s2.rRNA.featureCounts.tsv:md5,c3a83206b4b3d284d799af36a921cdd0",
-                "s2.rRNA.featureCounts.tsv.summary:md5,c5373e0abe6213c1b8eeae9bbc0ff0f5",
-                "s2.tRNA.featureCounts.tsv:md5,cadf86b68f44643c08dd18ee2b4c4984",
-                "s2.tRNA.featureCounts.tsv.summary:md5,1a66b0bb5e14113248ea4314c3484141",
-                "s2.tmRNA.featureCounts.tsv:md5,346621eee80bfa06ec081b8b82759f72",
-                "s2.tmRNA.featureCounts.tsv.summary:md5,904a7b4103f641bf29c3c70038bf8f2b",
                 "fastqc-status-check-heatmap.txt:md5,dc1bf56fcdaf9d486c808354b9af6fc6",
                 "fastqc_adapter_content_plot.txt:md5,847ded8ccf3c10ab66d421e61933a899",
                 "fastqc_overrepresented_sequences_plot.txt:md5,882815485253c9c8d4dcbf3c3d58d364",
@@ -273,34 +243,14 @@
                 "multiqc_citations.txt:md5,4c806e63a283ec1b7e78cdae3a923d4f",
                 "multiqc_fastqc.txt:md5,ce7f1eb1bdf9591922528372e806963d",
                 "multiqc_general_stats.txt:md5,78b2c328015423377db1ecc9f095f946",
-                "s0.flagstat:md5,f8eaaafad9434db9438ec25d48ba9047",
-                "s0.idxstats:md5,ee64df2a385cf0b023f0b8fd5da2aac5",
-                "s0.stats:md5,2a15acaba6c5591c783b7588057225ce",
-                "s1.flagstat:md5,f8eaaafad9434db9438ec25d48ba9047",
-                "s1.idxstats:md5,ee64df2a385cf0b023f0b8fd5da2aac5",
-                "s1.stats:md5,d1eda48753582cd094ec13e39783b7b7",
-                "s2.flagstat:md5,4d05ddc07bd94348b66ece68f70cc681",
-                "s2.idxstats:md5,2dc16df0c1ea5099ca6c91f40818b48b",
-                "s2.stats:md5,9d38a5a7b6d24a49986c0d28b51c3261",
-                "magmap.CDS.counts.tsv.gz:md5,27bba7f539f3e9024064f54d32377f2d",
-                "magmap.genomes.prokka-annotations.tsv.gz:md5,c19fdcc97beb6dc93e9d631ed04d36d0",
-                "magmap.overall_stats.tsv.gz:md5,9898c954c6344325a48ee3db8a31f46c",
-                "magmap.rRNA.counts.tsv.gz:md5,b7fc022f697435d774149776d8ddd5fe",
-                "magmap.tRNA.counts.tsv.gz:md5,65f49b21539219a7e423fbcb331484c2",
-                "magmap.tmRNA.counts.tsv.gz:md5,8d7af9b46b1eeb22b8f6a590822fa388",
-                "versions.yml:md5,45fea9f37ee50b872e18ca387c9d704d",
-                "s0_1_val_1_fastqc.html:md5,3a3c9644eb162ee8d85e7d0a5fd3b18c",
-                "s0_2_val_2_fastqc.html:md5,5d891e7709869506cbf80d88221885f4",
-                "s1_1_val_1_fastqc.html:md5,e88f9308413c812448307eab98dffef3",
-                "s1_2_val_2_fastqc.html:md5,bccf7481747a9e5ab0ba30ef627326ae",
-                "s2_1_val_1_fastqc.html:md5,acba289b11fc12878dce4193fa738e2b",
-                "s2_2_val_2_fastqc.html:md5,493fa7c90c34c2c84edd2d701bd83abc"
+                "magmap.overall_stats.tsv.gz:md5,02cf83bb55dc03d42d55de81edfb9038",
+                "versions.yml:md5,45fea9f37ee50b872e18ca387c9d704d"
             ]
         ],
         "meta": {
             "nf-test": "0.9.2",
             "nextflow": "25.04.6"
         },
-        "timestamp": "2025-08-14T23:16:14.874771732"
+        "timestamp": "2025-08-15T08:43:40.073630093"
     }
 }

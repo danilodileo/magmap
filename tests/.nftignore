@@ -1,6 +1,8 @@
 .DS_Store
 bbmap/logs/*.log
 fastqc/*_fastqc.{html,zip}
+featurecounts/*.featureCounts.tsv
+featurecounts/*.featureCounts.tsv.summary
 multiqc/multiqc_data/BETA-multiqc.parquet
 multiqc/multiqc_data/fastqc_top_overrepresented_sequences_table.txt
 multiqc/multiqc_data/llms-full.txt
@@ -11,12 +13,11 @@ multiqc/multiqc_data/multiqc_sources.txt
 multiqc/multiqc_plots/{svg,pdf,png}/*.{svg,pdf,png}
 multiqc/multiqc_report.html
 pipeline_info/*.{html,json,txt,yml}
+samtools/*.flagstat
+samtools/*.idxstats
+samtools/*.stats
+summary_tables/*.counts.tsv.gz
 summary_tables/genomes.genomes2orfs.tsv.gz
+summary_tables/magmap.genomes.prokka-annotations.tsv.gz
+trimgalore/fastqc/*_fastqc.{html,zip}
 trimgalore/*trimming_report.txt
-*.featureCounts.tsv
-*.featureCounts.tsv.summary
-*.flagstat
-*.idxstats
-*.stats
-*.counts.tsv.gz
-magmap.genomes.prokka-annotations.tsv.gz
