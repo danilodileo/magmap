@@ -7,6 +7,7 @@ multiqc/multiqc_data/BETA-multiqc.parquet
 multiqc/multiqc_data/fastqc_top_overrepresented_sequences_table.txt
 multiqc/multiqc_data/llms-full.txt
 multiqc/multiqc_data/multiqc_data.json
+multiqc/multiqc_data/multiqc_general_stats.txt
 multiqc/multiqc_data/multiqc.log
 multiqc/multiqc_data/multiqc_software_versions.txt
 multiqc/multiqc_data/multiqc_sources.txt
@@ -19,5 +20,6 @@ samtools/*.stats
 summary_tables/*.counts.tsv.gz
 summary_tables/genomes.genomes2orfs.tsv.gz
 summary_tables/magmap.genomes.prokka-annotations.tsv.gz
+summary_tables/magmap.overall_stats.tsv.gz
 trimgalore/fastqc/*_fastqc.{html,zip}
 trimgalore/*trimming_report.txt
