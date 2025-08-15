@@ -13,3 +13,10 @@ multiqc/multiqc_report.html
 pipeline_info/*.{html,json,txt,yml}
 summary_tables/genomes.genomes2orfs.tsv.gz
 trimgalore/*trimming_report.txt
+*.featureCounts.tsv
+*.featureCounts.tsv.summary
+*.flagstat
+*.idxstats
+*.stats
+*.counts.tsv.gz
+magmap.genomes.prokka-annotations.tsv.gz
