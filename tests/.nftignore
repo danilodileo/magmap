@@ -18,9 +18,6 @@ pipeline_info/nf_core_magmap_software_mqc_versions.yml
 samtools/*.flagstat
 samtools/*.idxstats
 samtools/*.stats
-summary_tables/*.counts.tsv.gz
-summary_tables/genomes.genomes2orfs.tsv.gz
-summary_tables/magmap.genomes.prokka-annotations.tsv.gz
-summary_tables/magmap.overall_stats.tsv.gz
+summary_tables/*.tsv.gz
 trimgalore/fastqc/*_fastqc.{html,zip}
 trimgalore/*trimming_report.txt

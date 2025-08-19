@@ -249,12 +249,12 @@ workflow MAGMAP {
         ch_genome_metadata = ch_header
             .concat(ch_metadata)
             .collectFile(
-                name: "magmap.genome.metadata.tsv",
+                name: "magmap.genomes.metadata.tsv",
                 newLine: true
             )
             .view { "collected: $it" }
 
-        PIGZ_GENOME_METADATA(ch_genome_metadata.map { file -> [ [ id: 'magmap.genome_metadata' ], file ] })
+        PIGZ_GENOME_METADATA(ch_genome_metadata.map { file -> [ [ id: 'genome_metadata' ], file ] })
         ch_versions = ch_versions.mix(PIGZ_GENOME_METADATA.out.versions)
     }
 
