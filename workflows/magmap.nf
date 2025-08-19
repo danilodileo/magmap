@@ -21,16 +21,16 @@ include { MULTIQC                                } from '../modules/nf-core/mult
 include { BBMAP_BBDUK                            } from '../modules/nf-core/bbmap/bbduk/main'
 include { BBMAP_ALIGN                            } from '../modules/nf-core/bbmap/align/main'
 include { SUBREAD_FEATURECOUNTS as FEATURECOUNTS } from '../modules/nf-core/subread/featurecounts/main'
-include { GUNZIP                                 } from '../modules/nf-core/gunzip/main'
-include { GUNZIP as GUNZIP_GFFS                  } from '../modules/nf-core/gunzip/main'
+include { PIGZ_UNCOMPRESS as GUNZIP_CONTIGS      } from '../modules/nf-core/pigz/uncompress/main'
 include { PROKKA                                 } from '../modules/nf-core/prokka/main'
 include { CAT_FASTQ            	                 } from '../modules/nf-core/cat/fastq/main'
 include { METADATA                               } from '../subworkflows/local/metadata/'
+include { BAM_SORT_STATS_SAMTOOLS                } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
+include { PIGZ_COMPRESS as PIGZ_GENOME_METADATA  } from '../modules/nf-core/pigz/compress'
 include { paramsSummaryMultiqc                   } from '../subworkflows/nf-core/utils_nfcore_pipeline/'
 include { paramsSummaryMap                       } from 'plugin/nf-schema'
 include { methodsDescriptionText                 } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
 include { softwareVersionsToYAML                 } from '../subworkflows/nf-core/utils_nfcore_pipeline'
-include { BAM_SORT_STATS_SAMTOOLS                } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -229,27 +229,33 @@ workflow MAGMAP {
 
     // filter the genomes for the metadata and save it in results/summary_tables directory
     if( params.gtdbtk_metadata || params.checkm_metadata || params.gtdb_metadata) {
-        ch_header = Channel
-            .of( "accno\tcheckm_completeness\tcheckm_contamination\t \
+        ch_header = Channel.of(
+            "accno\tcheckm_completeness\tcheckm_contamination\t \
             checkm_strain_heterogeneity\tcontig_count\tgenome_size\t \
-            gtdb_genome_representative\tgtdb_representative\tgtdb_taxonomy")
+            gtdb_genome_representative\tgtdb_representative\tgtdb_taxonomy"
+        )
 
         ch_metadata = ch_metadata
             .map { [ it.accno, it ] }
-            .join(ch_genomes.map { it.accno })
-            .map{ it[1] }
-            .map {
-                "$it.accno\t$it.checkm_completeness\t \
-                $it.checkm_contamination\t$it.checkm_strain_heterogeneity\t \
-                $it.contig_count\t$it.genome_size\t \
-                $it.gtdb_genome_representative\t$it.gtdb_representative\t \
-                $it.gtdb_taxonomy" }
+            .join(ch_genomes.map { genome_record -> genome_record.accno })
+            .map { accno, info ->
+                "$info.accno\t$info.checkm_completeness\t \
+                $info.checkm_contamination\t$info.checkm_strain_heterogeneinfoy\t \
+                $info.contig_count\t$info.genome_size\t \
+                $info.gtdb_genome_representative\t$info.gtdb_representative\t \
+                $info.gtdb_taxonomy" 
+            }
 
-        ch_header
-            .concat( ch_metadata )
-            .collectFile(name: "magmap.summary_table.taxonomy.tsv",
-            newLine: true,
-            storeDir: "${params.outdir}/summary_tables")
+        ch_genome_metadata = ch_header
+            .concat(ch_metadata)
+            .collectFile(
+                name: "magmap.genome.metadata.tsv",
+                newLine: true
+            )
+            .view { "collected: $it" }
+
+        PIGZ_GENOME_METADATA(ch_genome_metadata.map { file -> [ [ id: 'magmap.genome_metadata' ], file ] })
+        ch_versions = ch_versions.mix(PIGZ_GENOME_METADATA.out.versions)
     }
 
     //
@@ -260,10 +266,10 @@ workflow MAGMAP {
     ch_no_gff = ch_genomes
         .filter { g -> ! g.genome_gff }
         .map { g -> [ [ id: g.accno ], g.genome_fna ] }
-    GUNZIP(ch_no_gff)
-    ch_versions = ch_versions.mix(GUNZIP.out.versions)
+    GUNZIP_CONTIGS(ch_no_gff)
+    ch_versions = ch_versions.mix(GUNZIP_CONTIGS.out.versions)
 
-    PROKKA(GUNZIP.out.gunzip, [], [])
+    PROKKA(GUNZIP_CONTIGS.out.file, [], [])
     ch_versions = ch_versions.mix(PROKKA.out.versions)
 
     // PROKKA on the genomes that lack gff
