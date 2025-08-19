@@ -243,7 +243,7 @@ workflow MAGMAP {
                 $info.checkm_contamination\t$info.checkm_strain_heterogeneinfoy\t \
                 $info.contig_count\t$info.genome_size\t \
                 $info.gtdb_genome_representative\t$info.gtdb_representative\t \
-                $info.gtdb_taxonomy" 
+                $info.gtdb_taxonomy"
             }
 
         ch_genome_metadata = ch_header
