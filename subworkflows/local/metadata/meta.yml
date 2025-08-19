@@ -1,0 +1,31 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/nf-core/modules/master/subworkflows/yaml-schema.json
+name: metadata
+description: Manipulate the GTDB metadata tables to extract the genome information we want
+keywords:
+  - gtdb
+  - metadata
+  - genome
+input:
+  - gtdb_metadata:
+      description: |
+        Comma-separated list of paths to GTDB metadata files
+        Structure: [ filepaths ]
+  - gtdbtk_metadata:
+      description: |
+        Comma-separated list of paths to GTDB-Tk metadata files
+        Structure: [ filepaths ]
+  - checkm_metadata:
+      description: |
+        Comma-separated list of paths to CheckM metadata files
+        Structure: [ filepaths ]
+output:
+  - stats:
+      ch_metadata: |
+        TSV file containing selected GTDB metadata
+        Structure: path(metadata)
+authors:
+  - "@danilodileo"
+  - "@erikrikarddaniel"
+maintainers:
+  - "@danilodileo"
+  - "@erikrikarddaniel"

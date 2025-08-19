@@ -1,5 +1,5 @@
 //
-// Manipulate the metadata tables to extract the genome information.
+// Manipulate GTDB metadata tables, GTDB-Tk and CheckM output to extract the genome information we want.
 //
 
 workflow METADATA {
@@ -230,7 +230,7 @@ workflow METADATA {
             .map{ accno, checkm -> [ accno, checkm ] }
             )
             .map { accno, gtdbtk, checkm ->
-                    [
+                [
                     accno: accno[0],
                     checkm_completeness: checkm.checkm_completeness,
                     checkm_contamination: checkm.checkm_contamination,
@@ -240,7 +240,7 @@ workflow METADATA {
                     gtdb_genome_representative: gtdbtk.gtdb_genome_representative,
                     gtdb_representative: gtdbtk.gtdb_representative,
                     gtdb_taxonomy: gtdbtk.gtdb_taxonomy
-                    ]
+                ]
             }
 
     } else if( !gtdbtk_metadata && !checkm_metadata && !gtdb_metadata) {
