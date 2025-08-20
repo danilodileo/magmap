@@ -32,6 +32,9 @@ workflow PIPELINE_INITIALISATION {
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
     input             //  string: Path to input samplesheet
+    gtdb_metadata     //  string: Paths to GTDB metadata files
+    gtdbtk_metadata   //  string: Path to GTDB-Tk metadata file
+    checkm_metadata   //  string: Path to GTDB metadata file
 
     main:
 
@@ -71,7 +74,6 @@ workflow PIPELINE_INITIALISATION {
     //
     // Create channel from input file provided through params.input
     //
-
     Channel
         .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
         .map {
@@ -92,9 +94,36 @@ workflow PIPELINE_INITIALISATION {
         }
         .set { ch_samplesheet }
 
+    //
+    // Take care of genome metadata files
+    //
+    ch_gtdb_metadata = Channel.empty()
+    if ( gtdb_metadata ) {
+        ch_gtdb_metadata = Channel
+            .of(gtdb_metadata.split(','))
+            .map { file(it) }
+    }
+
+    ch_gtdbtk_metadata = Channel.empty()
+    if ( gtdbtk_metadata ) {
+        ch_gtdbtk_metadata = Channel
+            .of(gtdbtk_metadata.split(','))
+            .map { file(it) }
+    }
+
+    ch_checkm_metadata = Channel.empty()
+    if ( checkm_metadata ) {
+        ch_checkm_metadata = Channel
+            .of(checkm_metadata.split(','))
+            .map { file(it) }
+    }
+
     emit:
-    samplesheet = ch_samplesheet
-    versions    = ch_versions
+    samplesheet     = ch_samplesheet
+    gtdb_metadata   = ch_gtdb_metadata
+    gtdbtk_metadata = ch_gtdbtk_metadata
+    checkm_metadata = ch_checkm_metadata
+    versions        = ch_versions
 }
 
 /*

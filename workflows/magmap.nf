@@ -41,7 +41,11 @@ include { softwareVersionsToYAML                 } from '../subworkflows/nf-core
 workflow MAGMAP {
 
     take:
-    ch_samplesheet // channel: samplesheet read in from --input
+    ch_samplesheet      // channel: samplesheet read in from --input
+    ch_gtdb_metadata    // channel: GTDB metadata files
+    ch_gtdbtk_metadata  // channel: GTDB-Tk metadata files
+    ch_checkm_metadata  // channel: CheckM/CheckM2 metadata files
+
     main:
 
     ch_versions = Channel.empty()
@@ -115,9 +119,9 @@ workflow MAGMAP {
     }
 
     //
-    // SUBWORKFLOW: Read in metadata files and if presents, manipulate them and mix them with the genome info
+    // SUBWORKFLOW: Read metadata files, manipulate them and mix them with the genome info
     //
-    METADATA(params.gtdb_metadata, params.gtdbtk_metadata, params.checkm_metadata)
+    METADATA(ch_gtdb_metadata, ch_gtdbtk_metadata, ch_checkm_metadata)
     ch_metadata = METADATA.out.metadata
 
     //

@@ -31,7 +31,10 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_magm
 workflow NFCORE_MAGMAP {
 
     take:
-    samplesheet // channel: samplesheet read in from --input
+    samplesheet     // channel: samplesheet read in from --input
+    gtdb_metadata   // channel: GTDB metadata files
+    gtdbtk_metadata // channel: GTDB-Tk metadata files
+    checkm_metadata // channel: CheckM/CheckM2 metadata files
 
     main:
 
@@ -39,7 +42,10 @@ workflow NFCORE_MAGMAP {
     // WORKFLOW: Run pipeline
     //
     MAGMAP (
-        samplesheet
+        samplesheet,
+        gtdb_metadata,
+        gtdbtk_metadata,
+        checkm_metadata
     )
     emit:
     multiqc_report = MAGMAP.out.multiqc_report // channel: /path/to/multiqc_report.html
@@ -63,15 +69,22 @@ workflow {
         params.monochrome_logs,
         args,
         params.outdir,
-        params.input
+        params.input,
+        params.gtdb_metadata,
+        params.gtdbtk_metadata,
+        params.checkm_metadata
     )
 
     //
     // WORKFLOW: Run main workflow
     //
     NFCORE_MAGMAP (
-        PIPELINE_INITIALISATION.out.samplesheet
+        PIPELINE_INITIALISATION.out.samplesheet,
+        PIPELINE_INITIALISATION.out.gtdb_metadata,
+        PIPELINE_INITIALISATION.out.gtdbtk_metadata,
+        PIPELINE_INITIALISATION.out.checkm_metadata
     )
+
     //
     // SUBWORKFLOW: Run completion tasks
     //
