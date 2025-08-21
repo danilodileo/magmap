@@ -24,9 +24,8 @@ include { SUBREAD_FEATURECOUNTS as FEATURECOUNTS } from '../modules/nf-core/subr
 include { PIGZ_UNCOMPRESS as GUNZIP_CONTIGS      } from '../modules/nf-core/pigz/uncompress/main'
 include { PROKKA                                 } from '../modules/nf-core/prokka/main'
 include { CAT_FASTQ            	                 } from '../modules/nf-core/cat/fastq/main'
-include { METADATA                               } from '../subworkflows/local/metadata/'
+include { TIDYVERSE_JOINMETADATA                 } from '../modules/local/tidyverse/joinmetadata/'
 include { BAM_SORT_STATS_SAMTOOLS                } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
-include { PIGZ_COMPRESS as PIGZ_GENOME_METADATA  } from '../modules/nf-core/pigz/compress'
 include { paramsSummaryMultiqc                   } from '../subworkflows/nf-core/utils_nfcore_pipeline/'
 include { paramsSummaryMap                       } from 'plugin/nf-schema'
 include { methodsDescriptionText                 } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
@@ -119,12 +118,6 @@ workflow MAGMAP {
     }
 
     //
-    // SUBWORKFLOW: Read metadata files, manipulate them and mix them with the genome info
-    //
-    METADATA(ch_gtdb_metadata, ch_gtdbtk_metadata, ch_checkm_metadata)
-    ch_metadata = METADATA.out.metadata
-
-    //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
     ch_short_reads_forcat = ch_samplesheet
@@ -133,9 +126,9 @@ workflow MAGMAP {
             [meta_new, reads]
         }
         .groupTuple()
-            .branch { meta, reads ->
-                cat: reads.size() >= 2
-                skip_cat: true
+        .branch { meta, reads ->
+            cat: reads.size() >= 2
+            skip_cat: true
         }
 
     //
@@ -231,36 +224,20 @@ workflow MAGMAP {
         ch_genomes = ch_genomes_post_renaming
     }
 
-    // filter the genomes for the metadata and save it in results/summary_tables directory
-    if( params.gtdbtk_metadata || params.checkm_metadata || params.gtdb_metadata) {
-        ch_header = Channel.of(
-            "accno\tcheckm_completeness\tcheckm_contamination\t \
-            checkm_strain_heterogeneity\tcontig_count\tgenome_size\t \
-            gtdb_genome_representative\tgtdb_representative\tgtdb_taxonomy"
-        )
-
-        ch_metadata = ch_metadata
-            .map { [ it.accno, it ] }
-            .join(ch_genomes.map { genome_record -> genome_record.accno })
-            .map { accno, info ->
-                "$info.accno\t$info.checkm_completeness\t \
-                $info.checkm_contamination\t$info.checkm_strain_heterogeneinfoy\t \
-                $info.contig_count\t$info.genome_size\t \
-                $info.gtdb_genome_representative\t$info.gtdb_representative\t \
-                $info.gtdb_taxonomy"
-            }
-
-        ch_genome_metadata = ch_header
-            .concat(ch_metadata)
+    //
+    // MODULE: Join and filter genome metadata
+    //
+    TIDYVERSE_JOINMETADATA(
+        ch_genomes
             .collectFile(
-                name: "magmap.genomes.metadata.tsv",
+                name: 'selected_genomes.tsv',
                 newLine: true
-            )
-            .view { "collected: $it" }
-
-        PIGZ_GENOME_METADATA(ch_genome_metadata.map { file -> [ [ id: 'genome_metadata' ], file ] })
-        ch_versions = ch_versions.mix(PIGZ_GENOME_METADATA.out.versions)
-    }
+            ) { genome_record -> genome_record.accno },
+        ch_gtdb_metadata.collect().ifEmpty([]),
+        ch_gtdbtk_metadata.collect().ifEmpty([]),
+        ch_checkm_metadata.collect().ifEmpty([])
+    )
+    ch_versions = ch_versions.mix(TIDYVERSE_JOINMETADATA.out.versions.first())
 
     //
     // MODULE: Prokka - get gff for all genomes that lack it

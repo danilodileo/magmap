@@ -1,7 +1,7 @@
 {
     "-profile test": {
         "content": [
-            51,
+            52,
             {
                 "BBMAP_ALIGN": {
                     "bbmap": 39.18,
@@ -67,6 +67,10 @@
                 },
                 "SAMTOOLS_STATS": {
                     "samtools": 1.21
+                },
+                "TIDYVERSE_JOINMETADATA": {
+                    "R": "4.4.1",
+                    "tidyverse": "2.0.0"
                 },
                 "TRIMGALORE": {
                     "trimgalore": "0.6.10",
@@ -183,6 +187,7 @@
                 "summary_tables",
                 "summary_tables/genomes.genomes2orfs.tsv.gz",
                 "summary_tables/magmap.CDS.counts.tsv.gz",
+                "summary_tables/magmap.genome_metadata.tsv.gz",
                 "summary_tables/magmap.genomes.prokka-annotations.tsv.gz",
                 "summary_tables/magmap.overall_stats.tsv.gz",
                 "summary_tables/magmap.rRNA.counts.tsv.gz",
@@ -222,6 +227,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.04.6"
         },
-        "timestamp": "2025-08-19T19:20:24.763665647"
+        "timestamp": "2025-08-21T17:39:05.324694193"
     }
 }
