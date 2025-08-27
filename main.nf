@@ -45,6 +45,7 @@ workflow NFCORE_MAGMAP {
     sourmash_save_matches_sig   // boolean
     sourmash_save_prefetch      // boolean
     sourmash_save_prefetch_csv  // boolean
+    features                    // channel: types of features to call
     skip_fastqc                 // boolean
     skip_qc                     // boolean
     skip_trimming               // boolean
@@ -69,6 +70,7 @@ workflow NFCORE_MAGMAP {
         sourmash_save_matches_sig,
         sourmash_save_prefetch,
         sourmash_save_prefetch_csv,
+        features,
         skip_fastqc,
         skip_qc,
         skip_trimming
@@ -101,7 +103,8 @@ workflow {
         params.indexes,
         params.gtdb_metadata,
         params.gtdbtk_metadata,
-        params.checkm_metadata
+        params.checkm_metadata,
+        params.features
     )
 
     //
@@ -122,6 +125,7 @@ workflow {
         params.sourmash_save_matches_sig,
         params.sourmash_save_prefetch,
         params.sourmash_save_prefetch_csv,
+        PIPELINE_INITIALISATION.out.features,
         params.skip_fastqc,
         params.skip_qc,
         params.skip_trimming

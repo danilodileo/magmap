@@ -54,6 +54,7 @@ workflow MAGMAP {
     sourmash_save_matches_sig   // boolean
     sourmash_save_prefetch      // boolean
     sourmash_save_prefetch_csv  // boolean
+    ch_features                 // channel: list of feature types to call
     skip_fastqc                 // boolean
     skip_qc                     // boolean
     skip_trimming               // boolean
@@ -170,7 +171,6 @@ workflow MAGMAP {
         ch_versions   = ch_versions.mix(BBMAP_BBDUK.out.versions)
 
         ch_clean_reads = BBMAP_BBDUK.out.reads
-        ch_clean_reads.view { "BBDUK ch_clean_reads: $it" }
         ch_bbduk_logs = BBMAP_BBDUK.out.log.collect { it[1] }.map { [ it ] }
         ch_collect_stats = ch_collect_stats
             .combine(ch_bbduk_logs)
@@ -275,18 +275,14 @@ workflow MAGMAP {
     //
     // MODULE: FeatureCounts
     //
-    ch_features = Channel.of(
-        ['CDS'] + params.features.split(','))
-        .flatten()
-        .unique()
-
+    ch_features.view { "ch_features: $it" }
     ch_featurecounts = ch_stage_counts
         .combine(ch_features)
         .map { meta, bam, gff, feature ->
             [ meta + [feature: feature], bam, gff ]
         }
 
-    FEATURECOUNTS ( ch_featurecounts )
+    FEATURECOUNTS(ch_featurecounts)
     ch_versions = ch_versions.mix(FEATURECOUNTS.out.versions)
 
     //

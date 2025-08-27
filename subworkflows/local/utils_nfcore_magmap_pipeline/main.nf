@@ -38,6 +38,7 @@ workflow PIPELINE_INITIALISATION {
     gtdb_metadata           //  string: Paths to GTDB metadata files
     gtdbtk_metadata         //  string: Path to GTDB-Tk metadata file
     checkm_metadata         //  string: Path to GTDB metadata file
+    features                //  string: Comma-separated string of feature types
 
     main:
 
@@ -157,6 +158,11 @@ workflow PIPELINE_INITIALISATION {
             .map { file(it) }
     }
 
+    ch_features = Channel.of(
+        ['CDS'] + features.split(','))
+        .flatten()
+        .unique()
+
     emit:
     samplesheet             = ch_samplesheet
     genomeinfo              = ch_genomeinfo
@@ -165,6 +171,7 @@ workflow PIPELINE_INITIALISATION {
     gtdb_metadata           = ch_gtdb_metadata
     gtdbtk_metadata         = ch_gtdbtk_metadata
     checkm_metadata         = ch_checkm_metadata
+    features                = ch_features
     versions                = ch_versions
 }
 
