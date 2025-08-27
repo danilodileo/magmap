@@ -40,7 +40,6 @@
                 },
                 "remote_genome_sources": {
                     "type": "string",
-                    "default": "${projectDir}/assets/ncbi_genome_infos.csv",
                     "description": "Path to a file with paths to tsv files with information about genomes in NCBI 'assembly_summary' format. The default file contains GenBank and RefSeq summary files.",
                     "help_text": "The summary files pointed to in the file need to contain the column '#assembly_accession', referring to genome identifiers used in sourmash indexes and 'ftp_path' pointing. The directory structure of the 'ftp_path' paths needs to conform with NCBI standards and contain a contig file with the pattern '<accno>*_genomic.fna.gz'.",
                     "fa_icon": "fas fa-network-wired"
