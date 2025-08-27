@@ -49,6 +49,7 @@ workflow NFCORE_MAGMAP {
     skip_fastqc                 // boolean
     skip_qc                     // boolean
     skip_trimming               // boolean
+    outdir                      //  string: path to output directory
 
     main:
 
@@ -73,7 +74,8 @@ workflow NFCORE_MAGMAP {
         features,
         skip_fastqc,
         skip_qc,
-        skip_trimming
+        skip_trimming,
+        outdir
     )
     emit:
     multiqc_report = MAGMAP.out.multiqc_report // channel: /path/to/multiqc_report.html
@@ -128,7 +130,8 @@ workflow {
         PIPELINE_INITIALISATION.out.features,
         params.skip_fastqc,
         params.skip_qc,
-        params.skip_trimming
+        params.skip_trimming,
+        params.outdir
     )
 
     //

@@ -44,7 +44,7 @@ workflow MAGMAP {
     ch_genomeinfo               // channel: genome information sheet read in from --genomeinfo
     ch_remote_genome_sources    // channel: paths to NCBI-style genome summary files
     ch_indexes                  // channel: user-provided Sourmash indexes
-    sequence_filter          // channel: fasta file for BBDuk
+    sequence_filter             //  string: fasta file for BBDuk
     ch_gtdb_metadata            // channel: GTDB metadata files
     ch_gtdbtk_metadata          // channel: GTDB-Tk metadata files
     ch_checkm_metadata          // channel: CheckM/CheckM2 metadata files
@@ -58,6 +58,7 @@ workflow MAGMAP {
     skip_fastqc                 // boolean
     skip_qc                     // boolean
     skip_trimming               // boolean
+    outdir                      //  string: output directory
 
     main:
 
@@ -275,7 +276,6 @@ workflow MAGMAP {
     //
     // MODULE: FeatureCounts
     //
-    ch_features.view { "ch_features: $it" }
     ch_featurecounts = ch_stage_counts
         .combine(ch_features)
         .map { meta, bam, gff, feature ->
@@ -318,7 +318,7 @@ workflow MAGMAP {
     //
     ch_collated_versions = softwareVersionsToYAML(ch_versions)
         .collectFile(
-            storeDir: "${params.outdir}/pipeline_info",
+            storeDir: "${outdir}/pipeline_info",
             name: 'nf_core_'  +  'magmap_software_'  + 'mqc_'  + 'versions.yml',
             sort: true,
             newLine: true
