@@ -44,9 +44,16 @@ workflow MAGMAP {
     ch_genomeinfo               // channel: genome information sheet read in from --genomeinfo
     ch_remote_genome_sources    // channel: paths to NCBI-style genome summary files
     ch_indexes                  // channel: user-provided Sourmash indexes
+    sequence_filter          // channel: fasta file for BBDuk
     ch_gtdb_metadata            // channel: GTDB metadata files
     ch_gtdbtk_metadata          // channel: GTDB-Tk metadata files
     ch_checkm_metadata          // channel: CheckM/CheckM2 metadata files
+    sourmash                    // boolean: run Sourmash or not
+    sourmash_ksize              // integer
+    sourmash_save_unassigned    // boolean
+    sourmash_save_matches_sig   // boolean
+    sourmash_save_prefetch      // boolean
+    sourmash_save_prefetch_csv  // boolean
     skip_fastqc                 // boolean
     skip_qc                     // boolean
     skip_trimming               // boolean
@@ -156,38 +163,38 @@ workflow MAGMAP {
     }
 
     //
-    // MODULE: Run BBDuk to clean out whatever sequences the user supplied via params.sequence_filter
+    // MODULE: Run BBDuk to clean out whatever sequences the user supplied via --sequence_filter
     //
-    if ( params.sequence_filter ) {
-        BBMAP_BBDUK(FASTQC_TRIMGALORE.out.reads, params.sequence_filter)
-        ch_clean_reads  = BBMAP_BBDUK.out.reads
-        ch_bbduk_logs = BBMAP_BBDUK.out.log.collect { it[1] }.map { [ it ] }
+    if ( sequence_filter ) {
+        BBMAP_BBDUK(FASTQC_TRIMGALORE.out.reads, sequence_filter)
         ch_versions   = ch_versions.mix(BBMAP_BBDUK.out.versions)
+
+        ch_clean_reads = BBMAP_BBDUK.out.reads
+        ch_clean_reads.view { "BBDUK ch_clean_reads: $it" }
+        ch_bbduk_logs = BBMAP_BBDUK.out.log.collect { it[1] }.map { [ it ] }
         ch_collect_stats = ch_collect_stats
             .combine(ch_bbduk_logs)
-
     } else {
-        ch_clean_reads  = FASTQC_TRIMGALORE.out.reads
+        ch_clean_reads = FASTQC_TRIMGALORE.out.reads 
         ch_bbduk_logs = Channel.empty()
         ch_collect_stats = ch_collect_stats
             .map { [ it[0], it[1], it[2], [] ] }
-
     }
 
     //
     // SUBWORKFLOW: Use SOURMASH on sample reads and genomes to reduce the number of the latter
     //
-    if ( params.sourmash ) {
+    if ( sourmash ) {
         SOURMASH(
             ch_clean_reads,
             ch_indexes,
             ch_genomes_post_renaming,
             ch_remote_genome_sources,
-            params.ksize,
-            params.save_unassigned,
-            params.save_matches_sig,
-            params.save_prefetch,
-            params.save_prefetch_csv
+            sourmash_ksize,
+            sourmash_save_unassigned,
+            sourmash_save_matches_sig,
+            sourmash_save_prefetch,
+            sourmash_save_prefetch_csv
         )
         ch_versions = ch_versions.mix(SOURMASH.out.versions)
         ch_genomes = SOURMASH.out.filtered_genomes

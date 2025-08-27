@@ -31,16 +31,23 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_magm
 workflow NFCORE_MAGMAP {
 
     take:
-    samplesheet             // channel: samplesheet read in from --input
-    genomeinfo              // channel: genome information sheet read in from --genomeinfo
-    remote_genome_sources   // channel: NCBI-style genome summary files read in via --remote_genome_sources
-    indexes                 // channel: user-provided Sourmash indexes
-    gtdb_metadata           // channel: GTDB metadata files
-    gtdbtk_metadata         // channel: GTDB-Tk metadata files
-    checkm_metadata         // channel: CheckM/CheckM2 metadata files
-    skip_fastqc             // boolean
-    skip_qc                 // boolean
-    skip_trimming           // boolean
+    samplesheet                 // channel: samplesheet read in from --input
+    genomeinfo                  // channel: genome information sheet read in from --genomeinfo
+    remote_genome_sources       // channel: NCBI-style genome summary files read in via --remote_genome_sources
+    indexes                     // channel: user-provided Sourmash indexes
+    sequence_filter             // channel: fasta file for BBDuk
+    gtdb_metadata               // channel: GTDB metadata files
+    gtdbtk_metadata             // channel: GTDB-Tk metadata files
+    checkm_metadata             // channel: CheckM/CheckM2 metadata files
+    sourmash                    // boolean: run Sourmash or not
+    sourmash_ksize              // integer
+    sourmash_save_unassigned    // boolean
+    sourmash_save_matches_sig   // boolean
+    sourmash_save_prefetch      // boolean
+    sourmash_save_prefetch_csv  // boolean
+    skip_fastqc                 // boolean
+    skip_qc                     // boolean
+    skip_trimming               // boolean
 
     main:
 
@@ -52,9 +59,16 @@ workflow NFCORE_MAGMAP {
         genomeinfo,
         remote_genome_sources,
         indexes,
+        sequence_filter,
         gtdb_metadata,
         gtdbtk_metadata,
         checkm_metadata,
+        sourmash,
+        sourmash_ksize,
+        sourmash_save_unassigned,
+        sourmash_save_matches_sig,
+        sourmash_save_prefetch,
+        sourmash_save_prefetch_csv,
         skip_fastqc,
         skip_qc,
         skip_trimming
@@ -98,9 +112,16 @@ workflow {
         PIPELINE_INITIALISATION.out.genomeinfo,
         PIPELINE_INITIALISATION.out.remote_genome_sources,
         PIPELINE_INITIALISATION.out.indexes,
+        params.sequence_filter,
         PIPELINE_INITIALISATION.out.gtdb_metadata,
         PIPELINE_INITIALISATION.out.gtdbtk_metadata,
         PIPELINE_INITIALISATION.out.checkm_metadata,
+        params.sourmash,
+        params.sourmash_ksize,
+        params.sourmash_save_unassigned,
+        params.sourmash_save_matches_sig,
+        params.sourmash_save_prefetch,
+        params.sourmash_save_prefetch_csv,
         params.skip_fastqc,
         params.skip_qc,
         params.skip_trimming
