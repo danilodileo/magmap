@@ -41,6 +41,7 @@ workflow MAGMAP {
 
     take:
     ch_samplesheet      // channel: samplesheet read in from --input
+    ch_genomeinfo       // channel: genome information sheet read in from --genomeinfo
     ch_gtdb_metadata    // channel: GTDB metadata files
     ch_gtdbtk_metadata  // channel: GTDB-Tk metadata files
     ch_checkm_metadata  // channel: CheckM/CheckM2 metadata files

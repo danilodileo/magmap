@@ -32,6 +32,7 @@ workflow PIPELINE_INITIALISATION {
     nextflow_cli_args //   array: List of positional nextflow CLI args
     outdir            //  string: The output directory where the results will be saved
     input             //  string: Path to input samplesheet
+    genomeinfo        //  string: Path to genomeinfo sheet
     gtdb_metadata     //  string: Paths to GTDB metadata files
     gtdbtk_metadata   //  string: Path to GTDB-Tk metadata file
     checkm_metadata   //  string: Path to GTDB metadata file
@@ -72,7 +73,7 @@ workflow PIPELINE_INITIALISATION {
     validateInputParameters()
 
     //
-    // Create channel from input file provided through params.input
+    // Create a channel from input file provided through params.input
     //
     Channel
         .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
@@ -93,6 +94,23 @@ workflow PIPELINE_INITIALISATION {
                 return [ meta, fastqs.flatten() ]
         }
         .set { ch_samplesheet }
+
+    //
+    // INPUT: if the user provides --genomeinfo, populate ch_genomeinfo with a table that provides the genomes to filter with sourmash
+    //
+    ch_genomeinfo = Channel.empty()
+    if ( params.genomeinfo) {
+        Channel
+            .fromPath( params.genomeinfo )
+            .splitCsv( sep: ',', header: true )
+            .map { it -> [
+                    accno: it.accno,
+                    genome_fna: file(it.genome_fna),
+                    genome_gff: it.genome_gff ? file(it.genome_gff) : []
+                ]
+            }
+            .set { ch_genomeinfo }
+    }
 
     //
     // Take care of genome metadata files
@@ -120,6 +138,7 @@ workflow PIPELINE_INITIALISATION {
 
     emit:
     samplesheet     = ch_samplesheet
+    genomeinfo      = ch_genomeinfo
     gtdb_metadata   = ch_gtdb_metadata
     gtdbtk_metadata = ch_gtdbtk_metadata
     checkm_metadata = ch_checkm_metadata

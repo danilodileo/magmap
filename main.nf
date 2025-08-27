@@ -32,6 +32,7 @@ workflow NFCORE_MAGMAP {
 
     take:
     samplesheet     // channel: samplesheet read in from --input
+    genomeinfo      // channel: genome information sheet read in from --genomeinfo
     gtdb_metadata   // channel: GTDB metadata files
     gtdbtk_metadata // channel: GTDB-Tk metadata files
     checkm_metadata // channel: CheckM/CheckM2 metadata files
@@ -43,6 +44,7 @@ workflow NFCORE_MAGMAP {
     //
     MAGMAP (
         samplesheet,
+        genomeinfo,
         gtdb_metadata,
         gtdbtk_metadata,
         checkm_metadata
@@ -70,6 +72,7 @@ workflow {
         args,
         params.outdir,
         params.input,
+        params.genomeinfo,
         params.gtdb_metadata,
         params.gtdbtk_metadata,
         params.checkm_metadata
@@ -80,6 +83,7 @@ workflow {
     //
     NFCORE_MAGMAP (
         PIPELINE_INITIALISATION.out.samplesheet,
+        PIPELINE_INITIALISATION.out.genomeinfo,
         PIPELINE_INITIALISATION.out.gtdb_metadata,
         PIPELINE_INITIALISATION.out.gtdbtk_metadata,
         PIPELINE_INITIALISATION.out.checkm_metadata
