@@ -43,9 +43,13 @@ workflow MAGMAP {
     ch_samplesheet              // channel: samplesheet read in from --input
     ch_genomeinfo               // channel: genome information sheet read in from --genomeinfo
     ch_remote_genome_sources    // channel: paths to NCBI-style genome summary files
+    ch_indexes                  // channel: user-provided Sourmash indexes
     ch_gtdb_metadata            // channel: GTDB metadata files
     ch_gtdbtk_metadata          // channel: GTDB-Tk metadata files
     ch_checkm_metadata          // channel: CheckM/CheckM2 metadata files
+    skip_fastqc                 // boolean
+    skip_qc                     // boolean
+    skip_trimming               // boolean
 
     main:
 
@@ -85,16 +89,6 @@ workflow MAGMAP {
     ch_genomes_post_renaming = RENAME_CONTIGS.out.renamed_contigs
         .map { g -> [ accno: g[0].id, genome_fna: g[1], genome_gff: [] ] }
         .mix(ch_genomes_pre_renaming.names_ok)
-
-    //
-    // INPUT: if user provides, populate ch_indexes
-    //
-    ch_indexes = Channel.empty()
-
-    if ( params.indexes ) {
-        ch_indexes = Channel
-            .fromPath( params.indexes )
-    }
 
     //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
@@ -139,13 +133,13 @@ workflow MAGMAP {
     //
     FASTQC_TRIMGALORE (
         ch_short_reads,
-        params.skip_fastqc || params.skip_qc,
-        params.skip_trimming
+        skip_fastqc || skip_qc,
+        skip_trimming
     )
     ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
 
     ch_collect_stats = ch_short_reads.collect { meta, fasta -> meta.id }.map { [ [ id:"magmap" ], it ] }
-    if ( params.skip_trimming ) {
+    if ( skip_trimming ) {
         ch_collect_stats = ch_collect_stats
             .map { meta, samples -> [ meta, samples, [] ] }
 
@@ -165,7 +159,7 @@ workflow MAGMAP {
     // MODULE: Run BBDuk to clean out whatever sequences the user supplied via params.sequence_filter
     //
     if ( params.sequence_filter ) {
-        BBMAP_BBDUK ( FASTQC_TRIMGALORE.out.reads, params.sequence_filter )
+        BBMAP_BBDUK(FASTQC_TRIMGALORE.out.reads, params.sequence_filter)
         ch_clean_reads  = BBMAP_BBDUK.out.reads
         ch_bbduk_logs = BBMAP_BBDUK.out.log.collect { it[1] }.map { [ it ] }
         ch_versions   = ch_versions.mix(BBMAP_BBDUK.out.versions)

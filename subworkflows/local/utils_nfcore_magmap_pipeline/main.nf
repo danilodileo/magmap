@@ -34,6 +34,7 @@ workflow PIPELINE_INITIALISATION {
     input                   //  string: Path to input samplesheet
     genomeinfo              //  string: Path to genomeinfo sheet
     remote_genome_sources   //  string: Path to a file with NCBI-style genome summary files
+    indexes                 //  string: Path to user-provided Sourmash index file
     gtdb_metadata           //  string: Paths to GTDB metadata files
     gtdbtk_metadata         //  string: Path to GTDB-Tk metadata file
     checkm_metadata         //  string: Path to GTDB metadata file
@@ -125,6 +126,14 @@ workflow PIPELINE_INITIALISATION {
     }
 
     //
+    // INPUT: if user provides, populate ch_indexes
+    //
+    ch_indexes = Channel.empty()
+    if ( indexes ) {
+        ch_indexes = Channel.fromPath(indexes)
+    }
+
+    //
     // Take care of genome metadata files
     //
     ch_gtdb_metadata = Channel.empty()
@@ -149,13 +158,14 @@ workflow PIPELINE_INITIALISATION {
     }
 
     emit:
-    samplesheet           = ch_samplesheet
-    genomeinfo            = ch_genomeinfo
-    remote_genome_sources = ch_remote_genome_sources
-    gtdb_metadata         = ch_gtdb_metadata
-    gtdbtk_metadata       = ch_gtdbtk_metadata
-    checkm_metadata       = ch_checkm_metadata
-    versions              = ch_versions
+    samplesheet             = ch_samplesheet
+    genomeinfo              = ch_genomeinfo
+    remote_genome_sources   = ch_remote_genome_sources
+    indexes                 = ch_indexes
+    gtdb_metadata           = ch_gtdb_metadata
+    gtdbtk_metadata         = ch_gtdbtk_metadata
+    checkm_metadata         = ch_checkm_metadata
+    versions                = ch_versions
 }
 
 /*
