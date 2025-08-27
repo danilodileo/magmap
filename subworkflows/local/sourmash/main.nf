@@ -12,7 +12,7 @@ workflow SOURMASH {
         ch_sample_reads             // Fastq files with reads for each sample [ val(meta), [ path(reads) ] ]
         ch_indexes                  // List of Sourmash indexs [ path(index) ]
         ch_user_genomeinfo          // User provided genomes [ path(genome) ]
-        ch_ncbi_genomeinfo_files    // CSV file with paths to genome information in NCBI format, i.e. containing at least the assembly_accession and ftp_path fields: path(csvfile)
+        ch_remote_genome_sources    // Paths to genome information in NCBI format, i.e. containing at least the assembly_accession and ftp_path fields: path(csvfile)
         ksize                       // K-mere size to use: val(odd_int)
         save_unassigned             // Boolean value passed to sourmash/gather
         save_matches_sig            // Boolean value passed to sourmash/gather
@@ -22,14 +22,12 @@ workflow SOURMASH {
     main:
         ch_versions = Channel.empty()
 
-        ch_ncbi_genomeinfo = ch_ncbi_genomeinfo_files
-                .splitCsv(sep: '\t')
-                .map { file(it[0]) }
+        ch_ncbi_genomeinfo = ch_remote_genome_sources
                 .splitCsv(skip: 1, header: true, sep: '\t')
-                .map {
+                .map { row ->
                     [
-                        accno: it["#assembly_accession"],
-                        genome_fna: "${it.ftp_path}/${it.ftp_path - ~/\/$/ - ~/.*\//}_genomic.fna.gz",
+                        accno: row["#assembly_accession"],
+                        genome_fna: "${row.ftp_path}/${row.ftp_path - ~/\/$/ - ~/.*\//}_genomic.fna.gz",
                         genome_gff: ""
                     ]
                 }

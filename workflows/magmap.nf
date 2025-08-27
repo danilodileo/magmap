@@ -40,32 +40,17 @@ include { softwareVersionsToYAML                 } from '../subworkflows/nf-core
 workflow MAGMAP {
 
     take:
-    ch_samplesheet      // channel: samplesheet read in from --input
-    ch_genomeinfo       // channel: genome information sheet read in from --genomeinfo
-    ch_gtdb_metadata    // channel: GTDB metadata files
-    ch_gtdbtk_metadata  // channel: GTDB-Tk metadata files
-    ch_checkm_metadata  // channel: CheckM/CheckM2 metadata files
+    ch_samplesheet              // channel: samplesheet read in from --input
+    ch_genomeinfo               // channel: genome information sheet read in from --genomeinfo
+    ch_remote_genome_sources    // channel: paths to NCBI-style genome summary files
+    ch_gtdb_metadata            // channel: GTDB metadata files
+    ch_gtdbtk_metadata          // channel: GTDB-Tk metadata files
+    ch_checkm_metadata          // channel: CheckM/CheckM2 metadata files
 
     main:
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
-    //
-    // INPUT: if user provides, populate ch_genomeinfo with a table that provides the genomes to filter with sourmash
-    //
-    ch_genomeinfo = Channel.empty()
-    if ( params.genomeinfo) {
-        Channel
-            .fromPath( params.genomeinfo )
-            .splitCsv( sep: ',', header: true )
-            .map { it -> [
-                    accno: it.accno,
-                    genome_fna: file(it.genome_fna),
-                    genome_gff: it.genome_gff ? file(it.genome_gff) : []
-                ]
-            }
-            .set { ch_genomeinfo }
-    }
 
     //
     // Check presence of duplicates contigs in the local genome collection
@@ -100,13 +85,6 @@ workflow MAGMAP {
     ch_genomes_post_renaming = RENAME_CONTIGS.out.renamed_contigs
         .map { g -> [ accno: g[0].id, genome_fna: g[1], genome_gff: [] ] }
         .mix(ch_genomes_pre_renaming.names_ok)
-
-    //
-    // INPUT: genome info from ncbi
-    //
-    if ( params.ncbi_genome_infos) {
-        ch_remote_genome_info = Channel.fromPath(params.ncbi_genome_infos)
-    }
 
     //
     // INPUT: if user provides, populate ch_indexes
@@ -205,13 +183,12 @@ workflow MAGMAP {
     //
     // SUBWORKFLOW: Use SOURMASH on sample reads and genomes to reduce the number of the latter
     //
-    // we create a channel for ncbi genomes only when sourmash is called
     if ( params.sourmash ) {
         SOURMASH(
             ch_clean_reads,
             ch_indexes,
             ch_genomes_post_renaming,
-            ch_remote_genome_info,
+            ch_remote_genome_sources,
             params.ksize,
             params.save_unassigned,
             params.save_matches_sig,

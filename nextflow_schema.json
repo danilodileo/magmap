@@ -38,11 +38,11 @@
                     "help_text": "You will need to use or create a file with information about the genomes' taxonomy you want to map to before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. Columns are: gtdb_genome_representative, gtdb_representative, gtdb_taxonomy. Please see the documentation for more information.",
                     "fa_icon": "fas fa-bacteria"
                 },
-                "ncbi_genome_infos": {
+                "remote_genome_sources": {
                     "type": "string",
                     "default": "${projectDir}/assets/ncbi_genome_infos.csv",
-                    "description": "Path to a tsv file with paths to txt files with information about genomes in NCBI. The default file contains GenBank and RefSeq info files.",
-                    "help_text": "You can provide either a file with paths of files containing information about genomes from NCBI (refseq and genebank) or a comma separated paths. These files can be use directly from https://ftp.ncbi.nlm.nih.gov/genomes/genbank/assembly_summary_genbank.txt and ftp://ftp.ncbi.nlm.nih.gov/genomes/refseq/assembly_summary_refseq.txt. You can also modify the file to include only the genomes you are interested in.",
+                    "description": "Path to a file with paths to tsv files with information about genomes in NCBI 'assembly_summary' format. The default file contains GenBank and RefSeq summary files.",
+                    "help_text": "The summary files pointed to in the file need to contain the column '#assembly_accession', referring to genome identifiers used in sourmash indexes and 'ftp_path' pointing. The directory structure of the 'ftp_path' paths needs to conform with NCBI standards and contain a contig file with the pattern '<accno>*_genomic.fna.gz'.",
                     "fa_icon": "fas fa-network-wired"
                 },
                 "indexes": {

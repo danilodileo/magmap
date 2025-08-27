@@ -31,11 +31,12 @@ include { PIPELINE_COMPLETION     } from './subworkflows/local/utils_nfcore_magm
 workflow NFCORE_MAGMAP {
 
     take:
-    samplesheet     // channel: samplesheet read in from --input
-    genomeinfo      // channel: genome information sheet read in from --genomeinfo
-    gtdb_metadata   // channel: GTDB metadata files
-    gtdbtk_metadata // channel: GTDB-Tk metadata files
-    checkm_metadata // channel: CheckM/CheckM2 metadata files
+    samplesheet             // channel: samplesheet read in from --input
+    genomeinfo              // channel: genome information sheet read in from --genomeinfo
+    remote_genome_sources   // channel: NCBI-style genome summary files read in via --remote_genome_sources
+    gtdb_metadata           // channel: GTDB metadata files
+    gtdbtk_metadata         // channel: GTDB-Tk metadata files
+    checkm_metadata         // channel: CheckM/CheckM2 metadata files
 
     main:
 
@@ -45,6 +46,7 @@ workflow NFCORE_MAGMAP {
     MAGMAP (
         samplesheet,
         genomeinfo,
+        remote_genome_sources,
         gtdb_metadata,
         gtdbtk_metadata,
         checkm_metadata
@@ -73,6 +75,7 @@ workflow {
         params.outdir,
         params.input,
         params.genomeinfo,
+        params.remote_genome_sources,
         params.gtdb_metadata,
         params.gtdbtk_metadata,
         params.checkm_metadata
@@ -84,6 +87,7 @@ workflow {
     NFCORE_MAGMAP (
         PIPELINE_INITIALISATION.out.samplesheet,
         PIPELINE_INITIALISATION.out.genomeinfo,
+        PIPELINE_INITIALISATION.out.remote_genome_sources,
         PIPELINE_INITIALISATION.out.gtdb_metadata,
         PIPELINE_INITIALISATION.out.gtdbtk_metadata,
         PIPELINE_INITIALISATION.out.checkm_metadata

@@ -26,16 +26,17 @@ include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipelin
 workflow PIPELINE_INITIALISATION {
 
     take:
-    version           // boolean: Display version and exit
-    validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
-    monochrome_logs   // boolean: Do not use coloured log outputs
-    nextflow_cli_args //   array: List of positional nextflow CLI args
-    outdir            //  string: The output directory where the results will be saved
-    input             //  string: Path to input samplesheet
-    genomeinfo        //  string: Path to genomeinfo sheet
-    gtdb_metadata     //  string: Paths to GTDB metadata files
-    gtdbtk_metadata   //  string: Path to GTDB-Tk metadata file
-    checkm_metadata   //  string: Path to GTDB metadata file
+    version                 // boolean: Display version and exit
+    validate_params         // boolean: Boolean whether to validate parameters against the schema at runtime
+    monochrome_logs         // boolean: Do not use coloured log outputs
+    nextflow_cli_args       //   array: List of positional nextflow CLI args
+    outdir                  //  string: The output directory where the results will be saved
+    input                   //  string: Path to input samplesheet
+    genomeinfo              //  string: Path to genomeinfo sheet
+    remote_genome_sources   //  string: Path to a file with NCBI-style genome summary files
+    gtdb_metadata           //  string: Paths to GTDB metadata files
+    gtdbtk_metadata         //  string: Path to GTDB-Tk metadata file
+    checkm_metadata         //  string: Path to GTDB metadata file
 
     main:
 
@@ -101,8 +102,8 @@ workflow PIPELINE_INITIALISATION {
     ch_genomeinfo = Channel.empty()
     if ( params.genomeinfo) {
         Channel
-            .fromPath( params.genomeinfo )
-            .splitCsv( sep: ',', header: true )
+            .fromPath(params.genomeinfo)
+            .splitCsv(sep: ',', header: true)
             .map { it -> [
                     accno: it.accno,
                     genome_fna: file(it.genome_fna),
@@ -110,6 +111,17 @@ workflow PIPELINE_INITIALISATION {
                 ]
             }
             .set { ch_genomeinfo }
+    }
+
+    //
+    // INPUT: genome info from ncbi
+    //
+    ch_remote_genome_sources = Channel.empty()
+    if ( remote_genome_sources ) {
+        ch_remote_genome_sources = Channel
+            .fromPath(params.remote_genome_sources)
+            .splitCsv()
+            .map { file(it[0]) }
     }
 
     //
@@ -137,12 +149,13 @@ workflow PIPELINE_INITIALISATION {
     }
 
     emit:
-    samplesheet     = ch_samplesheet
-    genomeinfo      = ch_genomeinfo
-    gtdb_metadata   = ch_gtdb_metadata
-    gtdbtk_metadata = ch_gtdbtk_metadata
-    checkm_metadata = ch_checkm_metadata
-    versions        = ch_versions
+    samplesheet           = ch_samplesheet
+    genomeinfo            = ch_genomeinfo
+    remote_genome_sources = ch_remote_genome_sources
+    gtdb_metadata         = ch_gtdb_metadata
+    gtdbtk_metadata       = ch_gtdbtk_metadata
+    checkm_metadata       = ch_checkm_metadata
+    versions              = ch_versions
 }
 
 /*
