@@ -38,10 +38,10 @@ input:
 
 output:
   genome_metadata:
-    - "*.tsv.gz":
+    - "*.genome_metadata.tsv.gz":
         type: file
-        description: TSV file with genome information: taxonomy plus statistics
-        pattern: "*.tsv.gz"
+        description: TSV file with genome information, taxonomy plus statistics
+        pattern: "*.genome_metadata.tsv.gz"
   versions:
     - "versions.yml":
         type: file
