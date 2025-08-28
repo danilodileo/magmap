@@ -176,7 +176,7 @@ workflow MAGMAP {
         ch_collect_stats = ch_collect_stats
             .combine(ch_bbduk_logs)
     } else {
-        ch_clean_reads = FASTQC_TRIMGALORE.out.reads 
+        ch_clean_reads = FASTQC_TRIMGALORE.out.reads
         ch_bbduk_logs = Channel.empty()
         ch_collect_stats = ch_collect_stats
             .map { [ it[0], it[1], it[2], [] ] }
