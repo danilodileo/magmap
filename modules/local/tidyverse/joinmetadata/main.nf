@@ -26,7 +26,7 @@ process TIDYVERSE_JOINMETADATA {
 
     def read_gtdb_metadata = """
         gtdb_metadata <- tibble(
-            accno = character(), checkm_completeness = double(), 
+            accno = character(), checkm_completeness = double(),
             checkm_contamination = double(), checkm_strain_heterogeneity = double(),
             contig_count = integer(), genome_size = integer(),
             gtdb_genome_representative = character(), gtdb_representative = logical(),
@@ -38,7 +38,7 @@ process TIDYVERSE_JOINMETADATA {
             gtdb_metadata <- read_tsv(
                 c('${gtdb_metadata.join('\', \'')}'),
                 col_types = cols(
-                    .default = col_character(), checkm_completeness = col_double(), 
+                    .default = col_character(), checkm_completeness = col_double(),
                     checkm_contamination = col_double(), checkm_strain_heterogeneity = col_double(),
                     contig_count = col_integer(), genome_size = col_integer(),
                     gtdb_representative = col_logical()
@@ -80,7 +80,7 @@ process TIDYVERSE_JOINMETADATA {
             )
         ) %>%
             transmute(
-                accno = `Bin Id`, 
+                accno = `Bin Id`,
                 checkm_completeness = Completeness, checkm_contamination = Contamination,
                 checkm_strain_heterogeneity = `Strain heterogeneity`,
                 contig_count = `# contigs`, genome_size = `Genome size (bp)`
@@ -136,7 +136,7 @@ process TIDYVERSE_JOINMETADATA {
     def prefix = task.ext.prefix ?: "genomes"
     """
     echo $args
-    
+
     touch ${prefix}.tsv.gz
 
     cat <<-END_VERSIONS > versions.yml
