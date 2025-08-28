@@ -26,12 +26,19 @@ include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipelin
 workflow PIPELINE_INITIALISATION {
 
     take:
-    version           // boolean: Display version and exit
-    validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
-    monochrome_logs   // boolean: Do not use coloured log outputs
-    nextflow_cli_args //   array: List of positional nextflow CLI args
-    outdir            //  string: The output directory where the results will be saved
-    input             //  string: Path to input samplesheet
+    version                 // boolean: Display version and exit
+    validate_params         // boolean: Boolean whether to validate parameters against the schema at runtime
+    monochrome_logs         // boolean: Do not use coloured log outputs
+    nextflow_cli_args       //   array: List of positional nextflow CLI args
+    outdir                  //  string: The output directory where the results will be saved
+    input                   //  string: Path to input samplesheet
+    genomeinfo              //  string: Path to genomeinfo sheet
+    remote_genome_sources   //  string: Path to a file with NCBI-style genome summary files
+    indexes                 //  string: Path to user-provided Sourmash index file
+    gtdb_metadata           //  string: Paths to GTDB metadata files
+    gtdbtk_metadata         //  string: Path to GTDB-Tk metadata file
+    checkm_metadata         //  string: Path to GTDB metadata file
+    features                //  string: Comma-separated string of feature types
 
     main:
 
@@ -69,9 +76,8 @@ workflow PIPELINE_INITIALISATION {
     validateInputParameters()
 
     //
-    // Create channel from input file provided through params.input
+    // Create a channel from input file provided through params.input
     //
-
     Channel
         .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
         .map {
@@ -92,9 +98,81 @@ workflow PIPELINE_INITIALISATION {
         }
         .set { ch_samplesheet }
 
+    //
+    // INPUT: if the user provides --genomeinfo, populate ch_genomeinfo with a table that provides the genomes to filter with sourmash
+    //
+    ch_genomeinfo = Channel.empty()
+    if ( params.genomeinfo) {
+        Channel
+            .fromPath(params.genomeinfo)
+            .splitCsv(sep: ',', header: true)
+            .map { it -> [
+                    accno: it.accno,
+                    genome_fna: file(it.genome_fna),
+                    genome_gff: it.genome_gff ? file(it.genome_gff) : []
+                ]
+            }
+            .set { ch_genomeinfo }
+    }
+
+    //
+    // INPUT: genome info from ncbi
+    //
+    ch_remote_genome_sources = Channel.empty()
+    if ( remote_genome_sources ) {
+        ch_remote_genome_sources = Channel
+            .fromPath(params.remote_genome_sources)
+            .splitCsv()
+            .map { file(it[0]) }
+    }
+
+    //
+    // INPUT: if user provides, populate ch_indexes
+    //
+    ch_indexes = Channel.empty()
+    if ( indexes ) {
+        ch_indexes = Channel.fromPath(indexes)
+    }
+
+    //
+    // Take care of genome metadata files
+    //
+    ch_gtdb_metadata = Channel.empty()
+    if ( gtdb_metadata ) {
+        ch_gtdb_metadata = Channel
+            .of(gtdb_metadata.split(','))
+            .map { file(it) }
+    }
+
+    ch_gtdbtk_metadata = Channel.empty()
+    if ( gtdbtk_metadata ) {
+        ch_gtdbtk_metadata = Channel
+            .of(gtdbtk_metadata.split(','))
+            .map { file(it) }
+    }
+
+    ch_checkm_metadata = Channel.empty()
+    if ( checkm_metadata ) {
+        ch_checkm_metadata = Channel
+            .of(checkm_metadata.split(','))
+            .map { file(it) }
+    }
+
+    ch_features = Channel.of(
+        ['CDS'] + features.split(','))
+        .flatten()
+        .unique()
+
     emit:
-    samplesheet = ch_samplesheet
-    versions    = ch_versions
+    samplesheet             = ch_samplesheet
+    genomeinfo              = ch_genomeinfo
+    remote_genome_sources   = ch_remote_genome_sources
+    indexes                 = ch_indexes
+    gtdb_metadata           = ch_gtdb_metadata
+    gtdbtk_metadata         = ch_gtdbtk_metadata
+    checkm_metadata         = ch_checkm_metadata
+    features                = ch_features
+    versions                = ch_versions
 }
 
 /*

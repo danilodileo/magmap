@@ -24,9 +24,8 @@ include { SUBREAD_FEATURECOUNTS as FEATURECOUNTS } from '../modules/nf-core/subr
 include { PIGZ_UNCOMPRESS as GUNZIP_CONTIGS      } from '../modules/nf-core/pigz/uncompress/main'
 include { PROKKA                                 } from '../modules/nf-core/prokka/main'
 include { CAT_FASTQ            	                 } from '../modules/nf-core/cat/fastq/main'
-include { METADATA                               } from '../subworkflows/local/metadata/'
+include { TIDYVERSE_JOINMETADATA                 } from '../modules/local/tidyverse/joinmetadata/'
 include { BAM_SORT_STATS_SAMTOOLS                } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
-include { PIGZ_COMPRESS as PIGZ_GENOME_METADATA  } from '../modules/nf-core/pigz/compress'
 include { paramsSummaryMultiqc                   } from '../subworkflows/nf-core/utils_nfcore_pipeline/'
 include { paramsSummaryMap                       } from 'plugin/nf-schema'
 include { methodsDescriptionText                 } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
@@ -41,27 +40,30 @@ include { softwareVersionsToYAML                 } from '../subworkflows/nf-core
 workflow MAGMAP {
 
     take:
-    ch_samplesheet // channel: samplesheet read in from --input
+    ch_samplesheet              // channel: samplesheet read in from --input
+    ch_genomeinfo               // channel: genome information sheet read in from --genomeinfo
+    ch_remote_genome_sources    // channel: paths to NCBI-style genome summary files
+    ch_indexes                  // channel: user-provided Sourmash indexes
+    sequence_filter             //  string: fasta file for BBDuk
+    ch_gtdb_metadata            // channel: GTDB metadata files
+    ch_gtdbtk_metadata          // channel: GTDB-Tk metadata files
+    ch_checkm_metadata          // channel: CheckM/CheckM2 metadata files
+    sourmash                    // boolean: run Sourmash or not
+    sourmash_ksize              // integer
+    sourmash_save_unassigned    // boolean
+    sourmash_save_matches_sig   // boolean
+    sourmash_save_prefetch      // boolean
+    sourmash_save_prefetch_csv  // boolean
+    ch_features                 // channel: list of feature types to call
+    skip_fastqc                 // boolean
+    skip_qc                     // boolean
+    skip_trimming               // boolean
+    outdir                      //  string: output directory
+
     main:
 
     ch_versions = Channel.empty()
     ch_multiqc_files = Channel.empty()
-    //
-    // INPUT: if user provides, populate ch_genomeinfo with a table that provides the genomes to filter with sourmash
-    //
-    ch_genomeinfo = Channel.empty()
-    if ( params.genomeinfo) {
-        Channel
-            .fromPath( params.genomeinfo )
-            .splitCsv( sep: ',', header: true )
-            .map { it -> [
-                    accno: it.accno,
-                    genome_fna: file(it.genome_fna),
-                    genome_gff: it.genome_gff ? file(it.genome_gff) : []
-                ]
-            }
-            .set { ch_genomeinfo }
-    }
 
     //
     // Check presence of duplicates contigs in the local genome collection
@@ -98,29 +100,6 @@ workflow MAGMAP {
         .mix(ch_genomes_pre_renaming.names_ok)
 
     //
-    // INPUT: genome info from ncbi
-    //
-    if ( params.ncbi_genome_infos) {
-        ch_remote_genome_info = Channel.fromPath(params.ncbi_genome_infos)
-    }
-
-    //
-    // INPUT: if user provides, populate ch_indexes
-    //
-    ch_indexes = Channel.empty()
-
-    if ( params.indexes ) {
-        ch_indexes = Channel
-            .fromPath( params.indexes )
-    }
-
-    //
-    // SUBWORKFLOW: Read in metadata files and if presents, manipulate them and mix them with the genome info
-    //
-    METADATA(params.gtdb_metadata, params.gtdbtk_metadata, params.checkm_metadata)
-    ch_metadata = METADATA.out.metadata
-
-    //
     // SUBWORKFLOW: Read in samplesheet, validate and stage input files
     //
     ch_short_reads_forcat = ch_samplesheet
@@ -129,9 +108,9 @@ workflow MAGMAP {
             [meta_new, reads]
         }
         .groupTuple()
-            .branch { meta, reads ->
-                cat: reads.size() >= 2
-                skip_cat: true
+        .branch { meta, reads ->
+            cat: reads.size() >= 2
+            skip_cat: true
         }
 
     //
@@ -163,13 +142,13 @@ workflow MAGMAP {
     //
     FASTQC_TRIMGALORE (
         ch_short_reads,
-        params.skip_fastqc || params.skip_qc,
-        params.skip_trimming
+        skip_fastqc || skip_qc,
+        skip_trimming
     )
     ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
 
     ch_collect_stats = ch_short_reads.collect { meta, fasta -> meta.id }.map { [ [ id:"magmap" ], it ] }
-    if ( params.skip_trimming ) {
+    if ( skip_trimming ) {
         ch_collect_stats = ch_collect_stats
             .map { meta, samples -> [ meta, samples, [] ] }
 
@@ -186,39 +165,37 @@ workflow MAGMAP {
     }
 
     //
-    // MODULE: Run BBDuk to clean out whatever sequences the user supplied via params.sequence_filter
+    // MODULE: Run BBDuk to clean out whatever sequences the user supplied via --sequence_filter
     //
-    if ( params.sequence_filter ) {
-        BBMAP_BBDUK ( FASTQC_TRIMGALORE.out.reads, params.sequence_filter )
-        ch_clean_reads  = BBMAP_BBDUK.out.reads
-        ch_bbduk_logs = BBMAP_BBDUK.out.log.collect { it[1] }.map { [ it ] }
+    if ( sequence_filter ) {
+        BBMAP_BBDUK(FASTQC_TRIMGALORE.out.reads, sequence_filter)
         ch_versions   = ch_versions.mix(BBMAP_BBDUK.out.versions)
+
+        ch_clean_reads = BBMAP_BBDUK.out.reads
+        ch_bbduk_logs = BBMAP_BBDUK.out.log.collect { it[1] }.map { [ it ] }
         ch_collect_stats = ch_collect_stats
             .combine(ch_bbduk_logs)
-
     } else {
-        ch_clean_reads  = FASTQC_TRIMGALORE.out.reads
+        ch_clean_reads = FASTQC_TRIMGALORE.out.reads
         ch_bbduk_logs = Channel.empty()
         ch_collect_stats = ch_collect_stats
             .map { [ it[0], it[1], it[2], [] ] }
-
     }
 
     //
     // SUBWORKFLOW: Use SOURMASH on sample reads and genomes to reduce the number of the latter
     //
-    // we create a channel for ncbi genomes only when sourmash is called
-    if ( params.sourmash ) {
+    if ( sourmash ) {
         SOURMASH(
             ch_clean_reads,
             ch_indexes,
             ch_genomes_post_renaming,
-            ch_remote_genome_info,
-            params.ksize,
-            params.save_unassigned,
-            params.save_matches_sig,
-            params.save_prefetch,
-            params.save_prefetch_csv
+            ch_remote_genome_sources,
+            sourmash_ksize,
+            sourmash_save_unassigned,
+            sourmash_save_matches_sig,
+            sourmash_save_prefetch,
+            sourmash_save_prefetch_csv
         )
         ch_versions = ch_versions.mix(SOURMASH.out.versions)
         ch_genomes = SOURMASH.out.filtered_genomes
@@ -227,36 +204,20 @@ workflow MAGMAP {
         ch_genomes = ch_genomes_post_renaming
     }
 
-    // filter the genomes for the metadata and save it in results/summary_tables directory
-    if( params.gtdbtk_metadata || params.checkm_metadata || params.gtdb_metadata) {
-        ch_header = Channel.of(
-            "accno\tcheckm_completeness\tcheckm_contamination\t \
-            checkm_strain_heterogeneity\tcontig_count\tgenome_size\t \
-            gtdb_genome_representative\tgtdb_representative\tgtdb_taxonomy"
-        )
-
-        ch_metadata = ch_metadata
-            .map { [ it.accno, it ] }
-            .join(ch_genomes.map { genome_record -> genome_record.accno })
-            .map { accno, info ->
-                "$info.accno\t$info.checkm_completeness\t \
-                $info.checkm_contamination\t$info.checkm_strain_heterogeneinfoy\t \
-                $info.contig_count\t$info.genome_size\t \
-                $info.gtdb_genome_representative\t$info.gtdb_representative\t \
-                $info.gtdb_taxonomy"
-            }
-
-        ch_genome_metadata = ch_header
-            .concat(ch_metadata)
+    //
+    // MODULE: Join and filter genome metadata
+    //
+    TIDYVERSE_JOINMETADATA(
+        ch_genomes
             .collectFile(
-                name: "magmap.genomes.metadata.tsv",
+                name: 'selected_genomes.tsv',
                 newLine: true
-            )
-            .view { "collected: $it" }
-
-        PIGZ_GENOME_METADATA(ch_genome_metadata.map { file -> [ [ id: 'genome_metadata' ], file ] })
-        ch_versions = ch_versions.mix(PIGZ_GENOME_METADATA.out.versions)
-    }
+            ) { genome_record -> genome_record.accno },
+        ch_gtdb_metadata.collect().ifEmpty([]),
+        ch_gtdbtk_metadata.collect().ifEmpty([]),
+        ch_checkm_metadata.collect().ifEmpty([])
+    )
+    ch_versions = ch_versions.mix(TIDYVERSE_JOINMETADATA.out.versions.first())
 
     //
     // MODULE: Prokka - get gff for all genomes that lack it
@@ -315,18 +276,13 @@ workflow MAGMAP {
     //
     // MODULE: FeatureCounts
     //
-    ch_features = Channel.of(
-        ['CDS'] + params.features.split(','))
-        .flatten()
-        .unique()
-
     ch_featurecounts = ch_stage_counts
         .combine(ch_features)
         .map { meta, bam, gff, feature ->
             [ meta + [feature: feature], bam, gff ]
         }
 
-    FEATURECOUNTS ( ch_featurecounts )
+    FEATURECOUNTS(ch_featurecounts)
     ch_versions = ch_versions.mix(FEATURECOUNTS.out.versions)
 
     //
@@ -362,7 +318,7 @@ workflow MAGMAP {
     //
     ch_collated_versions = softwareVersionsToYAML(ch_versions)
         .collectFile(
-            storeDir: "${params.outdir}/pipeline_info",
+            storeDir: "${outdir}/pipeline_info",
             name: 'nf_core_'  +  'magmap_software_'  + 'mqc_'  + 'versions.yml',
             sort: true,
             newLine: true
