@@ -1,0 +1,21 @@
+process TAXBURST {
+    conda "bioconda::taxburst=0.3.2"
+    container "quay.io/biocontainers/taxburst:0.3.2--pyhdfd78af_0"
+    
+    input:
+    tuple val(meta), path(kraken_report)
+    
+    output:
+    tuple val(meta), path("*.html"), emit: html
+    path "versions.yml", emit: versions
+    
+    script:
+    """
+    taxburst ${kraken_report} -o ${meta.id}_taxburst.html
+    
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        taxburst: \$(taxburst --version 2>&1 | head -n1 | cut -d' ' -f2)
+    END_VERSIONS
+    """
+}

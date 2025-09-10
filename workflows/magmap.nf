@@ -29,6 +29,7 @@ include { RENAME_CONTIGS                         } from '../modules/local/rename
 include { softwareVersionsToYAML                 } from '../subworkflows/nf-core/utils_nfcore_pipeline'
 include { SOURMASH                               } from '../subworkflows/local/sourmash'
 include { SUBREAD_FEATURECOUNTS as FEATURECOUNTS } from '../modules/nf-core/subread/featurecounts/main'
+include { TAXBURST                               } from '../modules/local/taxburst/main'
 include { TIDYVERSE_JOINMETADATA                 } from '../modules/local/tidyverse/joinmetadata/'
 include { validateInputSamplesheet               } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
 
@@ -201,7 +202,10 @@ workflow MAGMAP {
             params.kraken2_save_reads
         )
         ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
-        
+
+        TAXBURST(KRAKEN2_KRAKEN2.out.report)
+        ch_versions = ch_versions.mix(TAXBURST.out.versions)
+
         // Optional: Use classified reads for downstream analysis
         if (params.kraken2_save_reads) {
             ch_reads_for_mapping = KRAKEN2_KRAKEN2.out.classified_reads_fastq
