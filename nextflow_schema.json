@@ -42,7 +42,8 @@
                     "type": "string",
                     "description": "Path to a file with paths to tsv files with information about genomes in NCBI 'assembly_summary' format. The default file contains GenBank and RefSeq summary files.",
                     "help_text": "The summary files pointed to in the file need to contain the column '#assembly_accession', referring to genome identifiers used in sourmash indexes and 'ftp_path' pointing. The directory structure of the 'ftp_path' paths needs to conform with NCBI standards and contain a contig file with the pattern '<accno>*_genomic.fna.gz'.",
-                    "fa_icon": "fas fa-network-wired"
+                    "fa_icon": "fas fa-network-wired",
+                    "default": "/Users/dadiaa/projects/dev/magmap/assets/ncbi_genome_infos.csv"
                 },
                 "indexes": {
                     "type": "string",
@@ -223,15 +224,19 @@
                     "type": "string",
                     "format": "directory-path",
                     "description": "Path to Kraken2 database",
-                    "help_text": "Path to a Kraken2 database directory or tar.gz archive"
+                    "help_text": "Path to a Kraken2 database directory. Path needs to be a folder with \".k2d\" files"
                 },
                 "kraken2_save_output": {
                     "type": "boolean",
                     "description": "Save Kraken2 output files"
                 },
                 "kraken2_save_reads": {
-                    "type": "boolean", 
+                    "type": "boolean",
                     "description": "Save classified and unclassified reads"
+                },
+                "kraken2_memory_mapping": {
+                    "type": "boolean",
+                    "description": "Use memory mapping to avoid loading database into RAM"
                 }
             }
         },
@@ -273,8 +278,7 @@
                 },
                 "sourmash_save_prefetch_csv": {
                     "type": "boolean",
-                    "description": "Outputs a CSV file summarizing the prefetched results, including metadata about retrieved signatures.",
-                    "default": false
+                    "description": "Outputs a CSV file summarizing the prefetched results, including metadata about retrieved signatures."
                 }
             },
             "fa_icon": "fas fa-filter"
@@ -443,6 +447,9 @@
         },
         {
             "$ref": "#/$defs/featurecounts_option"
+        },
+        {
+            "$ref": "#/$defs/kraken2_options"
         },
         {
             "$ref": "#/$defs/sourmash_options"
