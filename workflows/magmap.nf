@@ -187,7 +187,7 @@ workflow MAGMAP {
     //
     // MODULE: Kraken2
     //
-    // Kraken2 taxonomic profiling
+    //
     if (params.run_kraken2) {
         if (!params.kraken2_db) {
             error "Kraken2 database must be specified with --kraken2_db when --run_kraken2 is used"
@@ -205,11 +205,6 @@ workflow MAGMAP {
 
         TAXBURST(KRAKEN2_KRAKEN2.out.report)
         ch_versions = ch_versions.mix(TAXBURST.out.versions)
-
-        // Optional: Use classified reads for downstream analysis
-        if (params.kraken2_save_reads) {
-            ch_reads_for_mapping = KRAKEN2_KRAKEN2.out.classified_reads_fastq
-        }
     }
 
     //
