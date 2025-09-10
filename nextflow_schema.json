@@ -209,6 +209,32 @@
                 }
             }
         },
+        "kraken2_options": {
+            "title": "Kraken2 taxonomic profiling options",
+            "type": "object",
+            "description": "Options for Kraken2 taxonomic classification",
+            "properties": {
+                "run_kraken2": {
+                    "type": "boolean",
+                    "description": "Run Kraken2 taxonomic profiling",
+                    "help_text": "Enable Kraken2 to classify reads taxonomically. Useful for mixed communities with eukaryotes, viruses, and prokaryotes."
+                },
+                "kraken2_db": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "description": "Path to Kraken2 database",
+                    "help_text": "Path to a Kraken2 database directory or tar.gz archive"
+                },
+                "kraken2_save_output": {
+                    "type": "boolean",
+                    "description": "Save Kraken2 output files"
+                },
+                "kraken2_save_reads": {
+                    "type": "boolean", 
+                    "description": "Save classified and unclassified reads"
+                }
+            }
+        },
         "sourmash_options": {
             "title": "Sourmash",
             "type": "object",
