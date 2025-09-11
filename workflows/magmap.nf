@@ -189,27 +189,27 @@ workflow MAGMAP {
     //
     //
     if (params.run_kraken2) {
-    if (!params.kraken2_db) {
-        KRAKEN2_DOWNLOAD_DB(
-            "k2_standard_20250714",
-            "https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20250714.tar.gz"
-        )
-        ch_kraken2_db = KRAKEN2_DOWNLOAD_DB.out.db_dir
-        ch_versions = ch_versions.mix(KRAKEN2_DOWNLOAD_DB.out.versions)
-    } else {
-        ch_kraken2_db = Channel.fromPath(params.kraken2_db, checkIfExists: true, type: 'dir')
-    }
+        if (!params.kraken2_db) {
+            KRAKEN2_DOWNLOAD_DB(
+                "k2_standard_20250714",
+                "https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20250714.tar.gz"
+            )
+            ch_kraken2_db = KRAKEN2_DOWNLOAD_DB.out.db_dir
+            ch_versions = ch_versions.mix(KRAKEN2_DOWNLOAD_DB.out.versions)
+        } else {
+            ch_kraken2_db = Channel.fromPath(params.kraken2_db, checkIfExists: true, type: 'dir')
+        }
     
-    KRAKEN2_KRAKEN2(
-        ch_clean_reads,
-        ch_kraken2_db,
-        params.kraken2_save_output,
-        params.kraken2_save_reads
-    )
-    ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
+        KRAKEN2_KRAKEN2(
+            ch_clean_reads,
+            ch_kraken2_db,
+            params.kraken2_save_output,
+            params.kraken2_save_reads
+        )
+        ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
 
-    TAXBURST(KRAKEN2_KRAKEN2.out.report)
-    ch_versions = ch_versions.mix(TAXBURST.out.versions)
+        TAXBURST(KRAKEN2_KRAKEN2.out.report)
+        ch_versions = ch_versions.mix(TAXBURST.out.versions)
     }
 
     //
