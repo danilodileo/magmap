@@ -1,6 +1,8 @@
 process TAXBURST {
-    conda "bioconda::taxburst=0.3.2"
-    container "quay.io/biocontainers/taxburst:0.3.2--pyhdfd78af_0"
+    conda "${moduleDir}/environment.yml"
+    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
+        'https://depot.galaxyproject.org/singularity/taxburst:0.3.2--pyhdfd78af_0' :
+        'biocontainers/taxburst:0.3.2--pyhdfd78af_0' }"
     
     input:
     tuple val(meta), path(kraken_report)
