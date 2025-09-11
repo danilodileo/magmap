@@ -218,7 +218,7 @@
                 "run_kraken2": {
                     "type": "boolean",
                     "description": "Run Kraken2 taxonomic profiling",
-                    "help_text": "Enable Kraken2 to classify reads taxonomically. Useful for mixed communities with eukaryotes, viruses, and prokaryotes."
+                    "help_text": "Enable Kraken2 to classify reads taxonomically."
                 },
                 "kraken2_db": {
                     "type": "string",
