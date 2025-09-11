@@ -17,6 +17,7 @@ include { FASTQC                                 } from '../modules/nf-core/fast
 include { FASTQC_TRIMGALORE                      } from '../subworkflows/local/fastqc_trimgalore'
 include { FILTER_GENOMES                         } from '../modules/local/filter_genomes'
 include { KRAKEN2_KRAKEN2                        } from '../modules/nf-core/kraken2/kraken2/main' 
+include { KRAKEN2_DOWNLOAD_DB                    } from '../modules/local/kraken2/download/main' 
 include { methodsDescriptionText                 } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
 include { MULTIQC                                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap                       } from 'plugin/nf-schema'
