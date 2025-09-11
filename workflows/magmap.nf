@@ -187,29 +187,29 @@ workflow MAGMAP {
     //
     // MODULE: Kraken2
     //
-    // Kraken2 taxonomic profiling
+    //
     if (params.run_kraken2) {
-        if (!params.kraken2_db) {
-            error "Kraken2 database must be specified with --kraken2_db when --run_kraken2 is used"
-        }
-        
-        ch_kraken2_db = Channel.fromPath(params.kraken2_db, checkIfExists: true)
-        
-        KRAKEN2_KRAKEN2(
-            ch_clean_reads,  // After QC/trimming
-            ch_kraken2_db,
-            params.kraken2_save_output,
-            params.kraken2_save_reads
+    if (!params.kraken2_db) {
+        KRAKEN2_DOWNLOAD_DB(
+            "k2_standard_20250714",
+            "https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20250714.tar.gz"
         )
-        ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
+        ch_kraken2_db = KRAKEN2_DOWNLOAD_DB.out.db_dir
+        ch_versions = ch_versions.mix(KRAKEN2_DOWNLOAD_DB.out.versions)
+    } else {
+        ch_kraken2_db = Channel.fromPath(params.kraken2_db, checkIfExists: true, type: 'dir')
+    }
+    
+    KRAKEN2_KRAKEN2(
+        ch_clean_reads,
+        ch_kraken2_db,
+        params.kraken2_save_output,
+        params.kraken2_save_reads
+    )
+    ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
 
-        TAXBURST(KRAKEN2_KRAKEN2.out.report)
-        ch_versions = ch_versions.mix(TAXBURST.out.versions)
-
-        // Optional: Use classified reads for downstream analysis
-        if (params.kraken2_save_reads) {
-            ch_reads_for_mapping = KRAKEN2_KRAKEN2.out.classified_reads_fastq
-        }
+    TAXBURST(KRAKEN2_KRAKEN2.out.report)
+    ch_versions = ch_versions.mix(TAXBURST.out.versions)
     }
 
     //
