@@ -39,12 +39,12 @@ workflow SOURMASH {
         ch_versions = ch_versions.mix(SAMPLES_SKETCH.out.versions)
 
         ch_sample_sigs = SAMPLES_SKETCH.out.signatures
-            .collect{ it[1] }
-            .map { [ [id: 'samples_sig'], it ] }
+            .collect { it[1] }
+            .map { [ [ id: 'samples_sig' ], it ] }
 
         ch_genome_sigs = GENOMES_SKETCH.out.signatures
-            .collect{ meta, sig -> [ sig ] }
-            .map{ sig -> [ [id: 'signatures'], sig ] }
+            .collect { meta, sig -> [ sig ] }
+            .map { sig -> [ [ id: 'signatures' ], sig ] }
 
         GENOMES_INDEX(ch_genome_sigs, ksize)
         ch_versions = ch_versions.mix(GENOMES_INDEX.out.versions)
@@ -54,7 +54,7 @@ workflow SOURMASH {
             .mix( ch_indexes )
             .collect()
 
-        SOURMASH_GATHER ( ch_sample_sigs, ch_database, save_unassigned, save_matches_sig, save_prefetch, save_prefetch_csv )
+        SOURMASH_GATHER(ch_sample_sigs, ch_database, save_unassigned, save_matches_sig, save_prefetch, save_prefetch_csv )
         ch_versions = ch_versions.mix(SOURMASH_GATHER.out.versions)
 
         ch_accnos_ncbi = SOURMASH_GATHER.out.result
@@ -124,6 +124,7 @@ workflow SOURMASH {
             .flatten()
             .mix(ch_matching_user_ncbi_genomes) // Ensure proper mixing with other data
             .mix(ch_matching_user_non_ncbi_genomes)
+            .view { "ch_filtered_genomes: ${it}" }
 
     emit:
         gindex           = GENOMES_SKETCH.out.signatures
