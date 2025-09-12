@@ -34,6 +34,7 @@ workflow PIPELINE_INITIALISATION {
     input                   //  string: Path to input samplesheet
     genomeinfo              //  string: Path to genomeinfo sheet
     remote_genome_sources   //  string: Path to a file with NCBI-style genome summary files
+    genome_store_dir        //  string: Path to a directory where genome annotation files will be stored
     indexes                 //  string: Path to user-provided Sourmash index file
     gtdb_metadata           //  string: Paths to GTDB metadata files
     gtdbtk_metadata         //  string: Path to GTDB-Tk metadata file
@@ -127,7 +128,15 @@ workflow PIPELINE_INITIALISATION {
     }
 
     //
-    // INPUT: if user provides, populate ch_indexes
+    // Make sure that the directory for genome and annotation storage exists
+    //
+    if ( params.genome_store_dir ) {
+        d = new File(params.genome_store_dir)
+        if ( ! d.exists() ) { d.mkdirs() }
+    }
+
+    //
+    // INPUT: if the user provides, populate ch_indexes
     //
     ch_indexes = Channel.empty()
     if ( indexes ) {

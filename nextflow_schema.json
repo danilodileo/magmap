@@ -44,6 +44,14 @@
                     "help_text": "The summary files pointed to in the file need to contain the column '#assembly_accession', referring to genome identifiers used in sourmash indexes and 'ftp_path' pointing. The directory structure of the 'ftp_path' paths needs to conform with NCBI standards and contain a contig file with the pattern '<accno>*_genomic.fna.gz'.",
                     "fa_icon": "fas fa-network-wired"
                 },
+                "genome_store_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "default": "genomes",
+                    "fa_icon": "fas fa-dna",
+                    "description": "Path to a directory where downloaded genome files and output from genome annotation are stored.",
+                    "help_text": "Any genome and annotation files created by the pipeline will be stored in this directory for potential later use."
+                },
                 "indexes": {
                     "type": "string",
                     "description": "Path to .sbt file.",
