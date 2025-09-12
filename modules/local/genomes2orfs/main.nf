@@ -10,8 +10,8 @@ process GENOMES2ORFS {
     tuple val(meta), path(gffs, stageAs: 'gffs/*')
 
     output:
-    path "${outfile}"  , emit: genomes2orfs
-    path "versions.yml", emit: versions
+    path "*.genomes2orfs.tsv.gz", emit: genomes2orfs
+    path "versions.yml"         , emit: versions
 
     when:
     task.ext.when == null || task.ext.when

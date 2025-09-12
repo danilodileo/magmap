@@ -11,15 +11,16 @@ process COLLECT_FEATURECOUNTS {
     tuple val(meta), path(inputfiles)
 
     output:
-    tuple val(meta), path("*.tsv.gz")   , emit: counts
-    path "versions.yml"                 , emit: versions
+    tuple val(meta), path("*.counts.tsv.gz"), emit: counts
+    path "versions.yml"                     , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args     = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}"
+    def outfile = "${prefix}.counts.tsv.gz"
     """
     #!/usr/bin/env Rscript
 
@@ -54,7 +55,7 @@ process COLLECT_FEATURECOUNTS {
         ) %>%
         tidyr::unnest(d) %>%
         select(-f) %>%
-        write_tsv("magmap.${prefix}.counts.tsv.gz")
+        write_tsv("${outfile}")
 
         writeLines(
             c(

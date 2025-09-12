@@ -11,15 +11,16 @@ process COLLECT_STATS {
     tuple val(meta), val(samples), path(trimlogs), path(bbduklogs), path(idxstats), path(fcs)
 
     output:
-    path "${meta.id}.overall_stats.tsv.gz", emit: overall_stats
-    path "versions.yml"                   , emit: versions
+    path "*.overall_stats.tsv.gz", emit: overall_stats
+    path "versions.yml"          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}"
+    def outfile = "${prefix}.overall_stats.tsv.gz"
 
     def read_trimlogs = "tibble(sample = character(), m = character(), v = numeric()) %>%"
     if ( trimlogs ) {
@@ -78,7 +79,7 @@ process COLLECT_STATS {
         ) %>%
         union(
             # Total observation after featureCounts
-            read_tsv(Sys.glob('*.counts.tsv.gz'), col_types = 'cciicicid', id = 'fname') %>%
+            read_tsv(c('${fcs.join("', '")}'), col_types = 'cciicicid', id = 'fname') %>%
                 mutate(m = str_replace(fname, '.*\\\\.(.+)\\\\.counts.tsv.gz', '\\\\1')) %>%
                 group_by(sample, m) %>% summarise(v = sum(count), .groups = 'drop')
         ) %>%
@@ -91,7 +92,7 @@ process COLLECT_STATS {
         mutate(m = parse_factor(m, levels = unique(c(TYPE_ORDER, t\$m)), ordered = TRUE)) %>%
         arrange(sample, m) %>%
         pivot_wider(names_from = m, values_from = v, values_fill = 0) %>%
-        write_tsv('${prefix}.overall_stats.tsv.gz')
+        write_tsv('${outfile}')
 
     writeLines(
         c(
