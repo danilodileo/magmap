@@ -39,8 +39,8 @@ workflow SOURMASH {
         ch_versions = ch_versions.mix(SAMPLES_SKETCH.out.versions)
 
         ch_sample_sigs = SAMPLES_SKETCH.out.signatures
-            .collect{ it[1] }
-            .map { [ [id: 'samples_sig'], it ] }
+            //.collect{ it[1] }
+            //.map { [ [id: 'samples_sig'], it ] }
 
         ch_genome_sigs = GENOMES_SKETCH.out.signatures
             .collect{ meta, sig -> [ sig ] }
