@@ -1,7 +1,6 @@
 process KRAKEN2_DOWNLOAD_DB {
     tag "$db_name"
     label 'process_low'
-    storeDir "${params.kraken2_db_store_dir ?: params.outdir}/kraken2_databases"
     
     conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?

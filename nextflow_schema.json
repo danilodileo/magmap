@@ -43,7 +43,7 @@
                     "description": "Path to a file with paths to tsv files with information about genomes in NCBI 'assembly_summary' format. The default file contains GenBank and RefSeq summary files.",
                     "help_text": "The summary files pointed to in the file need to contain the column '#assembly_accession', referring to genome identifiers used in sourmash indexes and 'ftp_path' pointing. The directory structure of the 'ftp_path' paths needs to conform with NCBI standards and contain a contig file with the pattern '<accno>*_genomic.fna.gz'.",
                     "fa_icon": "fas fa-network-wired",
-                    "default": "${projectDir}/assets/ncbi_genome_infos.csv"
+                    "default": "/Users/dadiaa/projects/dev/magmap/assets/ncbi_genome_infos.csv"
                 },
                 "indexes": {
                     "type": "string",
@@ -220,11 +220,22 @@
                     "description": "Run Kraken2 taxonomic profiling",
                     "help_text": "Enable Kraken2 to classify reads taxonomically."
                 },
+                "kraken2_db_store_dir": {
+                    "type": "string",
+                    "description": "Select a path where to store the downloaded db for kraken2",
+                    "help_text": "Default database: mini"
+                },
                 "kraken2_db": {
                     "type": "string",
                     "format": "directory-path",
                     "description": "Path to Kraken2 database",
                     "help_text": "Path to a Kraken2 database directory. Path needs to be a folder with \".k2d\" files"
+                },
+                "kraken2_db_type": {
+                    "type": "string",
+                    "default": "mini",
+                    "description": "Type which database to use for running Kraken 2",
+                    "help_text": "Available databases:\n- viral\n- mini\n- standard"
                 },
                 "kraken2_save_output": {
                     "type": "boolean",
