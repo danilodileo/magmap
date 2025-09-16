@@ -164,7 +164,6 @@ nextflow run nf-core/magmap \
     --outdir results/ \
     --input samples.csv \
     --genomeinfo localgenomes.csv \
-    --run_kraken2 true
 ```
 
 ### Sourmash (optional)
