@@ -193,7 +193,6 @@ workflow MAGMAP {
     //
     // MODULE: Kraken2
     //
-    //
     if (run_kraken2) {
         if (!kraken2_db) {
         // Choose database based on type
