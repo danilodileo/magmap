@@ -234,6 +234,7 @@
                     "type": "string",
                     "default": "mini",
                     "description": "Type which database to use for running Kraken 2",
+                    "pattern": "(standard)|(viral)|(mini)",
                     "help_text": "Available databases:\n- viral\n- mini\n- standard"
                 },
                 "kraken2_save_output": {
