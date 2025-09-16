@@ -127,7 +127,7 @@ workflow {
         PIPELINE_INITIALISATION.out.gtdb_metadata,
         PIPELINE_INITIALISATION.out.gtdbtk_metadata,
         PIPELINE_INITIALISATION.out.checkm_metadata,
-        params.run_kraken2,
+        params.skip_kraken2,
         params.kraken2_db,
         params.kraken2_db_type,
         params.sourmash,
