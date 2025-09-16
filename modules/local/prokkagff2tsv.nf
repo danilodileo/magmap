@@ -12,14 +12,15 @@ process PROKKAGFF2TSV {
 
     output:
     tuple val(meta), path("*.prokka-annotations.tsv.gz"), emit: tsv
-    path "versions.yml"                          , emit: versions
+    path "versions.yml"           , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}"
+    def outfile = "${prefix}.prokka-annotations.tsv.gz"
 
     """
     #!/usr/bin/env Rscript
@@ -44,7 +45,7 @@ process PROKKAGFF2TSV {
         relocate(sort(colnames(.)[8:ncol(.)]), .after = 7) %>%
         relocate(orf) %>%
         as.data.table() %>%
-        write_tsv("magmap.${prefix}.prokka-annotations.tsv.gz")
+        write_tsv("${outfile}")
 
     writeLines(
         c(

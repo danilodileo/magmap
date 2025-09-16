@@ -14,15 +14,16 @@ process TIDYVERSE_JOINMETADATA {
     path checkm_metadata    // Output files from CheckM/CheckM2
 
     output:
-    path "*.tsv.gz"    , emit: genome_metadata
-    path "versions.yml", emit: versions
+    path "*.genome_metadata.tsv.gz", emit: genome_metadata
+    path "versions.yml"            , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "magmap"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "magmap"
+    def outfile = "${prefix}.genome_metadata.tsv.gz"
 
     def read_gtdb_metadata = """
         gtdb_metadata <- tibble(
@@ -119,7 +120,7 @@ process TIDYVERSE_JOINMETADATA {
                 ungroup(),
             by = join_by(accno)
         ) %>%
-        write_tsv("${prefix}.genome_metadata.tsv.gz")
+        write_tsv("${outfile}")
 
     writeLines(
         c(
@@ -133,11 +134,11 @@ process TIDYVERSE_JOINMETADATA {
 
     stub:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "genomes"
+    def prefix = task.ext.prefix ?: "magmap"
     """
     echo $args
 
-    touch ${prefix}.tsv.gz
+    touch ${outfile}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":

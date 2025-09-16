@@ -11,15 +11,17 @@ process CAT_MANY {
     path(files2cat), stageAs: 'input/*'
 
     output:
-    tuple val(meta), path("${prefix}.gz"), emit: concatenated_files
-    path "versions.yml"                  , emit: versions
+    tuple val(meta), path("*.gz"), emit: concatenated_files
+    path "versions.yml"          , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    prefix = task.ext.prefix ?: "${meta.id}"
-    def args = task.ext.args ?: ''
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}"
+    def outfile = "${prefix}.gz"
+
     """
     echo "Concatenating files..."
     for file in ./input/*; do
@@ -33,7 +35,7 @@ process CAT_MANY {
     done
 
     echo "Compressing concatenated file..."
-    pigz -c temp_concatenated > ${prefix}.gz
+    pigz -c temp_concatenated > ${outfile}
 
     echo "Cleaning up..."
     rm temp_concatenated
