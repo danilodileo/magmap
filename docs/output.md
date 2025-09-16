@@ -19,7 +19,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and the results
   - [Community composition](#community-composition) - General analysis of the taxonomic composition of the communities in the samples using the kmer-based Kraken2 tool.
     - [Kraken2](#kraken2) - Output from Kraken2.
     - [Kraken2_databases](#kraken2-databases) - Output from kraken2_download_db.
-    - [Taxburst](#taxburst) - Output from Taxburst tool for visualisation of taxonomical community in the dataset.
+    - [Taxburst](#taxburst) - Output from Taxburst tool for visualisation of taxonomic community in the dataset.
   - [Filtering genomes](#filter-genomes-step) - Generate a list of genomes that will be used for the mapping
     - [Sourmash](#sourmash) - Output from Sourmash filtering of genomes.
   - [ORF Caller step](#orf-caller-step) - Identify protein-coding genes (ORFs) with an ORF caller
