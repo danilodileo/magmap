@@ -16,7 +16,9 @@ include { CREATE_BBMAP_INDEX                     } from '../subworkflows/local/c
 include { FASTQC                                 } from '../modules/nf-core/fastqc/main'
 include { FASTQC_TRIMGALORE                      } from '../subworkflows/local/fastqc_trimgalore'
 include { FILTER_GENOMES                         } from '../modules/local/filter_genomes'
+include { FORMAT_KRONA                           } from '../modules/local/format_krona/main'
 include { KRAKEN2_KRAKEN2                        } from '../modules/nf-core/kraken2/kraken2/main' 
+include { KRAKENTOOLS_KREPORT2KRONA              } from '../modules/nf-core/krakentools/kreport2krona/main' 
 include { KRAKEN2_DOWNLOAD_DB                    } from '../modules/local/kraken2/download/main' 
 include { methodsDescriptionText                 } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
 include { MULTIQC                                } from '../modules/nf-core/multiqc/main'
@@ -191,12 +193,22 @@ workflow MAGMAP {
     //
     if (params.run_kraken2) {
         if (!params.kraken2_db) {
-            KRAKEN2_DOWNLOAD_DB(
-                "k2_standard_20250714",
-                "https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20250714.tar.gz"
-            )
+        // Choose database based on type
+        if (params.kraken2_db_type == 'viral') {
+            db_name = "k2_viral_20210517"
+            db_url = "https://genome-idx.s3.amazonaws.com/kraken/k2_viral_20210517.tar.gz"
+        } else if (params.kraken2_db_type == 'mini') {
+            db_name = "k2_minusb_20210517"
+            db_url = "https://genome-idx.s3.amazonaws.com/kraken/k2_minusb_20210517.tar.gz"
+        } else {
+            db_name = "k2_standard_20250714"
+            db_url = "https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20250714.tar.gz"
+        }
+        
+            KRAKEN2_DOWNLOAD_DB(db_name, db_url)
             ch_kraken2_db = KRAKEN2_DOWNLOAD_DB.out.db_dir
             ch_versions = ch_versions.mix(KRAKEN2_DOWNLOAD_DB.out.versions)
+
         } else {
             ch_kraken2_db = Channel.fromPath(params.kraken2_db, checkIfExists: true, type: 'dir')
         }
@@ -209,7 +221,13 @@ workflow MAGMAP {
         )
         ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
 
-        TAXBURST(KRAKEN2_KRAKEN2.out.report)
+        KRAKENTOOLS_KREPORT2KRONA(KRAKEN2_KRAKEN2.out.report)
+        ch_versions = ch_versions.mix(KRAKENTOOLS_KREPORT2KRONA.out.versions)
+
+        FORMAT_KRONA(KRAKENTOOLS_KREPORT2KRONA.out.txt)
+        ch_versions = ch_versions.mix(FORMAT_KRONA.out.versions)
+
+        TAXBURST(FORMAT_KRONA.out.format_tsv)
         ch_versions = ch_versions.mix(TAXBURST.out.versions)
     }
 

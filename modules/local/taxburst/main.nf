@@ -13,8 +13,8 @@ process TAXBURST {
     
     script:
     """
-    taxburst ${kraken_report} -o ${meta.id}_taxburst.html
-    
+    taxburst -F krona ${kraken_report} -o ${meta.id}_taxburst.html
+
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
         taxburst: \$(taxburst --version 2>&1 | head -n1 | cut -d' ' -f2)

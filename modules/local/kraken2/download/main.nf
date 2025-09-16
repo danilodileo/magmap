@@ -13,7 +13,7 @@ process KRAKEN2_DOWNLOAD_DB {
     val db_url
     
     output:
-    path "${db_name}/", emit: db_dir
+    path "${db_name}/" , emit: db_dir
     path "versions.yml", emit: versions
     
     script:
@@ -23,7 +23,7 @@ process KRAKEN2_DOWNLOAD_DB {
     
     # Create directory and extract
     mkdir -p ${db_name}
-    tar -xzf ${db_name}.tar.gz -C ${db_name} --strip-components=1
+    tar -xzf ${db_name}.tar.gz -C ${db_name}
     
     # Clean up archive
     rm ${db_name}.tar.gz
