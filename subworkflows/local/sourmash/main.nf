@@ -42,24 +42,30 @@ workflow SOURMASH {
         ch_sample_sigs = SAMPLE_SKETCH.out.signatures
 
         ch_genome_sigs = GENOME_SKETCH.out.signatures
-            .collect { meta, sig -> [ sig ] }
-            .map { sig -> [ [ id: 'signatures' ], sig ] }
+            .collect { meta, sig -> [ [ id: 'local-genomes' ], sig ] }
 
         GENOME_INDEX(ch_genome_sigs, ksize)
         ch_versions = ch_versions.mix(GENOME_INDEX.out.versions)
 
+        def i = 0
         ch_database = GENOME_INDEX.out.signature_index
-            .map{ meta, sig -> sig }
-            .mix( ch_indexes )
-            .collect()
+            //.map { meta, sig -> sig }
+            .mix(
+                ch_indexes.map { index ->
+                    [ [ id: sprintf("remoteidx_%02d", i++) ], index ]
+                }
+            )
 
-        SOURMASH_GATHER(ch_sample_sigs, ch_database, save_unassigned, save_matches_sig, save_prefetch, save_prefetch_csv )
+        ch_gather = ch_sample_sigs
+            .combine(ch_database)
+
+        SOURMASH_GATHER(ch_gather.map { it -> [ it[0], it[1] ] }, ch_gather.map { it -> [ it[2], it[3] ] }, save_unassigned, save_matches_sig, save_prefetch, save_prefetch_csv)
         ch_versions = ch_versions.mix(SOURMASH_GATHER.out.versions)
 
         // The genomes that were selected by sourmash can either be local genomes provided by the user
         // with --genomeinfo, or genomes we need to fetch from NCBI
 
-        // 1. Find the local genomes that were selected
+        // 1. Find the genomes that were selected
         ch_genomes = ch_user_genomeinfo
             .map { genome -> [ [ genome.accno ], genome ] }
             .join(
@@ -76,12 +82,16 @@ workflow SOURMASH {
                     .unique(),
                 remainder: true
             )
+            .view { "ch_genomes: ${it}" }
             .branch { genome ->
                 local: genome[1] && genome[2]
                     return genome[1]
                 ncbi:  genome[2]
                     return genome[2]
             }
+
+        ch_genomes.local.view { "local: ${it}" }
+        ch_genomes.ncbi.view { "ncbi: ${it}" }
         
         // 2. Fetch NCBI genomes
         WGET_GENOME(

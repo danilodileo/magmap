@@ -1,5 +1,5 @@
 process SOURMASH_GATHER {
-    tag "$meta.id"
+    tag "${meta.id}-${meta2.id}"
     label 'process_single'
 
     conda "${moduleDir}/environment.yml"
@@ -9,7 +9,7 @@ process SOURMASH_GATHER {
 
     input:
     tuple val(meta), path(signature)
-    path(database)
+    tuple val(meta2), path(database)
     val save_unassigned
     val save_matches_sig
     val save_prefetch
