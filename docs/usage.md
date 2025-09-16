@@ -149,7 +149,8 @@ The pipeline also supports [Taxburst](https://taxburst.github.io/taxburst/) for 
 
 You can provide a custom Kraken2 database using the parameter `--kraken2_db`. For detailed instructions on building a database, please refer to the [Kraken2 documentation](https://ccb.jhu.edu/software/kraken2/).
 
-If you do not specify a custom database, the pipeline supports several prebuilt databases via the `--kraken2_db_type` parameter. Available options are:
+If you do not specify a custom database, the pipeline supports several prebuilt databases via the `--kraken2_db_type` parameter.
+Available options:
 
 - `mini`
 - `viral`
