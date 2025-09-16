@@ -215,10 +215,9 @@
             "type": "object",
             "description": "Options for Kraken2 taxonomic classification",
             "properties": {
-                "run_kraken2": {
+                "skip_kraken2": {
                     "type": "boolean",
-                    "description": "Run Kraken2 taxonomic profiling",
-                    "help_text": "Enable Kraken2 to classify reads taxonomically."
+                    "description": "Skip Kraken2 taxonomic profiling"
                 },
                 "kraken2_db_store_dir": {
                     "type": "string",
