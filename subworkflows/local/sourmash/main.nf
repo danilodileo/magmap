@@ -101,7 +101,6 @@ workflow SOURMASH {
                 WGET_GENOME.out.outfile
                     .map { genome -> [ accno: genome[0].id, genome_fna: genome[1] ] }
             )
-            .view { "mixed: ${it}" }
 
     emit:
         gindex           = GENOME_SKETCH.out.signatures
