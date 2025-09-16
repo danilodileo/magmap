@@ -142,6 +142,29 @@ For further documentation, see the [BBduk official website](https://jgi.doe.gov/
 nextflow run nf-core/magmap -profile docker --outdir results/ --input samples.csv --genomeinfo localgenomes.csv --sequence_filter path/to/file
 ```
 
+### Kraken2 (optional)
+
+With [Kraken2](https://ccb.jhu.edu/software/kraken2/), you can generate a table listing the taxonomic classification for each sample. The nf-core/magmap pipeline also supports [Taxburst](https://taxburst.github.io/taxburst/) for visualization of Kraken2 results.
+
+You can provide a custom Kraken2 database using the parameter `--kraken2_db`. For detailed instructions on building a database, please refer to the [Kraken2 documentation](https://ccb.jhu.edu/software/kraken2/).
+
+If you do not specify a custom database, the pipeline supports several prebuilt databases via the `--kraken2_db_type` parameter. Available options are:
+
+- `mini`
+- `viral`
+- `standard`
+
+Example usage:
+
+```bash
+nextflow run nf-core/magmap \
+    -profile docker \
+    --outdir results/ \
+    --input samples.csv \
+    --genomeinfo localgenomes.csv \
+    --run_kraken2 true
+```
+
 ### Sourmash (optional)
 
 With [Sourmash](https://sourmash.readthedocs.io/en/latest/index.html) you can filter the genomes to be used by magmap in the mapping step. This function is optional but can speed up the process and let you get a better genomes /reads mapping ratio since you are removing all the genomes that are not passing the threshold (that you can select).
