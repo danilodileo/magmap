@@ -28,8 +28,8 @@
                     "format": "file-path",
                     "mimetype": "text/tsv",
                     "fa_icon": "fas fa-dna",
-                    "description": "Path to comma-separated file containing information about the genomes to be mapped to.",
-                    "help_text": "You will need to create a file with information about the genomes you want to map to before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. Columns are: accno, genomes_fna, genomes_gff. Please see the documentation for more information.",
+                    "description": "Path to comma-separated file containing information about the genomes to map to.",
+                    "help_text": "This has to be a comma-separated file with 3 columns, and a header row. Columns are: accno, genome_fna, genome_gff. Please see the documentation for more information.",
                     "schema": "assets/schema_genomeinfo.json"
                 },
                 "gtdbtk_metadata": {

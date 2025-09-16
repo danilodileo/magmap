@@ -16,8 +16,8 @@
             "genome_fna": {
                 "type": "string",
                 "format": "file-path",
-                "pattern": "^\\S+\\.gz$",
-                "errorMessage": "Fasta file must be provided, the name cannot contain spaces and must have extension '.gz'",
+                "pattern": "^\\S+(\\.fa)|(\\.fna)|(\\.fasta)(\\.gz)?$",
+                "errorMessage": "Fasta file must be provided, the name cannot contain spaces'",
                 "meta": ["genome_fna"]
             },
             "genome_gff": {
