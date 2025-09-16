@@ -39,7 +39,7 @@ workflow NFCORE_MAGMAP {
     gtdb_metadata               // channel: GTDB metadata files
     gtdbtk_metadata             // channel: GTDB-Tk metadata files
     checkm_metadata             // channel: CheckM/CheckM2 metadata files
-    run_kraken2                 // boolean: run Kraken2 or not
+    skip_kraken2                // boolean: run Kraken2 or not
     kraken2_db                  // string: path to Kraken2 database
     kraken2_db_type             // string: type of Kraken2 database
     sourmash                    // boolean: run Sourmash or not
