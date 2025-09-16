@@ -88,6 +88,7 @@ process FORMAT_KRONA {
 
     stub:
     def prefix = task.ext.prefix ?: "${meta.id}"
+
     """
     cat > ${prefix}.tsv << 'EOF'
     fraction	superkingdom	phylum	class	order	family	genus	species
