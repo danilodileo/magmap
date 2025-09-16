@@ -16,7 +16,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and the results
     - [Trim galore!](#trim-galore) - Primer trimming
     - [MultiQC](#multiqc) - Aggregate report describing results
     - [BBduk](#bbduk) - Filter out sequences from samples that matches sequences in a user-provided fasta file (optional)
-  - [Community composition](#community-composition) - Generate a several files that show the taxonomical community in the dataset.
+  - [Community composition](#community-composition) - General analysis of the taxonomic composition of the communities in the samples using the kmer-based Kraken2 tool.
     - [Kraken2](#kraken2) - Output from Kraken2.
     - [Kraken2_databases](#kraken2-databases) - Output from kraken2_download_db.
     - [Taxburst](#taxburst) - Output from Taxburst tool for visualisation of taxonomical community in the dataset.
