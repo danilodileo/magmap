@@ -144,7 +144,8 @@ nextflow run nf-core/magmap -profile docker --outdir results/ --input samples.cs
 
 ### Kraken2 (optional)
 
-With [Kraken2](https://ccb.jhu.edu/software/kraken2/), you can generate a table listing the taxonomic classification for each sample. The nf-core/magmap pipeline also supports [Taxburst](https://taxburst.github.io/taxburst/) for visualization of Kraken2 results.
+With [Kraken2](https://ccb.jhu.edu/software/kraken2/), you can generate a table listing the taxonomic classification for each sample. 
+The pipeline also supports [Taxburst](https://taxburst.github.io/taxburst/) for visualization of Kraken2 results.
 
 You can provide a custom Kraken2 database using the parameter `--kraken2_db`. For detailed instructions on building a database, please refer to the [Kraken2 documentation](https://ccb.jhu.edu/software/kraken2/).
 
