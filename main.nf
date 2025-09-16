@@ -39,6 +39,9 @@ workflow NFCORE_MAGMAP {
     gtdb_metadata               // channel: GTDB metadata files
     gtdbtk_metadata             // channel: GTDB-Tk metadata files
     checkm_metadata             // channel: CheckM/CheckM2 metadata files
+    run_kraken2                 // boolean: run Kraken2 or not
+    kraken2_db                  // string: path to Kraken2 database
+    kraken2_db_type             // string: type of Kraken2 database
     sourmash                    // boolean: run Sourmash or not
     sourmash_ksize              // integer
     sourmash_save_unassigned    // boolean
@@ -65,6 +68,9 @@ workflow NFCORE_MAGMAP {
         gtdb_metadata,
         gtdbtk_metadata,
         checkm_metadata,
+        run_kraken2,
+        kraken2_db,
+        kraken2_db_type,
         sourmash,
         sourmash_ksize,
         sourmash_save_unassigned,
@@ -121,6 +127,9 @@ workflow {
         PIPELINE_INITIALISATION.out.gtdb_metadata,
         PIPELINE_INITIALISATION.out.gtdbtk_metadata,
         PIPELINE_INITIALISATION.out.checkm_metadata,
+        params.run_kraken2,
+        params.kraken2_db,
+        params.kraken2_db_type,
         params.sourmash,
         params.sourmash_ksize,
         params.sourmash_save_unassigned,
