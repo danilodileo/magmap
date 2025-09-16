@@ -68,7 +68,7 @@ workflow NFCORE_MAGMAP {
         gtdb_metadata,
         gtdbtk_metadata,
         checkm_metadata,
-        run_kraken2,
+        skip_kraken2,
         kraken2_db,
         kraken2_db_type,
         sourmash,
