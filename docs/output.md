@@ -95,7 +95,7 @@ BBduk is built-in tool from BBmap.
 
 You can use [Prokka](https://github.com/tseemann/prokka) to identify ORFs in any genomes for which a gff file is not provided.
 In addition to calling ORFs (done with Prodigal) Prokka will filter ORFs to only retain quality ORFs and will functionally annotate the ORFs.
-Output from Prokka is directed to the directory specified with the `--genome_store_dir` parameter (default `genomes` in the working directory for the pipeline run.
+Output from Prokka is directed to the `prokka` subdirectory of the directory specified with the `--genome_store_dir` parameter (default `genomes` in the working directory for the pipeline run).
 Genomes already found as Prokka output, will be skipped by the Prokka step.
 See the usage documentation for more information.
 
