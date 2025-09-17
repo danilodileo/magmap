@@ -82,7 +82,6 @@ workflow SOURMASH {
                     .unique(),
                 remainder: true
             )
-            .view { "ch_genomes: ${it}" }
             .branch { genome ->
                 local: genome[1] && genome[2]
                     return genome[1]
@@ -90,9 +89,6 @@ workflow SOURMASH {
                     return genome[2]
             }
 
-        ch_genomes.local.view { "local: ${it}" }
-        ch_genomes.ncbi.view { "ncbi: ${it}" }
-        
         // 2. Fetch NCBI genomes
         WGET_GENOME(
             ch_genomes.ncbi
