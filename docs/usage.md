@@ -144,7 +144,7 @@ nextflow run nf-core/magmap -profile docker --outdir results/ --input samples.cs
 
 ### Kraken2 (optional)
 
-With [Kraken2](https://ccb.jhu.edu/software/kraken2/), you can generate a table listing the taxonomic classification for each sample. 
+With [Kraken2](https://ccb.jhu.edu/software/kraken2/), you can generate a table listing the taxonomic classification for each sample.
 The pipeline also supports [Taxburst](https://taxburst.github.io/taxburst/) for visualization of Kraken2 results.
 
 You can provide a custom Kraken2 database using the parameter `--kraken2_db`. For detailed instructions on building a database, please refer to the [Kraken2 documentation](https://ccb.jhu.edu/software/kraken2/).
@@ -153,7 +153,7 @@ If you do not specify a custom database, the pipeline supports several prebuilt 
 Available options:
 
 - `mini` Minimal database. Useful if you just want to test the pipeline
-- `GTDB v226` Bacterial and Archaeal database. it is a really big database, make sure to have enough disk space (644GB) 
+- `GTDB v226` Bacterial and Archaeal database. it is a really big database, make sure to have enough disk space (644GB)
 - `standard` Refseq archaea, bacteria, viral, plasmid, human, UniVec_Core. (92GB)
 
 Example usage:
