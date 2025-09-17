@@ -219,7 +219,7 @@
                     "type": "boolean",
                     "description": "Skip Kraken2 taxonomic profiling"
                 },
-                "kraken2_db_store_dir": {
+                "kraken2_store_dir": {
                     "type": "string",
                     "description": "Select a path where to store the downloaded db for kraken2",
                     "help_text": "Default database: mini"
@@ -234,8 +234,8 @@
                     "type": "string",
                     "default": "mini",
                     "description": "Type which database to use for running Kraken 2",
-                    "pattern": "(standard)|(viral)|(mini)",
-                    "help_text": "Available databases:\n- viral\n- mini\n- standard"
+                    "pattern": "(standard)|(GTDB v226)|(mini)",
+                    "help_text": "Available databases:\n- GTDB v226\n- mini\n- standard"
                 },
                 "kraken2_save_output": {
                     "type": "boolean",

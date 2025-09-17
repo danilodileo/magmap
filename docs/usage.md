@@ -152,9 +152,9 @@ You can provide a custom Kraken2 database using the parameter `--kraken2_db`. Fo
 If you do not specify a custom database, the pipeline supports several prebuilt databases via the `--kraken2_db_type` parameter.
 Available options:
 
-- `mini`
-- `viral`
-- `standard`
+- `mini` Minimal database. Useful if you just want to test the pipeline
+- `GTDB v226` Bacterial and Archaeal database. it is a really big database, make sure to have enough disk space (644GB) 
+- `standard` Refseq archaea, bacteria, viral, plasmid, human, UniVec_Core. (92GB)
 
 Example usage:
 
