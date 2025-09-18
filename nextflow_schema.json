@@ -280,7 +280,7 @@
                 "kraken2_memory_mapping": {
                     "type": "boolean",
                     "description": "Use memory mapping to avoid loading database into RAM",
-                    "default": true
+                    "default": false
                 }
             }
         },
