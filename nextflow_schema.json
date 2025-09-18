@@ -76,11 +76,6 @@
                     "help_text": "You will need to use or create a file with information about the genomes' statistics you want to map to before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 5 columns, and a header row. Columns are: checkm_completeness, checkm_contamination, contig_count, checkm_strain_heterogeneity, genome_size. Please see the documentation for more information.",
                     "fa_icon": "fas fa-table"
                 },
-                "se_reads": {
-                    "type": "boolean",
-                    "description": "Activate when you work with single ends reads.",
-                    "fa_icon": "fas fa-arrows-alt-h"
-                },
                 "email": {
                     "type": "string",
                     "description": "Email address for completion summary.",
