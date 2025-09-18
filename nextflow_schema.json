@@ -56,8 +56,16 @@
                     "format": "directory-path",
                     "default": "genomes",
                     "fa_icon": "fas fa-dna",
-                    "description": "Path to a directory where downloaded genome files and output from genome annotation are stored.",
-                    "help_text": "Any genome and annotation files created by the pipeline will be stored in this directory for potential later use."
+                    "description": "Path to a directory where downloaded genome files is stored.",
+                    "help_text": "Any genome files downloaded by the pipeline will be stored in this directory for potential later use."
+                },
+                "prokka_store_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "default": "prokka",
+                    "fa_icon": "fas fa-dna",
+                    "description": "Path to a directory where prokka output is stored.",
+                    "help_text": "Prokka annotation files created by the pipeline will be stored in this directory for potential later use."
                 },
                 "indexes": {
                     "type": "string",

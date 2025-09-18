@@ -117,10 +117,11 @@ N.B. More than one index file can be provided, separated by commas.
 
 ##### Genome data will be directed to a specific directory
 
-All genomes potentially downloaded as part of the Sourmash process, plus the output from Prokka annotation of genomes, will be output in the directory specified with `--genome_store_dir`, set to `genomes` by default (genomes in `genomes/genomes` and Prokka output in `genomes/prokka`).
-On subsequent runs, any genome file found in the specified directory will be skipped from download and/or Prokka annotation.
-Since annotating genomes is computationally relatively expensive, we recommend that you _reuse this directory_ between pipeline runs, and _not only for the same project_.
-If you create a storage directory that you can access from the directories from which you run the pipeline, just symlink the storage directory to the pipeline run directory or give the full path to the `--genome_store_dir` parameter.
+All genomes potentially downloaded as part of the Sourmash process, will be output in the directory specified with `--genome_store_dir` (set to `genomes` by default).  
+Similarly, the output from Prokka annotation of genomes will be stored in the directory specified with `--prokka_store_dir` (`prokka` by default). 
+On subsequent runs, any genome file or Prokka annotation files found in the specified directories will be skipped from download and/or Prokka annotation.
+Since annotating genomes is computationally relatively expensive, we recommend that you _reuse these directories_ between pipeline runs.
+If you create storage directories that you can access from the directories from which you run the pipeline, just symlink the storage directories to the pipeline run directory or give the full path to the `--genome_store_dir` and `--prokka_store_dir` parameters.
 
 #### Genome metadata input
 
@@ -168,7 +169,7 @@ nextflow run nf-core/magmap -profile docker --outdir results/ --input samples.cs
 The pipeline uses [Prokka](https://github.com/tseemann/prokka) to call genes/ORFs from the genomes.
 This is suitable for prokaryotes and it provides a gff as output for downstream analysis.
 It also performs functional annotation of ORFs.
-Output from Prokka will be placed in subdirectories under the `prokka` subdirectory of the directory specified with `--genome_store_dir` (default `genomes`) as described [above](#genome-data-will-be-directed-to-a-specific-directory).
+Output from Prokka will be placed in subdirectories under the directory specified with `--prokka_store_dir` (default `prokka`) as described [above](#genome-data-will-be-directed-to-a-specific-directory).
 
 ## Running the pipeline
 
