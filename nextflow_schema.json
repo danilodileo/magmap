@@ -35,8 +35,8 @@
                     "format": "file-path",
                     "mimetype": "text/tsv",
                     "fa_icon": "fas fa-dna",
-                    "description": "Path to comma-separated file containing information about the genomes to be mapped to.",
-                    "help_text": "You will need to create a file with information about the genomes you want to map to before running the pipeline. Use this parameter to specify its location. It has to be a comma-separated file with 3 columns, and a header row. Columns are: accno, genomes_fna, genomes_gff. Please see the documentation for more information.",
+                    "description": "Path to comma-separated file containing information about the genomes to map to.",
+                    "help_text": "This has to be a comma-separated file with 3 columns, and a header row. Columns are: accno, genome_fna, genome_gff. Please see the documentation for more information.",
                     "schema": "assets/schema_genomeinfo.json"
                 },
                 "gtdbtk_metadata": {
@@ -50,6 +50,22 @@
                     "description": "Path to a file with paths to tsv files with information about genomes in NCBI 'assembly_summary' format. The default file contains GenBank and RefSeq summary files.",
                     "help_text": "The summary files pointed to in the file need to contain the column '#assembly_accession', referring to genome identifiers used in sourmash indexes and 'ftp_path' pointing. The directory structure of the 'ftp_path' paths needs to conform with NCBI standards and contain a contig file with the pattern '<accno>*_genomic.fna.gz'.",
                     "fa_icon": "fas fa-network-wired"
+                },
+                "genome_store_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "default": "genomes",
+                    "fa_icon": "fas fa-dna",
+                    "description": "Path to a directory where downloaded genome files is stored.",
+                    "help_text": "Any genome files downloaded by the pipeline will be stored in this directory for potential later use."
+                },
+                "prokka_store_dir": {
+                    "type": "string",
+                    "format": "directory-path",
+                    "default": "prokka",
+                    "fa_icon": "fas fa-dna",
+                    "description": "Path to a directory where prokka output is stored.",
+                    "help_text": "Prokka annotation files created by the pipeline will be stored in this directory for potential later use."
                 },
                 "indexes": {
                     "type": "string",
