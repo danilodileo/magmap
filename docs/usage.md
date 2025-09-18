@@ -162,13 +162,6 @@ The pipeline also supports [Taxburst](https://taxburst.github.io/taxburst/) for 
 
 You can provide a custom Kraken2 database using the parameter `--kraken2_db`. For detailed instructions on building a database, please refer to the [Kraken2 documentation](https://ccb.jhu.edu/software/kraken2/).
 
-If you do not specify a custom database, the pipeline supports several prebuilt databases via the `--kraken2_db_type` parameter.
-Available options:
-
-- `mini` Minimal database. Useful if you just want to test the pipeline
-- `GTDB v226` Bacterial and Archaeal database. it is a really big database, make sure to have enough disk space (644GB)
-- `standard` Refseq archaea, bacteria, viral, plasmid, human, UniVec_Core. (92GB)
-
 Example usage:
 
 ```bash
@@ -176,7 +169,8 @@ nextflow run nf-core/magmap \
     -profile docker \
     --outdir results/ \
     --input samples.csv \
-    --genomeinfo localgenomes.csv \
+    --genomeinfo localgenomes.csv \ 
+    --skip_kraken2 false \
 ```
 
 ### Sourmash (optional)

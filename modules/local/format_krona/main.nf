@@ -38,37 +38,26 @@ process FORMAT_KRONA {
     # Calculate total reads for fraction calculation
     total_reads <- sum(krona_data\$count, na.rm = TRUE)
 
-    # Parse taxonomy and create tabular format
+    # Format taxonomy
     formatted_data <- krona_data %>%
         filter(count > 0) %>%
         mutate(
             fraction = count / total_reads,
-            # Split taxonomy by tabs and extract levels
-            tax_levels = str_split(taxonomy, "\\t")
+            # remove prefixes (k__, p__, etc.)
+            taxonomy = str_remove_all(taxonomy, "[a-z]__") %>% 
+                str_replace_all("_", " ")
         ) %>%
-        # Create separate columns for each taxonomic rank
-        rowwise() %>%
-        mutate(
-            superkingdom = ifelse(length(tax_levels) >= 1, tax_levels[[1]], 'unclassified'),
-            phylum = ifelse(length(tax_levels) >= 2, tax_levels[[2]], 'unclassified'),
-            class = ifelse(length(tax_levels) >= 3, tax_levels[[3]], 'unclassified'),
-            order = ifelse(length(tax_levels) >= 4, tax_levels[[4]], 'unclassified'),
-            family = ifelse(length(tax_levels) >= 5, tax_levels[[5]], 'unclassified'),
-            genus = ifelse(length(tax_levels) >= 6, tax_levels[[6]], 'unclassified'),
-            species = ifelse(length(tax_levels) >= 7, tax_levels[[7]], 'unclassified')
+        separate(
+            taxonomy, 
+            into = c("superkingdom", "phylum", "class", "order", "family", "genus", "species"), 
+            sep = "\t", 
+            fill = "right",   # fill missing ranks with NA
+            remove = TRUE
         ) %>%
-        ungroup() %>%
-        # Clean up taxonomy names (remove prefixes like k__, p__, etc.)
-        mutate(
-            superkingdom = str_remove(superkingdom, "^[kd]__") %>% str_replace_all("_", " "),
-            phylum = str_remove(phylum, "^p__") %>% str_replace_all("_", " "),
-            class = str_remove(class, "^c__") %>% str_replace_all("_", " "),
-            order = str_remove(order, "^o__") %>% str_replace_all("_", " "),
-            family = str_remove(family, "^f__") %>% str_replace_all("_", " "),
-            genus = str_remove(genus, "^g__") %>% str_replace_all("_", " "),
-            species = str_remove(species, "^s__") %>% str_replace_all("_", " ")
-        ) %>%
-        # Select final columns
+        replace_na(list(
+            superkingdom = "unclassified", phylum = "unclassified", class = "unclassified",
+            order = "unclassified", family = "unclassified", genus = "unclassified", species = "unclassified"
+        )) %>%
         select(fraction, superkingdom, phylum, class, order, family, genus, species)
 
     # Write output

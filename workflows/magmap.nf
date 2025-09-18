@@ -214,6 +214,7 @@ workflow MAGMAP {
             params.kraken2_save_output,
             params.kraken2_save_reads
         )
+
         ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
 
         KRAKENTOOLS_KREPORT2KRONA(KRAKEN2_KRAKEN2.out.report)

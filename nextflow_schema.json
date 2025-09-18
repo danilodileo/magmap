@@ -49,8 +49,7 @@
                     "type": "string",
                     "description": "Path to a file with paths to tsv files with information about genomes in NCBI 'assembly_summary' format. The default file contains GenBank and RefSeq summary files.",
                     "help_text": "The summary files pointed to in the file need to contain the column '#assembly_accession', referring to genome identifiers used in sourmash indexes and 'ftp_path' pointing. The directory structure of the 'ftp_path' paths needs to conform with NCBI standards and contain a contig file with the pattern '<accno>*_genomic.fna.gz'.",
-                    "fa_icon": "fas fa-network-wired",
-                    "default": "${projectDir}/assets/ncbi_genome_infos.csv"
+                    "fa_icon": "fas fa-network-wired"
                 },
                 "genome_store_dir": {
                     "type": "string",
@@ -260,7 +259,6 @@
                     "type": "string",
                     "default": "standard",
                     "description": "Type which database to use for running Kraken 2",
-                    "pattern": "(standard)|(GTDB v226)|(mini)",
                     "help_text": "Available databases:\n- GTDB v226\n- mini\n- standard"
                 },
                 "kraken2_db_url": {
