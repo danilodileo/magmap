@@ -10,6 +10,8 @@ nextflow_pipeline {
         when {
             params {
                 outdir = "$outputDir"
+                kraken2_db_type = 'mini'
+                kraken2_db_url  = 'https://genome-idx.s3.amazonaws.com/kraken/k2_minusb_20250714.tar.gz'
             }
         }
 
