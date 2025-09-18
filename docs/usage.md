@@ -118,7 +118,7 @@ N.B. More than one index file can be provided, separated by commas.
 ##### Genome data will be directed to a specific directory
 
 All genomes potentially downloaded as part of the Sourmash process, will be output in the directory specified with `--genome_store_dir` (set to `genomes` by default).  
-Similarly, the output from Prokka annotation of genomes will be stored in the directory specified with `--prokka_store_dir` (`prokka` by default). 
+Similarly, the output from Prokka annotation of genomes will be stored in the directory specified with `--prokka_store_dir` (`prokka` by default).
 On subsequent runs, any genome file or Prokka annotation files found in the specified directories will be skipped from download and/or Prokka annotation.
 Since annotating genomes is computationally relatively expensive, we recommend that you _reuse these directories_ between pipeline runs.
 If you create storage directories that you can access from the directories from which you run the pipeline, just symlink the storage directories to the pipeline run directory or give the full path to the `--genome_store_dir` and `--prokka_store_dir` parameters.
