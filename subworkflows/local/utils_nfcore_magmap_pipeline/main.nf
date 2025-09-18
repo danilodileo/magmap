@@ -128,12 +128,14 @@ workflow PIPELINE_INITIALISATION {
     }
 
     //
-    // Make sure that the directory for genome and annotation storage exists
+    // Make sure that the directories for genome and annotation storage exists
     //
     if ( params.genome_store_dir ) {
-        d = new File("${params.genome_store_dir}/genomes")
+        d = new File("${params.genome_store_dir}")
         if ( ! d.exists() ) { d.mkdirs() }
-        d = new File("${params.genome_store_dir}/prokka")
+    }
+    if ( params.prokka_store_dir ) {
+        d = new File("${params.prokka_store_dir}")
         if ( ! d.exists() ) { d.mkdirs() }
     }
 

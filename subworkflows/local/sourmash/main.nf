@@ -56,6 +56,10 @@ workflow SOURMASH {
                 }
             )
 
+        // To make sure that all combinations of sample signatures and indexes are gathered below,
+        // combine the two channels.
+        // (In theory, this should not be required as the command supposedly can take multiple samples
+        // and multiple indexes. This does not return the full set of hits however.)
         ch_gather = ch_sample_sigs
             .combine(ch_database)
 
