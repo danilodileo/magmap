@@ -49,13 +49,13 @@ process FORMAT_KRONA {
         # Create separate columns for each taxonomic rank
         rowwise() %>%
         mutate(
-            superkingdom = ifelse(length(tax_levels) >= 1, tax_levels[[1]], NA),
-            phylum = ifelse(length(tax_levels) >= 2, tax_levels[[2]], NA),
-            class = ifelse(length(tax_levels) >= 3, tax_levels[[3]], NA),
-            order = ifelse(length(tax_levels) >= 4, tax_levels[[4]], NA),
-            family = ifelse(length(tax_levels) >= 5, tax_levels[[5]], NA),
-            genus = ifelse(length(tax_levels) >= 6, tax_levels[[6]], NA),
-            species = ifelse(length(tax_levels) >= 7, tax_levels[[7]], NA)
+            superkingdom = ifelse(length(tax_levels) >= 1, tax_levels[[1]], 'unclassified'),
+            phylum = ifelse(length(tax_levels) >= 2, tax_levels[[2]], 'unclassified'),
+            class = ifelse(length(tax_levels) >= 3, tax_levels[[3]], 'unclassified'),
+            order = ifelse(length(tax_levels) >= 4, tax_levels[[4]], 'unclassified'),
+            family = ifelse(length(tax_levels) >= 5, tax_levels[[5]], 'unclassified'),
+            genus = ifelse(length(tax_levels) >= 6, tax_levels[[6]], 'unclassified'),
+            species = ifelse(length(tax_levels) >= 7, tax_levels[[7]], 'unclassified')
         ) %>%
         ungroup() %>%
         # Clean up taxonomy names (remove prefixes like k__, p__, etc.)
@@ -69,9 +69,7 @@ process FORMAT_KRONA {
             species = str_remove(species, "^s__") %>% str_replace_all("_", " ")
         ) %>%
         # Select final columns
-        select(fraction, superkingdom, phylum, class, order, family, genus, species) %>%
-        # Filter out rows with no species information
-        filter(!is.na(species) & species != "" & species != "unclassified")
+        select(fraction, superkingdom, phylum, class, order, family, genus, species)
 
     # Write output
     write_tsv(formatted_data, "${prefix}.tsv")

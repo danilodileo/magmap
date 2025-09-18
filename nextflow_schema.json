@@ -239,15 +239,16 @@
                 },
                 "kraken2_save_output": {
                     "type": "boolean",
-                    "description": "Save Kraken2 output files"
+                    "description": "Save Kraken2 all output files. This includes the report and the FastQ reads with assigned taxonomy."
                 },
                 "kraken2_save_reads": {
                     "type": "boolean",
-                    "description": "Save classified and unclassified reads"
+                    "description": "Save classified and unclassified reads in FastQ format."
                 },
                 "kraken2_memory_mapping": {
                     "type": "boolean",
-                    "description": "Use memory mapping to avoid loading database into RAM"
+                    "description": "Use memory mapping to avoid loading database into RAM",
+                    "default": true
                 }
             }
         },
@@ -289,7 +290,8 @@
                 },
                 "sourmash_save_prefetch_csv": {
                     "type": "boolean",
-                    "description": "Outputs a CSV file summarizing the prefetched results, including metadata about retrieved signatures."
+                    "description": "Outputs a CSV file summarizing the prefetched results, including metadata about retrieved signatures.",
+                    "default": false
                 }
             },
             "fa_icon": "fas fa-filter"

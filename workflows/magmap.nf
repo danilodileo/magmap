@@ -53,9 +53,10 @@ workflow MAGMAP {
     ch_gtdb_metadata            // channel: GTDB metadata files
     ch_gtdbtk_metadata          // channel: GTDB-Tk metadata files
     ch_checkm_metadata          // channel: CheckM/CheckM2 metadata files
-    skip_kraken2                 // boolean: run Kraken2 or not
+    skip_kraken2                // boolean: run Kraken2 or not
     kraken2_db                  // string: path to Kraken2 database
     kraken2_db_type             // string: type of Kraken2 database
+    kraken2_db_url              // string: URL to download Kraken2 database
     sourmash                    // boolean: run Sourmash or not
     sourmash_ksize              // integer
     sourmash_save_unassigned    // boolean
@@ -196,16 +197,8 @@ workflow MAGMAP {
     if ( ! skip_kraken2 ) {
         if (!kraken2_db) {
         // Choose database based on type
-        if (kraken2_db_type == 'viral') {
-            db_name = "k2_viral_20210517"
-            db_url = "https://genome-idx.s3.amazonaws.com/kraken/k2_viral_20210517.tar.gz"
-        } else if (kraken2_db_type == 'mini') {
-            db_name = "k2_minusb_20210517"
-            db_url = "https://genome-idx.s3.amazonaws.com/kraken/k2_minusb_20210517.tar.gz"
-        } else {
-            db_name = "k2_standard_20250714"
-            db_url = "https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20250714.tar.gz"
-        }
+            db_name = kraken2_db_type
+            db_url = kraken2_db_url
         
             KRAKEN2_DOWNLOAD_DB(db_name, db_url)
             ch_kraken2_db = KRAKEN2_DOWNLOAD_DB.out.db_dir
