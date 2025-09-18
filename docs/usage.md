@@ -169,7 +169,7 @@ nextflow run nf-core/magmap \
     -profile docker \
     --outdir results/ \
     --input samples.csv \
-    --genomeinfo localgenomes.csv \ 
+    --genomeinfo localgenomes.csv \
     --skip_kraken2 false \
 ```
 
