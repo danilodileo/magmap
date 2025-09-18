@@ -24,6 +24,7 @@ The pipeline is built using [Nextflow](https://www.nextflow.io/) and the results
     - [Sourmash](#sourmash) - Output from Sourmash filtering of genomes.
   - [ORF Caller step](#orf-caller-step) - Identify protein-coding genes (ORFs) with an ORF caller
     - [Prokka](#prokka) - Output from Prokka (optional)
+  - [Genome fetching](#genome-fetching) - Genomes fetched from remote sources
   - [Mapping step](#mapping-reads-to-genomes) - Predict the function and the taxonomy of ORFs
     - [BBmap](#bbmap) - Output from BBmap
     - [FeatureCounts](#featureCounts) - Output from FeatureCounts
@@ -98,16 +99,22 @@ BBduk is built-in tool from BBmap.
 
 You can use [Prokka](https://github.com/tseemann/prokka) to identify ORFs in any genomes for which a gff file is not provided.
 In addition to calling ORFs (done with Prodigal) Prokka will filter ORFs to only retain quality ORFs and will functionally annotate the ORFs.
+Output from Prokka is directed to subdirectories of the directory specified with the `--prokka_store_dir` parameter (default `prokka` in the working directory for the pipeline run).
+Genomes already found as Prokka output, will be skipped by the Prokka step.
+See the usage documentation for more information.
 
 <details markdown="1">
 <summary>Output files</summary>
 
 - `prokka/`
-  - `*.ffn.gz`: nucleotides fasta file output
-  - `*.faa.gz`: amino acids fasta file output
-  - `*.gff.gz`: genome feature file output
+  - `<accno>`
+    - `*.ffn`: nucleotides fasta file output
+    - `*.faa`: amino acids fasta file output
+    - `*.gff`: genome feature file output
 
 </details>
+
+### Genome fetching
 
 ## Magmap output
 

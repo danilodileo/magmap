@@ -18,7 +18,7 @@ process FILTER_ACCNO {
     task.ext.when == null || task.ext.when
 
     script:
-    def args     = task.ext.args ?: ''
+    def args   = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
     """
     #!/usr/bin/env Rscript
@@ -34,7 +34,7 @@ process FILTER_ACCNO {
         separate(new, c('accno','x'), sep = ' ') %>%
         as_tibble() %>%
         select(-x,-col) %>%
-        write_tsv("${prefix}_filtered_accno.tsv.gz")
+        write_tsv("${prefix}.filtered_accno.tsv.gz")
 
         writeLines(
             c(

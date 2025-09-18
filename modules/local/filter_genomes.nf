@@ -12,15 +12,17 @@ process FILTER_GENOMES {
     tuple val(meta), path(sourmashoutput)
 
     output:
-    tuple val(meta), path("*.tsv.gz")   , emit: filtered_genomes
-    path "versions.yml"                 , emit: versions
+    tuple val(meta), path("*.filtered_genomes.tsv.gz"), emit: filtered_genomes
+    path "versions.yml"                               , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
 
     script:
-    def args     = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def args    = task.ext.args ?: ''
+    def prefix  = task.ext.prefix ?: "${meta.id}"
+    def outfile = "${prefix}.filtered_genomes.tsv.gz"
+
     """
     #!/usr/bin/env Rscript
 
@@ -41,7 +43,7 @@ process FILTER_GENOMES {
         as_tibble() %>%
         select(-x,-col) %>%
         inner_join(genomes, by = 'accno') %>%
-        write_tsv("${prefix}_filtered_genomes.tsv.gz")
+        write_tsv("${outfile}")
 
         writeLines(
             c(

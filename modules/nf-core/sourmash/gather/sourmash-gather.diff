@@ -1,0 +1,27 @@
+Changes in component 'nf-core/sourmash/gather'
+Changes in 'sourmash/gather/main.nf':
+--- modules/nf-core/sourmash/gather/main.nf
++++ modules/nf-core/sourmash/gather/main.nf
+@@ -1,5 +1,5 @@
+ process SOURMASH_GATHER {
+-    tag "$meta.id"
++    tag "${meta.id}-${meta2.id}"
+     label 'process_single'
+ 
+     conda "${moduleDir}/environment.yml"
+@@ -9,7 +9,7 @@
+ 
+     input:
+     tuple val(meta), path(signature)
+-    path(database)
++    tuple val(meta2), path(database)
+     val save_unassigned
+     val save_matches_sig
+     val save_prefetch
+
+'modules/nf-core/sourmash/gather/meta.yml' is unchanged
+'modules/nf-core/sourmash/gather/environment.yml' is unchanged
+'modules/nf-core/sourmash/gather/tests/main.nf.test' is unchanged
+'modules/nf-core/sourmash/gather/tests/main.nf.test.snap' is unchanged
+'modules/nf-core/sourmash/gather/tests/nextflow.config' is unchanged
+************************************************************

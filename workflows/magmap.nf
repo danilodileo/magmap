@@ -243,7 +243,6 @@ workflow MAGMAP {
         )
         ch_versions = ch_versions.mix(SOURMASH.out.versions)
         ch_genomes = SOURMASH.out.filtered_genomes
-
     } else {
         ch_genomes = ch_genomes_post_renaming
     }
@@ -271,10 +270,14 @@ workflow MAGMAP {
     ch_no_gff = ch_genomes
         .filter { g -> ! g.genome_gff }
         .map { g -> [ [ id: g.accno ], g.genome_fna ] }
-    GUNZIP_CONTIGS(ch_no_gff)
+        .branch { g ->
+            gzipped: g[1] =~ /\.gz$/
+            unzipped: true
+        }
+    GUNZIP_CONTIGS(ch_no_gff.gzipped)
     ch_versions = ch_versions.mix(GUNZIP_CONTIGS.out.versions)
 
-    PROKKA(GUNZIP_CONTIGS.out.file, [], [])
+    PROKKA(GUNZIP_CONTIGS.out.file.mix(ch_no_gff.unzipped), [], [])
     ch_versions = ch_versions.mix(PROKKA.out.versions)
 
     // PROKKA on the genomes that lack gff
@@ -283,7 +286,7 @@ workflow MAGMAP {
         .mix(
             PROKKA.out.gff
                 .map{ meta, gff -> [ meta.id  , [ meta.id, gff ] ] }
-                .join(ch_no_gff.map { meta, fna -> [ meta.id , [ meta.id, fna ] ] } )
+                .join(ch_no_gff.gzipped.mix(ch_no_gff.unzipped).map { meta, fna -> [ meta.id , [ meta.id, fna ] ] } )
                 .map{ meta, gff, fna -> [ accno: gff[0], genome_fna: fna[1], genome_gff: gff[1] ] }
         )
 

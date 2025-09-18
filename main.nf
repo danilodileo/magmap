@@ -111,6 +111,7 @@ workflow {
         params.genomeinfo,
         params.remote_genome_sources,
         params.kraken2_store_dir,
+        params.genome_store_dir,
         params.indexes,
         params.gtdb_metadata,
         params.gtdbtk_metadata,
