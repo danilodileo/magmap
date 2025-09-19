@@ -11,7 +11,7 @@ process KRAKEN2_DOWNLOAD_DB {
     val db_url
 
     output:
-    path "${db_url.substring(db_url.lastIndexOf('/')+1, db_url.length()) - '.tar.gz'}/", emit: db_dir
+    path "${db_url.substring(db_url.lastIndexOf('/')+1, db_url.length()) - '.tar.gz' - '.tgz'}/", emit: db_dir
     path "versions.yml", emit: versions
 
     script:
