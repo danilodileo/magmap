@@ -41,7 +41,6 @@ workflow NFCORE_MAGMAP {
     checkm_metadata             // channel: CheckM/CheckM2 metadata files
     skip_kraken2                // boolean: run Kraken2 or not
     kraken2_db                  // string: path to Kraken2 database
-    kraken2_db_type             // string: type of Kraken2 database
     kraken2_db_url              // string: URL to download Kraken2 database
     sourmash                    // boolean: run Sourmash or not
     sourmash_ksize              // integer
@@ -71,7 +70,6 @@ workflow NFCORE_MAGMAP {
         checkm_metadata,
         skip_kraken2,
         kraken2_db,
-        kraken2_db_type,
         kraken2_db_url,
         sourmash,
         sourmash_ksize,
@@ -133,7 +131,6 @@ workflow {
         PIPELINE_INITIALISATION.out.checkm_metadata,
         params.skip_kraken2,
         params.kraken2_db,
-        params.kraken2_db_type,
         params.kraken2_db_url,
         params.sourmash,
         params.sourmash_ksize,

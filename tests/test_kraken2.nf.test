@@ -3,15 +3,15 @@ nextflow_pipeline {
     name "Test pipeline"
     script "../main.nf"
     tag "pipeline"
-    profile 'test kraken2'
+    profile 'test_kraken2'
 
     test("-profile test_kraken2") {
 
         when {
             params {
                 outdir = "$outputDir"
-                kraken2_db_type = 'mini'
-                kraken2_db_url  = 'https://genome-idx.s3.amazonaws.com/kraken/k2_minusb_20250714.tar.gz'
+                kraken2_db_type = 'k2_minusb_20210517'
+                kraken2_db_url  = "https://genome-idx.s3.amazonaws.com/kraken/k2_minusb_20210517.tar.gz"
             }
         }
 

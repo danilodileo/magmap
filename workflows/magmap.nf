@@ -55,7 +55,6 @@ workflow MAGMAP {
     ch_checkm_metadata          // channel: CheckM/CheckM2 metadata files
     skip_kraken2                // boolean: run Kraken2 or not
     kraken2_db                  // string: path to Kraken2 database
-    kraken2_db_type             // string: type of Kraken2 database
     kraken2_db_url              // string: URL to download Kraken2 database
     sourmash                    // boolean: run Sourmash or not
     sourmash_ksize              // integer
@@ -197,10 +196,10 @@ workflow MAGMAP {
     if ( ! skip_kraken2 ) {
         if (!kraken2_db) {
         // Choose database based on type
-            db_name = kraken2_db_type
+            // db_name = kraken2_db_type
             db_url = kraken2_db_url
         
-            KRAKEN2_DOWNLOAD_DB(db_name, db_url)
+            KRAKEN2_DOWNLOAD_DB(db_url)
             ch_kraken2_db = KRAKEN2_DOWNLOAD_DB.out.db_dir
             ch_versions = ch_versions.mix(KRAKEN2_DOWNLOAD_DB.out.versions)
 

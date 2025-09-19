@@ -255,12 +255,6 @@
                     "description": "Path to Kraken2 database",
                     "help_text": "Path to a Kraken2 database directory. Path needs to be a folder with \".k2d\" files"
                 },
-                "kraken2_db_type": {
-                    "type": "string",
-                    "default": "standard",
-                    "description": "Type which database to use for running Kraken 2",
-                    "help_text": "Available databases:\n- GTDB v226\n- mini\n- standard"
-                },
                 "kraken2_db_url": {
                     "type": "string",
                     "default": "https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20250714.tar.gz",
