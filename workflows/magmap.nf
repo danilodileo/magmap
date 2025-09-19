@@ -4,32 +4,37 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
+include { BAM_SORT_STATS_SAMTOOLS                } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
+include { BBMAP_ALIGN                            } from '../modules/nf-core/bbmap/align/main'
+include { BBMAP_BBDUK                            } from '../modules/nf-core/bbmap/bbduk/main'
+include { CAT_GFFS                               } from '../subworkflows/local/concatenate_gff'
+include { CAT_FASTQ            	                 } from '../modules/nf-core/cat/fastq/main'
+include { CHECK_DUPLICATES                       } from '../modules/local/check_duplicates'
 include { COLLECT_FEATURECOUNTS                  } from '../modules/local/collect_featurecounts'
 include { COLLECT_STATS                          } from '../modules/local/collect_stats'
-include { FILTER_GENOMES                         } from '../modules/local/filter_genomes'
-include { CHECK_DUPLICATES                       } from '../modules/local/check_duplicates'
-include { RENAME_CONTIGS                         } from '../modules/local/rename_contigs'
-include { validateInputSamplesheet               } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
-include { FASTQC_TRIMGALORE                      } from '../subworkflows/local/fastqc_trimgalore'
-include { CAT_GFFS                               } from '../subworkflows/local/concatenate_gff'
 include { CREATE_BBMAP_INDEX                     } from '../subworkflows/local/create_bbmap_index'
-include { SOURMASH                               } from '../subworkflows/local/sourmash'
-include { PIPELINE_INITIALISATION                } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
-include { PIPELINE_COMPLETION                    } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
 include { FASTQC                                 } from '../modules/nf-core/fastqc/main'
-include { MULTIQC                                } from '../modules/nf-core/multiqc/main'
-include { BBMAP_BBDUK                            } from '../modules/nf-core/bbmap/bbduk/main'
-include { BBMAP_ALIGN                            } from '../modules/nf-core/bbmap/align/main'
-include { SUBREAD_FEATURECOUNTS as FEATURECOUNTS } from '../modules/nf-core/subread/featurecounts/main'
-include { PIGZ_UNCOMPRESS as GUNZIP_CONTIGS      } from '../modules/nf-core/pigz/uncompress/main'
-include { PROKKA                                 } from '../modules/nf-core/prokka/main'
-include { CAT_FASTQ            	                 } from '../modules/nf-core/cat/fastq/main'
-include { TIDYVERSE_JOINMETADATA                 } from '../modules/local/tidyverse/joinmetadata/'
-include { BAM_SORT_STATS_SAMTOOLS                } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
-include { paramsSummaryMultiqc                   } from '../subworkflows/nf-core/utils_nfcore_pipeline/'
-include { paramsSummaryMap                       } from 'plugin/nf-schema'
+include { FASTQC_TRIMGALORE                      } from '../subworkflows/local/fastqc_trimgalore'
+include { FILTER_GENOMES                         } from '../modules/local/filter_genomes'
+include { FORMAT_KRONA                           } from '../modules/local/format_krona/main'
+include { KRAKEN2_KRAKEN2                        } from '../modules/nf-core/kraken2/kraken2/main'
+include { KRAKENTOOLS_KREPORT2KRONA              } from '../modules/nf-core/krakentools/kreport2krona/main'
+include { KRAKEN2_DOWNLOAD_DB                    } from '../modules/local/kraken2/download/main'
 include { methodsDescriptionText                 } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
+include { MULTIQC                                } from '../modules/nf-core/multiqc/main'
+include { paramsSummaryMap                       } from 'plugin/nf-schema'
+include { paramsSummaryMultiqc                   } from '../subworkflows/nf-core/utils_nfcore_pipeline/'
+include { PIGZ_UNCOMPRESS as GUNZIP_CONTIGS      } from '../modules/nf-core/pigz/uncompress/main'
+include { PIPELINE_COMPLETION                    } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
+include { PIPELINE_INITIALISATION                } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
+include { PROKKA                                 } from '../modules/nf-core/prokka/main'
+include { RENAME_CONTIGS                         } from '../modules/local/rename_contigs'
 include { softwareVersionsToYAML                 } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { SOURMASH                               } from '../subworkflows/local/sourmash'
+include { SUBREAD_FEATURECOUNTS as FEATURECOUNTS } from '../modules/nf-core/subread/featurecounts/main'
+include { TAXBURST                               } from '../modules/local/taxburst/main'
+include { TIDYVERSE_JOINMETADATA                 } from '../modules/local/tidyverse/joinmetadata/'
+include { validateInputSamplesheet               } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -48,6 +53,9 @@ workflow MAGMAP {
     ch_gtdb_metadata            // channel: GTDB metadata files
     ch_gtdbtk_metadata          // channel: GTDB-Tk metadata files
     ch_checkm_metadata          // channel: CheckM/CheckM2 metadata files
+    skip_kraken2                // boolean: run Kraken2 or not
+    kraken2_db                  // string: path to Kraken2 database
+    kraken2_db_url              // string: URL to download Kraken2 database
     sourmash                    // boolean: run Sourmash or not
     sourmash_ksize              // integer
     sourmash_save_unassigned    // boolean
@@ -180,6 +188,41 @@ workflow MAGMAP {
         ch_bbduk_logs = Channel.empty()
         ch_collect_stats = ch_collect_stats
             .map { [ it[0], it[1], it[2], [] ] }
+    }
+
+    //
+    // MODULE: Kraken2
+    //
+    if ( ! skip_kraken2 ) {
+        if (!kraken2_db) {
+
+            db_url = kraken2_db_url
+
+            KRAKEN2_DOWNLOAD_DB(db_url)
+            ch_kraken2_db = KRAKEN2_DOWNLOAD_DB.out.db_dir
+            ch_versions = ch_versions.mix(KRAKEN2_DOWNLOAD_DB.out.versions)
+
+        } else {
+            ch_kraken2_db = Channel.fromPath(params.kraken2_db, checkIfExists: true, type: 'dir')
+        }
+
+        KRAKEN2_KRAKEN2(
+            ch_clean_reads,
+            ch_kraken2_db,
+            params.kraken2_save_output,
+            params.kraken2_save_reads
+        )
+
+        ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
+
+        KRAKENTOOLS_KREPORT2KRONA(KRAKEN2_KRAKEN2.out.report)
+        ch_versions = ch_versions.mix(KRAKENTOOLS_KREPORT2KRONA.out.versions)
+
+        FORMAT_KRONA(KRAKENTOOLS_KREPORT2KRONA.out.txt)
+        ch_versions = ch_versions.mix(FORMAT_KRONA.out.versions)
+
+        TAXBURST(FORMAT_KRONA.out.format_tsv)
+        ch_versions = ch_versions.mix(TAXBURST.out.versions)
     }
 
     //

@@ -1,0 +1,5 @@
+name: format_krona
+channels:
+  - conda-forge
+dependencies:
+  - "r::r-tidyverse=2.0.0"
