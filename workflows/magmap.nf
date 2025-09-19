@@ -17,7 +17,7 @@ include { FASTQC                                 } from '../modules/nf-core/fast
 include { FASTQC_TRIMGALORE                      } from '../subworkflows/local/fastqc_trimgalore'
 include { FILTER_GENOMES                         } from '../modules/local/filter_genomes'
 include { FORMAT_KRONA                           } from '../modules/local/format_krona/main'
-include { KRAKEN2_KRAKEN2                        } from '../modules/nf-core/kraken2/kraken2/main' 
+include { KRAKEN2_KRAKEN2                        } from '../modules/nf-core/kraken2/kraken2/main'
 include { KRAKENTOOLS_KREPORT2KRONA              } from '../modules/nf-core/krakentools/kreport2krona/main'
 include { KRAKEN2_DOWNLOAD_DB                    } from '../modules/local/kraken2/download/main'
 include { methodsDescriptionText                 } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
