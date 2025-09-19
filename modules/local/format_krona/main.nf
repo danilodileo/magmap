@@ -20,6 +20,7 @@ process FORMAT_KRONA {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
+
     """
     #!/usr/bin/env Rscript
 
@@ -29,7 +30,7 @@ process FORMAT_KRONA {
     library(stringr)
 
     # Read krona file (count + tab-separated taxonomy)
-    krona_data <- read_tsv("${krona_file}", 
+    krona_data <- read_tsv("${krona_file}",
         col_names = c("count", "taxonomy"),
         col_types = "dc",
         show_col_types = FALSE
@@ -44,13 +45,13 @@ process FORMAT_KRONA {
         mutate(
             fraction = count / total_reads,
             # remove prefixes (k__, p__, etc.)
-            taxonomy = str_remove_all(taxonomy, "[a-z]__") %>% 
+            taxonomy = str_remove_all(taxonomy, "[a-z]__") %>%
                 str_replace_all("_", " ")
         ) %>%
         separate(
-            taxonomy, 
-            into = c("superkingdom", "phylum", "class", "order", "family", "genus", "species"), 
-            sep = "\t", 
+            taxonomy,
+            into = c("superkingdom", "phylum", "class", "order", "family", "genus", "species"),
+            sep = "\t",
             fill = "right",   # fill missing ranks with NA
             remove = TRUE
         ) %>%

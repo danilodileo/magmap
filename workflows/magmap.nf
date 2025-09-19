@@ -198,7 +198,7 @@ workflow MAGMAP {
         // Choose database based on type
             // db_name = kraken2_db_type
             db_url = kraken2_db_url
-        
+
             KRAKEN2_DOWNLOAD_DB(db_url)
             ch_kraken2_db = KRAKEN2_DOWNLOAD_DB.out.db_dir
             ch_versions = ch_versions.mix(KRAKEN2_DOWNLOAD_DB.out.versions)
@@ -206,7 +206,7 @@ workflow MAGMAP {
         } else {
             ch_kraken2_db = Channel.fromPath(params.kraken2_db, checkIfExists: true, type: 'dir')
         }
-    
+
         KRAKEN2_KRAKEN2(
             ch_clean_reads,
             ch_kraken2_db,

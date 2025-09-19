@@ -10,7 +10,7 @@ process TAXBURST {
     output:
     tuple val(meta), path("*.html"), emit: html
     path "versions.yml", emit: versions
-    
+
     script:
     """
     taxburst -F krona ${kraken_report} -o ${meta.id}_taxburst.html
