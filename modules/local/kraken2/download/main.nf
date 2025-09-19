@@ -15,7 +15,7 @@ process KRAKEN2_DOWNLOAD_DB {
     path "versions.yml", emit: versions
 
     script:
-    db_name = "${db_url.substring(db_url.lastIndexOf('/')+1, db_url.length()) - '.tar.gz'}"
+    db_name = "${db_url.substring(db_url.lastIndexOf('/')+1, db_url.length()) - '.tar.gz' - '.tgz'}"
 
     """
     # Download the database
