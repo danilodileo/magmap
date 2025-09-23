@@ -10,5 +10,6 @@ null/
 .nf-test/
 .nf-test.log
 .Rproj.user
+kraken2_databases/
 genomes
 prokka
