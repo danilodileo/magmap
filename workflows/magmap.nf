@@ -4,8 +4,8 @@
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 */
 
-include { COLLECT_FEATURECOUNTS                  } from '../modules/local/collect_featurecounts'
-include { COLLECT_STATS                          } from '../modules/local/collect_stats'
+include { COLLECT_FEATURECOUNTS                  } from '../modules/local/collect/featurecounts'
+include { COLLECT_STATS                          } from '../modules/local/collect/stats'
 include { FILTER_GENOMES                         } from '../modules/local/filter_genomes'
 include { CHECK_DUPLICATES                       } from '../modules/local/check_duplicates'
 include { RENAME_CONTIGS                         } from '../modules/local/rename_contigs'
@@ -42,6 +42,7 @@ workflow MAGMAP {
     take:
     ch_samplesheet              // channel: samplesheet read in from --input
     ch_genomeinfo               // channel: genome information sheet read in from --genomeinfo
+    runprefix                   //  string: user-defined prefix for file names etc.
     ch_remote_genome_sources    // channel: paths to NCBI-style genome summary files
     ch_indexes                  // channel: user-provided Sourmash indexes
     sequence_filter             //  string: fasta file for BBDuk
@@ -69,9 +70,9 @@ workflow MAGMAP {
     // Check presence of duplicates contigs in the local genome collection
     //
     ch_check_duplicates = ch_genomeinfo
-        .map { it.genome_fna }
-        .collect()
-        .map { [ [id: 'genomes'], it ] }
+        .collect { g -> [ [ id: "local-genomes" ], g.genome_fna ] }
+        //.map { g -> [ [ id: "local-genomes" ], g ] }
+
     CHECK_DUPLICATES(ch_check_duplicates)
     ch_versions = ch_versions.mix(CHECK_DUPLICATES.out.versions)
 
@@ -147,21 +148,27 @@ workflow MAGMAP {
     )
     ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
 
-    ch_collect_stats = ch_short_reads.collect { meta, fasta -> meta.id }.map { [ [ id:"magmap" ], it ] }
+    ch_collect_stats = ch_short_reads
+        .collect { meta, fasta -> meta.id }
+        .map { reads -> [ [ id: runprefix ], reads ] }
+
     if ( skip_trimming ) {
         ch_collect_stats = ch_collect_stats
             .map { meta, samples -> [ meta, samples, [] ] }
 
     } else {
-        if ( params.se_reads ) {
-            ch_collect_stats = ch_collect_stats
-                .combine(FASTQC_TRIMGALORE.out.trim_log.collect { meta, report -> report }.map { [ it ] })
-
-        } else {
-            ch_collect_stats = ch_collect_stats
-                .combine(FASTQC_TRIMGALORE.out.trim_log.collect { meta, report -> report[0] }.map { [ it ] })
-
-        }
+        ch_collect_stats = ch_collect_stats
+            .combine(
+                FASTQC_TRIMGALORE.out.trim_log
+                    .collect { meta, report ->
+                        if ( report in List ) {
+                            report[0]
+                        } else {
+                            report
+                        }
+                    }
+                    .map { [ it ] }
+            )
     }
 
     //
@@ -292,28 +299,31 @@ workflow MAGMAP {
     // MODULE: Collect featurecounts output counts in one table
     //
     ch_collect_featurecounts = FEATURECOUNTS.out.counts
-        .map { meta, file -> [meta.feature, [meta, file]] }
+        .view { "counts: ${it}" }
+        .map { meta, file -> [ meta.feature, [meta, file] ] }
         .groupTuple()
         .map { feature, data ->
             def metas = data.collect { it[0] }
             def files = data.collect { it[1] }
-            [metas[0] + [feature: feature], files]
+            [ metas[0] + [feature: feature], files ]
         }
         .map { meta, data ->
             [ [id: meta.feature ], data ]
         }
+        .view { "ch_collect_featurecounts: ${it}" }
 
-    COLLECT_FEATURECOUNTS ( ch_collect_featurecounts )
+    COLLECT_FEATURECOUNTS(ch_collect_featurecounts)
     ch_versions           = ch_versions.mix(COLLECT_FEATURECOUNTS.out.versions)
-    ch_fcs_for_stats      = COLLECT_FEATURECOUNTS.out.counts.collect { it[1]}.map { [ it ] }
-    ch_fcs_for_summary    = COLLECT_FEATURECOUNTS.out.counts.map { it[1]}
-    ch_collect_stats = ch_collect_stats
-        .combine(ch_fcs_for_stats)
+
+    ch_fcs_for_stats      = COLLECT_FEATURECOUNTS.out.counts.collect { meta, tsv -> tsv }.map { [ it ] }
+    ch_fcs_for_summary    = COLLECT_FEATURECOUNTS.out.counts.map { meta, tsv -> tsv }
+    ch_collect_stats      = ch_collect_stats.combine(ch_fcs_for_stats)
+    ch_collect_stats.view { "ch_collect_stats post fc: ${it}" }
 
     //
     // Collect statistics from the pipeline
     //
-    COLLECT_STATS(ch_collect_stats)
+    COLLECT_STATS(ch_collect_stats.map { s -> s + [] })
     ch_versions     = ch_versions.mix(COLLECT_STATS.out.versions)
 
     //
