@@ -157,10 +157,8 @@ workflow MAGMAP {
     ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
 
     ch_collect_stats = ch_short_reads
-        .view { "ch_short_reads: ${it}" }
         .collect { meta, fasta -> meta }
         .map { reads -> [ [ id: runprefix ], reads ] }
-        .view { "ch_collect_stats init: ${it}" }
 
     if ( skip_trimming ) {
         ch_collect_stats = ch_collect_stats
@@ -361,7 +359,6 @@ workflow MAGMAP {
     ch_fcs_for_stats      = COLLECT_FEATURECOUNTS.out.counts.collect { meta, tsv -> tsv }.map { [ it ] }
     ch_fcs_for_summary    = COLLECT_FEATURECOUNTS.out.counts.map { meta, tsv -> tsv }
     ch_collect_stats      = ch_collect_stats.combine(ch_fcs_for_stats)
-    ch_collect_stats.view { "ch_collect_stats post fc: ${it}" }
 
     //
     // Collect statistics from the pipeline
