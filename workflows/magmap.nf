@@ -78,8 +78,8 @@ workflow MAGMAP {
     // Check presence of duplicates contigs in the local genome collection
     //
     ch_check_duplicates = ch_genomeinfo
-        .collect { g -> [ [ id: "local-genomes" ], g.genome_fna ] }
-        //.map { g -> [ [ id: "local-genomes" ], g ] }
+        .collect { g -> g.genome_fna }
+        .map { g -> [ [ id: "local-genomes" ], g ] }
 
     CHECK_DUPLICATES(ch_check_duplicates)
     ch_versions = ch_versions.mix(CHECK_DUPLICATES.out.versions)
