@@ -94,7 +94,7 @@ process COLLECT_STATS {
         select(-fname)
 
     counts <- read_tsv(c('${fcs.join("', '")}'), col_types = 'cciicicid', id = 'fname') %>%
-        mutate(feature = str_remove(fname, '\\\\..*')) %>%
+        mutate(feature = str_replace(fname, '^[^.]+\\\\.([^.]+)\\\\..*', '\\\\1')) %>%
         group_by(sample, feature) %>%
         summarise(count = sum(count), .groups = 'drop') %>%
         pivot_wider(names_from = feature, values_from = count, values_fill = 0)
