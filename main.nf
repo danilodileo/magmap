@@ -33,7 +33,6 @@ workflow NFCORE_MAGMAP {
     take:
     samplesheet                 // channel: samplesheet read in from --input
     genomeinfo                  // channel: genome information sheet read in from --genomeinfo
-    runprefix                   //  string: user-defined prefix to use for file names etc.
     remote_genome_sources       // channel: NCBI-style genome summary files read in via --remote_genome_sources
     indexes                     // channel: user-provided Sourmash indexes
     sequence_filter             // channel: fasta file for BBDuk
@@ -63,7 +62,6 @@ workflow NFCORE_MAGMAP {
     MAGMAP (
         samplesheet,
         genomeinfo,
-        runprefix,
         remote_genome_sources,
         indexes,
         sequence_filter,
@@ -125,7 +123,6 @@ workflow {
     NFCORE_MAGMAP (
         PIPELINE_INITIALISATION.out.samplesheet,
         PIPELINE_INITIALISATION.out.genomeinfo,
-        params.runprefix,
         PIPELINE_INITIALISATION.out.remote_genome_sources,
         PIPELINE_INITIALISATION.out.indexes,
         params.sequence_filter,

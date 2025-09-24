@@ -47,7 +47,6 @@ workflow MAGMAP {
     take:
     ch_samplesheet              // channel: samplesheet read in from --input
     ch_genomeinfo               // channel: genome information sheet read in from --genomeinfo
-    runprefix                   //  string: user-defined prefix for file names etc.
     ch_remote_genome_sources    // channel: paths to NCBI-style genome summary files
     ch_indexes                  // channel: user-provided Sourmash indexes
     sequence_filter             //  string: fasta file for BBDuk
@@ -158,7 +157,7 @@ workflow MAGMAP {
 
     ch_collect_stats = ch_short_reads
         .collect { meta, fasta -> meta }
-        .map { reads -> [ [ id: runprefix ], reads ] }
+        .map { reads -> [ [ id: 'magmap' ], reads ] }
 
     if ( skip_trimming ) {
         ch_collect_stats = ch_collect_stats
