@@ -73,18 +73,18 @@ process TIDYVERSE_JOINMETADATA {
     """
     if ( checkm_metadata ) {
         read_checkm_metadata = """
-        checkm_metadata <- read_tsv(c('${checkm_metadata.join('\', \'')}'),
-            col_types = cols(
-                .default = col_character(), Completeness = col_double(), Contamination = col_double(),
-                `Strain heterogeneity` = col_double(), `# contigs` = col_integer(),
-                `Genome size (bp)` = col_integer()
-            )
+        checkm_cols = c('# contigs' = NA_integer_, 'Genome size (bp)' = NA_integer_, 'Strain heterogeneity' = NA_integer_)
+        checkm_metadata <- read_tsv(
+            c('${checkm_metadata.join('\', \'')}'),
+            col_types = cols(.default = col_character())
         ) %>%
+            tibble::add_column(!!!checkm_cols[setdiff(names(checkm_cols), names(.))]) %>%
+            rename(accno = 1) %>%
             transmute(
-                accno = `Bin Id`,
-                checkm_completeness = Completeness, checkm_contamination = Contamination,
-                checkm_strain_heterogeneity = `Strain heterogeneity`,
-                contig_count = `# contigs`, genome_size = `Genome size (bp)`
+                accno,
+                checkm_completeness = as.integer(Completeness), checkm_contamination = as.integer(Contamination),
+                checkm_strain_heterogeneity = as.integer(`Strain heterogeneity`),
+                contig_count = as.integer(`# contigs`), genome_size = as.integer(`Genome size (bp)`)
             )
         """
     }
@@ -120,6 +120,7 @@ process TIDYVERSE_JOINMETADATA {
                 ungroup(),
             by = join_by(accno)
         ) %>%
+        arrange(accno) %>%
         write_tsv("${outfile}")
 
     writeLines(
