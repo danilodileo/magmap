@@ -2,10 +2,10 @@ process COLLECT_FEATURECOUNTS {
     tag "$meta.id"
     label 'process_high'
 
-    conda "conda-forge::r-tidyverse=1.3.1 conda-forge::r-data.table=1.14.0 conda-forge::r-dtplyr=1.1.0"
+    conda "${moduleDir}/environment.yml"
     container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/mulled-v2-508c9bc5e929a77a9708902b1deca248c0c84689:0bb5bee2557136d28549f41d3faa08485e967aa1-0' :
-        'biocontainers/mulled-v2-508c9bc5e929a77a9708902b1deca248c0c84689:0bb5bee2557136d28549f41d3faa08485e967aa1-0' }"
+        'https://depot.galaxyproject.org/singularity/mulled-v2-b2ec1fea5791d428eebb8c8ea7409c350d31dada:a447f6b7a6afde38352b24c30ae9cd6e39df95c4-1' :
+        'biocontainers/mulled-v2-b2ec1fea5791d428eebb8c8ea7409c350d31dada:a447f6b7a6afde38352b24c30ae9cd6e39df95c4-1' }"
 
     input:
     tuple val(meta), path(inputfiles)
@@ -18,9 +18,8 @@ process COLLECT_FEATURECOUNTS {
     task.ext.when == null || task.ext.when
 
     script:
-    def args    = task.ext.args ?: ''
-    def prefix  = task.ext.prefix ?: "${meta.id}"
-    def outfile = "${prefix}.counts.tsv.gz"
+    def args     = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}"
     """
     #!/usr/bin/env Rscript
 
@@ -55,7 +54,7 @@ process COLLECT_FEATURECOUNTS {
         ) %>%
         tidyr::unnest(d) %>%
         select(-f) %>%
-        write_tsv("${outfile}")
+        write_tsv("${prefix}.counts.tsv.gz")
 
         writeLines(
             c(
@@ -67,5 +66,20 @@ process COLLECT_FEATURECOUNTS {
             ),
             "versions.yml"
         )
-        """
+    """
+
+    stub:
+    def prefix = task.ext.prefix ?: "${meta.id}"
+    """
+    touch ${prefix}.counts.tsv
+    gzip ${prefix}.counts.tsv
+
+    cat <<-END_VERSIONS > versions.yml
+    "${task.process}":
+        R: 4.1.0
+        dplyr: 1.0.7
+        dtplyr: 1.1.0
+        data.table: 1.14.0
+    END_VERSIONS
+    """
 }

@@ -7,19 +7,19 @@
 include { BAM_SORT_STATS_SAMTOOLS                } from '../subworkflows/nf-core/bam_sort_stats_samtools/main'
 include { BBMAP_ALIGN                            } from '../modules/nf-core/bbmap/align/main'
 include { BBMAP_BBDUK                            } from '../modules/nf-core/bbmap/bbduk/main'
-include { CAT_GFFS                               } from '../subworkflows/local/concatenate_gff'
 include { CAT_FASTQ            	                 } from '../modules/nf-core/cat/fastq/main'
+include { CAT_GFFS                               } from '../subworkflows/local/concatenate_gff'
 include { CHECK_DUPLICATES                       } from '../modules/local/check_duplicates'
-include { COLLECT_FEATURECOUNTS                  } from '../modules/local/collect_featurecounts'
-include { COLLECT_STATS                          } from '../modules/local/collect_stats'
+include { COLLECT_FEATURECOUNTS                  } from '../modules/local/collect/featurecounts'
+include { COLLECT_STATS                          } from '../modules/local/collect/stats'
 include { CREATE_BBMAP_INDEX                     } from '../subworkflows/local/create_bbmap_index'
 include { FASTQC                                 } from '../modules/nf-core/fastqc/main'
 include { FASTQC_TRIMGALORE                      } from '../subworkflows/local/fastqc_trimgalore'
 include { FILTER_GENOMES                         } from '../modules/local/filter_genomes'
 include { FORMAT_KRONA                           } from '../modules/local/format_krona/main'
+include { KRAKEN2_DOWNLOAD_DB                    } from '../modules/local/kraken2/download/main'
 include { KRAKEN2_KRAKEN2                        } from '../modules/nf-core/kraken2/kraken2/main'
 include { KRAKENTOOLS_KREPORT2KRONA              } from '../modules/nf-core/krakentools/kreport2krona/main'
-include { KRAKEN2_DOWNLOAD_DB                    } from '../modules/local/kraken2/download/main'
 include { methodsDescriptionText                 } from '../subworkflows/local/utils_nfcore_magmap_pipeline'
 include { MULTIQC                                } from '../modules/nf-core/multiqc/main'
 include { paramsSummaryMap                       } from 'plugin/nf-schema'
@@ -77,9 +77,9 @@ workflow MAGMAP {
     // Check presence of duplicates contigs in the local genome collection
     //
     ch_check_duplicates = ch_genomeinfo
-        .map { it.genome_fna }
-        .collect()
-        .map { [ [id: 'genomes'], it ] }
+        .collect { g -> g.genome_fna }
+        .map { g -> [ [ id: "local-genomes" ], g ] }
+
     CHECK_DUPLICATES(ch_check_duplicates)
     ch_versions = ch_versions.mix(CHECK_DUPLICATES.out.versions)
 
@@ -155,21 +155,27 @@ workflow MAGMAP {
     )
     ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
 
-    ch_collect_stats = ch_short_reads.collect { meta, fasta -> meta.id }.map { [ [ id:"magmap" ], it ] }
+    ch_collect_stats = ch_short_reads
+        .collect { meta, fasta -> meta }
+        .map { reads -> [ [ id: 'magmap' ], reads ] }
+
     if ( skip_trimming ) {
         ch_collect_stats = ch_collect_stats
             .map { meta, samples -> [ meta, samples, [] ] }
 
     } else {
-        if ( params.se_reads ) {
-            ch_collect_stats = ch_collect_stats
-                .combine(FASTQC_TRIMGALORE.out.trim_log.collect { meta, report -> report }.map { [ it ] })
-
-        } else {
-            ch_collect_stats = ch_collect_stats
-                .combine(FASTQC_TRIMGALORE.out.trim_log.collect { meta, report -> report[0] }.map { [ it ] })
-
-        }
+        ch_collect_stats = ch_collect_stats
+            .combine(
+                FASTQC_TRIMGALORE.out.trim_log
+                    .collect { meta, report ->
+                        if ( report in List ) {
+                            report[0]
+                        } else {
+                            report
+                        }
+                    }
+                    .map { [ it ] }
+            )
     }
 
     //
@@ -335,28 +341,28 @@ workflow MAGMAP {
     // MODULE: Collect featurecounts output counts in one table
     //
     ch_collect_featurecounts = FEATURECOUNTS.out.counts
-        .map { meta, file -> [meta.feature, [meta, file]] }
+        .map { meta, file -> [ meta.feature, [meta, file] ] }
         .groupTuple()
         .map { feature, data ->
             def metas = data.collect { it[0] }
             def files = data.collect { it[1] }
-            [metas[0] + [feature: feature], files]
+            [ metas[0] + [feature: feature], files ]
         }
         .map { meta, data ->
             [ [id: meta.feature ], data ]
         }
 
-    COLLECT_FEATURECOUNTS ( ch_collect_featurecounts )
+    COLLECT_FEATURECOUNTS(ch_collect_featurecounts)
     ch_versions           = ch_versions.mix(COLLECT_FEATURECOUNTS.out.versions)
-    ch_fcs_for_stats      = COLLECT_FEATURECOUNTS.out.counts.collect { it[1]}.map { [ it ] }
-    ch_fcs_for_summary    = COLLECT_FEATURECOUNTS.out.counts.map { it[1]}
-    ch_collect_stats = ch_collect_stats
-        .combine(ch_fcs_for_stats)
+
+    ch_fcs_for_stats      = COLLECT_FEATURECOUNTS.out.counts.collect { meta, tsv -> tsv }.map { [ it ] }
+    ch_fcs_for_summary    = COLLECT_FEATURECOUNTS.out.counts.map { meta, tsv -> tsv }
+    ch_collect_stats      = ch_collect_stats.combine(ch_fcs_for_stats)
 
     //
     // Collect statistics from the pipeline
     //
-    COLLECT_STATS(ch_collect_stats)
+    COLLECT_STATS(ch_collect_stats.map { s -> s + [[]] }) // The last [[]] is to create a value for the `mergetab` that we have in metatdenovo (which shares the swf)
     ch_versions     = ch_versions.mix(COLLECT_STATS.out.versions)
 
     //
