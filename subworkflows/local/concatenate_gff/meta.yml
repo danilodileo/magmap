@@ -6,7 +6,7 @@ keywords:
   - concatenate
   - tsv
 components:
-  - cat_many
+  - cat/many
   - genomes2orfs
   - prokkagff2tsv
 input:
