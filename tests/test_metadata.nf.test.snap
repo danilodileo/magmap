@@ -240,7 +240,7 @@
                 "accno\tcheckm_completeness\tcheckm_contamination\tcheckm_strain_heterogeneity\tcontig_count\tgenome_size\tgtdb_genome_representative\tgtdb_representative\tgtdb_taxonomy\tsource\tpriority"
             ],
             [
-                "GCA_002688505.1\t77.08\t0\t0\t1\t271175\tGB_GCA_002688505.1\tTRUE\td__Bacteria;p__Pseudomonadota;c__Gammaproteobacteria;o__Enterobacterales;f__Enterobacteriaceae;g__Stammera;s__Stammera capleta_A\tGTDB metadata\t10"
+                "GCA_002688505.1\t77.08\t0\t0\t1\t271175\tGB_GCA_002688505.1\tTRUE\td__Bacteria;p__Pseudomonadota;c__Gammaproteobacteria;o__Enterobacterales_A;f__Enterobacteriaceae_A;g__Stammera;s__Stammera capleta\tGTDB metadata\t10"
             ],
             [
                 "accno\tgenome\torf"
@@ -253,6 +253,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.04.7"
         },
-        "timestamp": "2025-09-24T15:13:48.877037004"
+        "timestamp": "2025-09-25T12:38:32.168327835"
     }
 }

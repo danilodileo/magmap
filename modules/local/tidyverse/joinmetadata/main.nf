@@ -120,6 +120,7 @@ process TIDYVERSE_JOINMETADATA {
                 ungroup(),
             by = join_by(accno)
         ) %>%
+        arrange(accno) %>%
         write_tsv("${outfile}")
 
     writeLines(

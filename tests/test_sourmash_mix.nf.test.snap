@@ -246,7 +246,16 @@
                 "accno\tcheckm_completeness\tcheckm_contamination\tcheckm_strain_heterogeneity\tcontig_count\tgenome_size\tgtdb_genome_representative\tgtdb_representative\tgtdb_taxonomy\tsource\tpriority"
             ],
             [
-                "GCA_009777615.1\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA\tNA"
+                "GCA_009777615.1\t97.98\t2.42\t0\t8\t1619733\tGB_GCA_009777615.1\tTRUE\td__Archaea;p__Thermoplasmatota;c__Thermoplasmata;o__Methanomassiliicoccales;f__Methanomethylophilaceae;g__Methanoplasma;s__Methanoplasma cognatum\tGTDB metadata\t10"
+            ],
+            [
+                "GCF_001983105.1\t100\t0.82\t50\t174\t9435764\tRS_GCF_001983105.1\tTRUE\td__Bacteria;p__Actinomycetota;c__Actinomycetes;o__Mycobacteriales;f__Frankiaceae;g__Pseudofrankia;s__Pseudofrankia asymbiotica\tGTDB metadata\t10",
+                "GCF_002368115.1\t99.33\t0.22\t100\t89\t5165988\tRS_GCF_002368115.1\tTRUE\td__Bacteria;p__Cyanobacteriota;c__Cyanobacteriia;o__Cyanobacteriales;f__Nostocaceae;g__Dolichospermum;s__Dolichospermum compactum\tGTDB metadata\t10",
+                "GCF_007748075.1\t96.21\t0\t0\t1\t3486541\tRS_GCF_007748075.1\tTRUE\td__Bacteria;p__Planctomycetota;c__Phycisphaerae;o__Phycisphaerales;f__Phycisphaeraceae;g__Mucisphaera;s__Mucisphaera calidilacus\tGTDB metadata\t10",
+                "GCF_016757965.1\t100\t0\t0\t32\t2115826\tRS_GCF_016757965.1\tTRUE\td__Archaea;p__Halobacteriota;c__Archaeoglobi;o__Archaeoglobales;f__Archaeoglobaceae;g__Archaeoglobus;s__Archaeoglobus neptunius\tGTDB metadata\t10"
+            ],
+            [
+                "ecoli_genome\t100\t1\tNA\tNA\tNA\t\tNA\td__Bacteria;p__Pseudomonadota;c__Gammaproteobacteria;o__Enterobacterales;f__Enterobacteriaceae;g__Escherichia;s__Escherichia coli\tGTDB-Tk/CheckM\t0"
             ],
             [
                 "accno\tgenome\torf"
@@ -259,6 +268,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.04.7"
         },
-        "timestamp": "2025-09-24T15:29:02.496165097"
+        "timestamp": "2025-09-25T13:12:18.891639773"
     }
 }
