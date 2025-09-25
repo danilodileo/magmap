@@ -6,7 +6,7 @@ keywords:
   - bbmap
   - index
 components:
-  - cat_many
+  - cat/many
   - bbmap/index
 input:
   - ch_genome_fnas:

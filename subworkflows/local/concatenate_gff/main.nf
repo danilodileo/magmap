@@ -2,9 +2,9 @@
 // Create a concatenated set of gff files. Handles large number of input files by concatenating in two passes.
 //
 
-include { CAT_MANY as CAT_GFF   } from '../../../modules/local/cat_many'
-include { GENOMES2ORFS          } from '../../../modules/local/genomes2orfs'
-include { PROKKAGFF2TSV         } from '../../../modules/local/prokkagff2tsv'
+include { CAT_MANY as CAT_GFF   } from '../../../modules/local/cat/many/main'
+include { GENOMES2ORFS          } from '../../../modules/local/genomes_2_orfs'
+include { PROKKAGFF2TSV         } from '../../../modules/local/prokka_gff_2_tsv/main'
 
 workflow CAT_GFFS {
     take:
