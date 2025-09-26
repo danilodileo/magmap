@@ -233,8 +233,7 @@
                 },
                 "kraken2_store_dir": {
                     "type": "string",
-                    "description": "Select a path where to store the downloaded db for kraken2",
-                    "help_text": "Default database: mini",
+                    "description": "Select a path where to store the downloaded db for kraken2.",
                     "default": "kraken2_databases"
                 },
                 "kraken2_db": {
@@ -246,7 +245,7 @@
                 "kraken2_db_url": {
                     "type": "string",
                     "default": "https://genome-idx.s3.amazonaws.com/kraken/k2_standard_20250714.tar.gz",
-                    "description": "link for the database to download",
+                    "description": "Path to Kraken2 database to download and use.",
                     "help_text": "You can select which database you prefer from:\nhttps://benlangmead.github.io/aws-indexes/k2\nwe recommend to use the standard (as default) if your aim is to know the community composition of the samples"
                 },
                 "kraken2_save_output": {
