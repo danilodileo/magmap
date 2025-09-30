@@ -92,11 +92,9 @@ Any genome used by the pipeline for which a gff file is not found will be annota
 
 ### Other inputs (optional)
 
-Magmap can handle several types of input that can be used for different purposes.
-
 #### Index input
 
-In addition, or instead of, providing a genome file with genomes to map to, you can provide a [Sourmash](https://sourmash.readthedocs.io/en/latest/) index file that points to genomes.
+In addition to, or instead of, providing a genome file with genomes to map to, you can provide a [Sourmash](https://sourmash.readthedocs.io/en/latest/) index file that points to genomes.
 Sourmash will be run using the index files and matching genomes will be downloaded, annotated with Prokka and mapped to by the pipeline.
 For this to work, entries in the Sourmash index need to point to NCBI assemblies with accessions in the format: `GC[A-Z]_[0-9]+\.[0-9]+`.
 The index input (`--indexes`) is used by Sourmash to select genomes that can be downloaded in a second step and added to the pipeline.
@@ -113,7 +111,8 @@ Since the index files mentioned above provided by the [Sourmash people](https://
 nextflow run nf-core/magmap -profile docker --outdir results/ --input samples.csv --genomeinfo localgenomes.csv --indexes 'https://farm.cse.ucdavis.edu/~ctbrown/sourmash-db/gtdb-rs214/gtdb-rs214-reps.k21.sbt.zip'
 ```
 
-N.B. More than one index file can be provided, separated by commas.
+> [!NOTE]
+> More than one index file can be provided, separated by commas.
 
 ##### Genome data will be directed to a specific directory
 
@@ -122,6 +121,10 @@ Similarly, the output from Prokka annotation of genomes will be stored in the di
 On subsequent runs, any genome file or Prokka annotation files found in the specified directories will be skipped from download and/or Prokka annotation.
 Since annotating genomes is computationally relatively expensive, we recommend that you _reuse these directories_ between pipeline runs.
 If you create storage directories that you can access from the directories from which you run the pipeline, just symlink the storage directories to the pipeline run directory or give the full path to the `--genome_store_dir` and `--prokka_store_dir` parameters.
+
+> [!NOTE]
+> By default, the pipeline will try to download genomes from NCBI five times to allow for temporary errors.
+> After five attempts, any file that was not properly downloaded will be ignored and processing continues.
 
 #### Genome metadata input
 
