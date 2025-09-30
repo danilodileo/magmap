@@ -81,7 +81,9 @@ GCA_002688505,./genomes/GCA_002688505.fna,./genomes/GCA_002688505.gff
 GCA_002688515,./genomes/GCA_002688515.fna,
 ```
 
-N.B. The pipeline assumes gff files have the same format as is output by Prokka.
+> [!NOTE]
+> The pipeline assumes gff files have the same format as is output by Prokka.
+
 Any genome used by the pipeline for which a gff file is not found will be annotated with Prokka to produce a gff file.
 
 | Column       | Description                                                                                                                               |
