@@ -111,8 +111,7 @@ Since the index files mentioned above provided by the [Sourmash people](https://
 nextflow run nf-core/magmap -profile docker --outdir results/ --input samples.csv --genomeinfo localgenomes.csv --indexes 'https://farm.cse.ucdavis.edu/~ctbrown/sourmash-db/gtdb-rs214/gtdb-rs214-reps.k21.sbt.zip'
 ```
 
-> [!NOTE]
-> More than one index file can be provided, separated by commas.
+Note, more than one index file can be provided, separated by commas.
 
 ##### Genome data will be directed to a specific directory
 
