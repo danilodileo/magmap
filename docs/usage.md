@@ -104,7 +104,7 @@ The index input (`--indexes`) is used by Sourmash to select genomes that can be 
 Particular examples of Sourmash index files are those prepared by the authors of Sourmash, which can be found [here](https://sourmash.readthedocs.io/en/latest/databases.html).
 
 Genomes are by default fetched from NCBI using genome information files provided through the `--remote_genome_sources` parameter.
-This points to a file that contains paths to NCBI-style genome information files, containing at least the columns `#assembly_accession` and `ftp_path`.
+This is a comma-separated list of paths to NCBI-style genome information files, containing at least the columns `#assembly_accession` and `ftp_path`.
 The `#assembly_accession` needs to match the identifiers used in the Sourmash indexes.
 By default, two NCBI files are used: `assembly_summary_refseq.txt` and `assembly_summary_genbank.txt`.
 Since the index files mentioned above provided by the [Sourmash people](https://sourmash.readthedocs.io/en/latest/) use NCBI identifiers, the genome information files from NCBI work with them.
