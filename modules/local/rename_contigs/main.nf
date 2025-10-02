@@ -16,8 +16,10 @@ process RENAME_CONTIGS {
 
     script:
     def prefix = task.ext.prefix ?: meta.id
+    prefix     = prefix.md5().substring(0,9)
 
     """
+    # Replace contig names with the first 10 characters of the md5sum of the prefix
     seqkit replace -p "^" -r "${prefix}_" $contigs | gzip -c > ${prefix}.renamed.fna.gz
 
     cat <<-END_VERSIONS > versions.yml
