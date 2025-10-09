@@ -249,12 +249,12 @@ Output from Prokka will be placed in subdirectories under the directory specifie
 If there are several possible alignments, BBMap align will, by default, assign a read to only one target sequence.
 The pipeline supports all four possible BBMap values for this option:
 
-| bbmap_ambiguous | Behaviour
-|-----------------|--------------------|
-| best | Use the first best site |
-| toss | Consider unmapped |
-| random | Select one top-scoring site randomly |
-| all | Retain all top-scoring sites |
+| bbmap_ambiguous | Behaviour                            |
+| --------------- | ------------------------------------ |
+| best            | Use the first best site              |
+| toss            | Consider unmapped                    |
+| random          | Select one top-scoring site randomly |
+| all             | Retain all top-scoring sites         |
 
 The default is 'best'.
 In the featureCounts step multiple matches are by default counted as fractions.
