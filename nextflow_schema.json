@@ -181,7 +181,7 @@
                     "default": "best",
                     "description": "Select how BBmap should treat ambiguous mapping",
                     "enum": ["best", "all", "random", "toss"],
-                    "help_text": "OBS! when using all parameters you are allowing multi-mapping! You will need to activate also the parameter `--featurecounts_fraction` to allow featureCounts to handle multi-mapping counts. The count will be split in the same number of genes that bbmap_align aligned. (e.g. 3 genes, then 0.33 count each gene)."
+                    "help_text": "Using `all` allows multi-mapping, see [usage docs](https://nf-co.re/magmap/usage#multimapping"
                 },
                 "bbmap_save_bam": {
                     "type": "boolean",
