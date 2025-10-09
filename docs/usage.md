@@ -261,7 +261,7 @@ If you prefer to count them all individually, set `--featurecounts_fraction fals
 A typical command line for multiple alignment will then look like:
 
 ```bash
-nextflow run nf-core/magmap -profile docker --outdir results/ --input samples.csv --genomeinfo localgenomes.csv --skip_sourmash false --bbmap_ambiguous all --featurecounts_fraction
+nextflow run nf-core/magmap -profile docker --outdir results/ --input samples.csv --genomeinfo localgenomes.csv --skip_sourmash false --bbmap_ambiguous all
 ```
 
 ### Feature quantification
