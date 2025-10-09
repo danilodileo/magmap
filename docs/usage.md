@@ -245,7 +245,19 @@ Output from Prokka will be placed in subdirectories under the directory specifie
 
 ### Multiple alignment
 
-By default, BBMap align will assign a read to only one ambiguous reference gene. This is select based on BBMap criteria and it is reproducible. If you would like to allow multiple-allignment you will have to change `--bbmap_ambiguous` parameter ('best' as default). The other available options are: 'random', 'toss' and 'all'. By using 'all' BBMap will assign to each of ambiguous genes the read. You then will need to allow featureCounts to handle multiple alignment with the parameter `--featurecounts_fraction`.
+If there are several possible alignments, BBMap align will, by default, assign a read to only one target sequence.
+The pipeline supports all four possible BBMap values for this option:
+
+| bbmap_ambiguous | Behaviour
+|-----------------|--------------------|
+| best | Use the first best site |
+| toss | Consider unmapped |
+| random | Select one top-scoring site randomly |
+| all | Retain all top-scoring sites |
+
+The default is 'best'.
+In the featureCounts step multiple matches are by default counted as fractions.
+If you prefer to count them all individually, set `--featurecounts_fraction false`.
 A typical command line for multiple alignment will then look like:
 
 ```bash
