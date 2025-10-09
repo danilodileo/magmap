@@ -24,6 +24,7 @@
   - [Kraken2](#kraken2)
   - [Sourmash](#sourmash)
   - [Feature calling](#feature-calling)
+  - [Multimapping](#Multimapping)
   - [Feature quantification](#feature-quantification)
 - [Running the pipeline](#running-the-pipeline)
   - [Updating the pipeline](#updating-the-pipeline)
