@@ -176,6 +176,13 @@
                     "description": "Minimal identity for BBmap",
                     "fa_icon": "fas fa-search-minus"
                 },
+                "bbmap_ambiguous": {
+                    "type": "string",
+                    "default": "best",
+                    "description": "Select how BBmap should treat ambiguous mapping",
+                    "enum": ["best", "all", "random", "toss"],
+                    "help_text": "OBS! when using all parameters you are allowing multi-mapping! You will need to activate also the parameter `--featurecounts_fraction` to allow featureCounts to handle multi-mapping counts. The count will be split in the same number of genes that bbmap_align aligned. (e.g. 3 genes, then 0.33 count each gene)."
+                },
                 "bbmap_save_bam": {
                     "type": "boolean",
                     "description": "Save bam output file",
@@ -204,6 +211,11 @@
                     "type": "string",
                     "description": "Specify which features to count",
                     "default": "CDS,rRNA,tRNA,tmRNA"
+                },
+                "featurecounts_fraction": {
+                    "type": "boolean",
+                    "description": "Allow featureCounts to handle multiple-mapping",
+                    "help_text": "This parameter works best coupled with `--bbmap_ambiguous`. See documentation."
                 }
             }
         },
@@ -243,8 +255,7 @@
                 },
                 "kraken2_memory_mapping": {
                     "type": "boolean",
-                    "description": "Use memory mapping to avoid loading database into RAM",
-                    "default": false
+                    "description": "Use memory mapping to avoid loading database into RAM"
                 }
             }
         },

@@ -243,6 +243,14 @@ This is suitable for prokaryotes and it provides a gff as output for downstream 
 It also performs functional annotation of ORFs.
 Output from Prokka will be placed in subdirectories under the directory specified with [`--prokka_store_dir`](parameters/#prokka_store_dir) (default `prokka`) as described [above](#genome-data-will-be-directed-to-a-specific-directory).
 
+### Multiple alignment
+By default, BBMap align will assign a read to only one ambiguous reference gene. This is select based on BBMap criteria and it is reproducible. If you would like to allow multiple-allignment you will have to change `--bbmap_ambiguous` parameter ('best' as default). The other available options are: 'random', 'toss' and 'all'. By using 'all' BBMap will assign to each of ambiguous genes the read. You then will need to allow featureCounts to handle multiple alignment with the parameter `--featurecounts_fraction`. 
+A typical command line for multiple alignment will then look like:
+
+```bash
+nextflow run nf-core/magmap -profile docker --outdir results/ --input samples.csv --genomeinfo localgenomes.csv --skip_sourmash false --bbmap_ambiguous all --featurecounts_fraction
+```
+
 ### Feature quantification
 
 Genome features -- by default CDS, rRNA, tRNA and tmRNA, but that can be controlled with [`--features`](parameters/#features) -- are quantified in a two-step process.
