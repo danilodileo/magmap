@@ -37,6 +37,9 @@
                 "FEATURECOUNTS": {
                     "subread": "2.0.6"
                 },
+                "GATHER_REMOTE_GENOMES": {
+                    "sourmash": "4.9.4"
+                },
                 "GENOMES2ORFS": {
                     "sed": 4.9
                 },
@@ -68,9 +71,6 @@
                 },
                 "SAMTOOLS_STATS": {
                     "samtools": "1.22.1"
-                },
-                "SOURMASH_GATHER": {
-                    "sourmash": "4.9.4"
                 },
                 "TIDYVERSE_JOINMETADATA": {
                     "R": "4.3.1",
@@ -195,6 +195,6 @@
             "nf-test": "0.9.2",
             "nextflow": "25.04.6"
         },
-        "timestamp": "2025-10-16T19:59:13.853482"
+        "timestamp": "2025-10-16T20:56:03.439054"
     }
 }
