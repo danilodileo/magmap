@@ -188,6 +188,7 @@ workflow MAGMAP {
         ch_bbduk_logs = BBMAP_BBDUK.out.log.collect { it[1] }.map { [ it ] }
         ch_collect_stats = ch_collect_stats
             .combine(ch_bbduk_logs)
+        ch_multiqc_files = ch_multiqc_files.mix(BBMAP_BBDUK.out.log.collect{ meta, log -> log })
     } else {
         ch_clean_reads = FASTQC_TRIMGALORE.out.reads
         ch_bbduk_logs = Channel.empty()
@@ -218,6 +219,7 @@ workflow MAGMAP {
             params.kraken2_save_reads
         )
 
+        ch_multiqc_files = ch_multiqc_files.mix(KRAKEN2_KRAKEN2.out.report.collect{ meta, report -> report })
         ch_versions = ch_versions.mix(KRAKEN2_KRAKEN2.out.versions)
 
         KRAKENTOOLS_KREPORT2KRONA(KRAKEN2_KRAKEN2.out.report)
@@ -275,6 +277,7 @@ workflow MAGMAP {
 
     PROKKA(ch_no_gff, [], [])
     ch_versions = ch_versions.mix(PROKKA.out.versions)
+    ch_multiqc_files = ch_multiqc_files.mix(PROKKA.out.log.collect{ meta, log -> log })
 
     // Mix genome entries that were not sent to Prokka with those that were not
     ch_collected_genomes = ch_genomes
@@ -301,6 +304,7 @@ workflow MAGMAP {
     // BBMAP ALIGN. Call BBMap with the index once per sample
     //
     BBMAP_ALIGN ( ch_clean_reads, CREATE_BBMAP_INDEX.out.index )
+    ch_multiqc_files = ch_multiqc_files.mix(BBMAP_ALIGN.out.log.collect{ meta, log -> log })
     ch_versions = ch_versions.mix(BBMAP_ALIGN.out.versions)
 
     //
@@ -326,6 +330,7 @@ workflow MAGMAP {
 
     FEATURECOUNTS(ch_featurecounts)
     ch_versions = ch_versions.mix(FEATURECOUNTS.out.versions)
+    ch_multiqc_files = ch_multiqc_files.mix(FEATURECOUNTS.out.summary.collect{ meta, log -> log })
 
     //
     // MODULE: Collect featurecounts output counts in one table
