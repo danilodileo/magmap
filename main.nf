@@ -110,7 +110,7 @@ workflow {
         params.input,
         params.help,
         params.help_full,
-        params.show_hidden
+        params.show_hidden,
         params.genomeinfo,
         params.remote_genome_sources,
         params.kraken2_store_dir,
