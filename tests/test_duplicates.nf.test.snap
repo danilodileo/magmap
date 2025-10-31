@@ -1,7 +1,7 @@
 {
     "-profile test_duplicates": {
         "content": [
-            57,
+            58,
             {
                 "BBMAP_ALIGN": {
                     "bbmap": 39.18,
@@ -10,6 +10,9 @@
                 },
                 "BBMAP_INDEX": {
                     "bbmap": 39.18
+                },
+                "CATPROKKATSVS": {
+                    "pigz": 2.8
                 },
                 "CAT_FNA": {
                     "pigz": 2.6
@@ -265,13 +268,13 @@
                 "accno\tgenome\torf"
             ],
             [
-                "orf\tcontig\tgene_caller\tfeature\tstart\tend\tstrand\tdb_xref\tec_number\tgene\tinference\tlocus_tag\tname\tparent\tproduct\tprotein_id"
+                "orf\tftype\tlength\tgene\tec_number\tcog\tproduct"
             ]
         ],
         "meta": {
             "nf-test": "0.9.2",
             "nextflow": "25.04.8"
         },
-        "timestamp": "2025-10-20T19:20:51.602011761"
+        "timestamp": "2025-10-29T16:10:47.208889375"
     }
 }
