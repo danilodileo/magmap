@@ -12,8 +12,8 @@ process PROKKAGFF2TSV {
     tuple val(meta), path(gff)
 
     output:
-    tuple val(meta), path("*.prokka-annotations.tsv.gz"), emit: tsv
-    path "versions.yml"           , emit: versions
+    tuple val(meta), path("${outfile}"), emit: tsv
+    path "versions.yml"                , emit: versions
 
     when:
     task.ext.when == null || task.ext.when
@@ -21,7 +21,7 @@ process PROKKAGFF2TSV {
     script:
     def args    = task.ext.args ?: ''
     def prefix  = task.ext.prefix ?: "${meta.id}"
-    def outfile = "${prefix}.prokka-annotations.tsv.gz"
+    outfile = "${prefix}/${prefix}.prokka-annotations.tsv.gz"
 
     """
     #!/usr/bin/env Rscript
@@ -33,6 +33,8 @@ process PROKKAGFF2TSV {
     library(readr)
     library(stringr)
 
+    dir.create('${prefix}')
+
     fread(
         cmd = "zgrep -P '\\t' $gff",
         col.names = c('contig', 'gene_caller', 'feature', 'start', 'end', 'a', 'strand', 'b', 'c')
@@ -41,10 +43,12 @@ process PROKKAGFF2TSV {
         separate(c, c('k', 'v'), sep = '=') %>%
         pivot_wider(names_from = k, values_from = v) %>%
         select(-a, -b) %>%
-        rename(orf = ID) %>%
         rename_all(str_to_lower) %>%
-        relocate(sort(colnames(.)[8:ncol(.)]), .after = 7) %>%
-        relocate(orf) %>%
+        transmute(
+            locus_tag = id, ftype = feature, length = abs(start - end) + 1, gene, ec_number,
+            cog = ifelse(str_detect(db_xref, 'COG'), str_replace(db_xref, '.*COG:([A-Z0-9]+).*', '\\\\1'), NA),
+            product
+        ) %>%
         as.data.table() %>%
         write_tsv("${outfile}")
 
