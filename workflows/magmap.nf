@@ -149,7 +149,6 @@ workflow MAGMAP {
 
     ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
 
-    ch_versions.view()
     ch_collect_stats = ch_short_reads
         .collect { meta, fasta -> meta }
         .map { reads -> [ [ id: 'magmap' ], reads ] }
