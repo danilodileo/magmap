@@ -14,7 +14,8 @@
                     "bbmap/bbduk": {
                         "branch": "master",
                         "git_sha": "3351c212144fc8aab0e595165bf447ebecfebd8a",
-                        "installed_by": ["modules"]
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/bbmap/bbduk/bbmap-bbduk.diff"
                     },
                     "bbmap/index": {
                         "branch": "master",
