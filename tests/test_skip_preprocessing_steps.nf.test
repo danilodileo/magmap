@@ -3,7 +3,7 @@ nextflow_pipeline {
     name "Test pipeline"
     script "../main.nf"
     tag "pipeline"
-    profile 'test skip preprocessing steps'
+    profile 'test_skip_preprocessing_steps'
 
     test("-profile test_skip_preprocessing_steps") {
 
