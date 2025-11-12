@@ -148,7 +148,7 @@ workflow MAGMAP {
     )
 
     if ((skip_fastqc && skip_qc) || skip_trimming) {
-    ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
+        ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
     }
 
     ch_collect_stats = ch_short_reads
