@@ -147,10 +147,9 @@ workflow MAGMAP {
         skip_trimming
     )
 
-    if ((skip_fastqc && skip_qc) || skip_trimming) {
-        ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
-    }
+    ch_versions = ch_versions.mix(FASTQC_TRIMGALORE.out.versions)
 
+    ch_versions.view()
     ch_collect_stats = ch_short_reads
         .collect { meta, fasta -> meta }
         .map { reads -> [ [ id: 'magmap' ], reads ] }
