@@ -83,7 +83,7 @@
                     "wget": "1.21.4"
                 },
                 "Workflow": {
-                    "nf-core/magmap": "v1.0.0"
+                    "nf-core/magmap": "v1.0.1dev"
                 }
             },
             [
@@ -166,6 +166,10 @@
                 "multiqc/multiqc_report.html",
                 "pipeline_info",
                 "pipeline_info/nf_core_magmap_software_mqc_versions.yml",
+                "samtools",
+                "samtools/twogenomes.flagstat",
+                "samtools/twogenomes.idxstats",
+                "samtools/twogenomes.stats",
                 "sourmash",
                 "sourmash/twogenomes.sig",
                 "sourmash/twogenomes_remoteidx_00.csv.gz",
@@ -238,6 +242,6 @@
             "nf-test": "0.9.3",
             "nextflow": "25.04.8"
         },
-        "timestamp": "2025-11-27T18:00:56.712498668"
+        "timestamp": "2025-12-05T09:32:22.125932212"
     }
 }

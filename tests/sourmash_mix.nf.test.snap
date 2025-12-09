@@ -95,7 +95,7 @@
                     "wget": "1.21.4"
                 },
                 "Workflow": {
-                    "nf-core/magmap": "v1.0.0"
+                    "nf-core/magmap": "v1.0.1dev"
                 }
             },
             [
@@ -196,6 +196,16 @@
                 "multiqc/multiqc_report.html",
                 "pipeline_info",
                 "pipeline_info/nf_core_magmap_software_mqc_versions.yml",
+                "samtools",
+                "samtools/ecoli.flagstat",
+                "samtools/ecoli.idxstats",
+                "samtools/ecoli.stats",
+                "samtools/sixgenomes.flagstat",
+                "samtools/sixgenomes.idxstats",
+                "samtools/sixgenomes.stats",
+                "samtools/twogenomes.flagstat",
+                "samtools/twogenomes.idxstats",
+                "samtools/twogenomes.stats",
                 "summary_tables",
                 "summary_tables/magmap.CDS.counts.tsv.gz",
                 "summary_tables/magmap.genome_metadata.tsv.gz",
@@ -274,6 +284,6 @@
             "nf-test": "0.9.3",
             "nextflow": "25.04.8"
         },
-        "timestamp": "2025-11-27T18:11:26.299238994"
+        "timestamp": "2025-12-05T09:45:20.289720944"
     }
 }
