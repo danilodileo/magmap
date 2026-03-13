@@ -12,7 +12,7 @@ process WGET {
 
     output:
     tuple val(meta), path("${url.substring(url.lastIndexOf('/')+1, url.length())}"), emit: outfile
-    path "versions.yml"                                                            , emit: versions
+    path "versions.yml"                                                            , emit: versions, topic: versions
 
     when:
     task.ext.when == null || task.ext.when

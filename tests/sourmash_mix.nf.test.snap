@@ -4,9 +4,7 @@
             70,
             {
                 "BBMAP_ALIGN": {
-                    "bbmap": 39.18,
-                    "samtools": 1.21,
-                    "pigz": 2.8
+                    "bbmap": 39.18
                 },
                 "BBMAP_INDEX": {
                     "bbmap": 39.18
@@ -41,7 +39,7 @@
                     "fastqc": "0.12.1"
                 },
                 "FEATURECOUNTS": {
-                    "subread": "2.0.6"
+                    "subread": "2.1.1"
                 },
                 "GATHER_REMOTE_GENOMES": {
                     "sourmash": "4.9.4"
@@ -57,9 +55,6 @@
                 },
                 "GENOME_SKETCH": {
                     "sourmash": "4.9.4"
-                },
-                "PROKKA": {
-                    "prokka": "1.14.6"
                 },
                 "SAMPLE_SKETCH": {
                     "sourmash": "4.9.4"
@@ -87,9 +82,7 @@
                     "stringr": "1.5.2"
                 },
                 "TRIMGALORE": {
-                    "trimgalore": "0.6.10",
-                    "cutadapt": 4.9,
-                    "pigz": 2.8
+                    "trimgalore": "0.6.10"
                 },
                 "WGET_GENOME": {
                     "wget": "1.21.4"
@@ -151,10 +144,10 @@
                 "multiqc/multiqc_data/multiqc_fastqc.txt",
                 "multiqc/multiqc_data/multiqc_featurecounts.txt",
                 "multiqc/multiqc_data/multiqc_general_stats.txt",
-                "multiqc/multiqc_data/multiqc_software_versions.txt",
                 "multiqc/multiqc_data/multiqc_sources.txt",
                 "multiqc/multiqc_plots",
                 "multiqc/multiqc_plots/pdf",
+                "multiqc/multiqc_plots/pdf/fastqc-status-check-heatmap.pdf",
                 "multiqc/multiqc_plots/pdf/fastqc_overrepresented_sequences_plot.pdf",
                 "multiqc/multiqc_plots/pdf/fastqc_per_base_n_content_plot.pdf",
                 "multiqc/multiqc_plots/pdf/fastqc_per_base_sequence_quality_plot.pdf",
@@ -168,6 +161,7 @@
                 "multiqc/multiqc_plots/pdf/featureCounts_assignment_plot-cnt.pdf",
                 "multiqc/multiqc_plots/pdf/featureCounts_assignment_plot-pct.pdf",
                 "multiqc/multiqc_plots/png",
+                "multiqc/multiqc_plots/png/fastqc-status-check-heatmap.png",
                 "multiqc/multiqc_plots/png/fastqc_overrepresented_sequences_plot.png",
                 "multiqc/multiqc_plots/png/fastqc_per_base_n_content_plot.png",
                 "multiqc/multiqc_plots/png/fastqc_per_base_sequence_quality_plot.png",
@@ -181,6 +175,7 @@
                 "multiqc/multiqc_plots/png/featureCounts_assignment_plot-cnt.png",
                 "multiqc/multiqc_plots/png/featureCounts_assignment_plot-pct.png",
                 "multiqc/multiqc_plots/svg",
+                "multiqc/multiqc_plots/svg/fastqc-status-check-heatmap.svg",
                 "multiqc/multiqc_plots/svg/fastqc_overrepresented_sequences_plot.svg",
                 "multiqc/multiqc_plots/svg/fastqc_per_base_n_content_plot.svg",
                 "multiqc/multiqc_plots/svg/fastqc_per_base_sequence_quality_plot.svg",
@@ -280,10 +275,10 @@
             ],
             1
         ],
+        "timestamp": "2026-03-12T15:12:26.366884441",
         "meta": {
-            "nf-test": "0.9.3",
-            "nextflow": "25.04.8"
-        },
-        "timestamp": "2025-12-05T09:45:20.289720944"
+            "nf-test": "0.9.4",
+            "nextflow": "25.10.4"
+        }
     }
 }

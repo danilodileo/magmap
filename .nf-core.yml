@@ -2,10 +2,11 @@ lint:
   files_unchanged:
     - docs/images/nf-core-magmap_logo_light.png
     - docs/images/nf-core-magmap_logo_dark.png
+    - assets/nf-core-magmap_logo_light.png
   nextflow_config:
     - config_defaults:
         - params.ncbi_genome_infos
-nf_core_version: 3.5.1
+nf_core_version: 3.5.2
 repository_type: pipeline
 template:
   author: Danilo Di Leo, Emelie Nilsson and Daniel Lundin

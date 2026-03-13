@@ -14,7 +14,6 @@ include { samplesheetToList         } from 'plugin/nf-schema'
 include { paramsHelp                } from 'plugin/nf-schema'
 include { completionEmail           } from '../../nf-core/utils_nfcore_pipeline'
 include { completionSummary         } from '../../nf-core/utils_nfcore_pipeline'
-include { imNotification            } from '../../nf-core/utils_nfcore_pipeline'
 include { UTILS_NFCORE_PIPELINE     } from '../../nf-core/utils_nfcore_pipeline'
 include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipeline'
 
@@ -27,15 +26,15 @@ include { UTILS_NEXTFLOW_PIPELINE   } from '../../nf-core/utils_nextflow_pipelin
 workflow PIPELINE_INITIALISATION {
 
     take:
-    version           // boolean: Display version and exit
-    validate_params   // boolean: Boolean whether to validate parameters against the schema at runtime
-    monochrome_logs   // boolean: Do not use coloured log outputs
-    nextflow_cli_args //   array: List of positional nextflow CLI args
-    outdir            //  string: The output directory where the results will be saved
-    input             //  string: Path to input samplesheet
-    help              // boolean: Display help message and exit
-    help_full         // boolean: Show the full help message
-    show_hidden       // boolean: Show hidden parameters in the help message
+    version                 // boolean: Display version and exit
+    validate_params         // boolean: Boolean whether to validate parameters against the schema at runtime
+    _monochrome_logs        // boolean: Do not use coloured log outputs
+    nextflow_cli_args       //   array: List of positional nextflow CLI args
+    outdir                  //  string: The output directory where the results will be saved
+    input                   //  string: Path to input samplesheet
+    help                    // boolean: Display help message and exit
+    help_full               // boolean: Show the full help message
+    show_hidden             // boolean: Show hidden parameters in the help message
     genomeinfo              //  string: Path to user-provided genome sheet
     remote_genome_sources   //  string: Comma-separated list of NCBI-style genome summary files
     genome_store_dir        //  string: Path to a directory where genome annotation files will be stored
@@ -46,8 +45,6 @@ workflow PIPELINE_INITIALISATION {
     features                //  string: Comma-separated string of feature types
 
     main:
-
-    ch_versions = channel.empty()
 
     //
     // Print version and exit if required and dump pipeline parameters to JSON file
@@ -106,11 +103,11 @@ workflow PIPELINE_INITIALISATION {
     validateInputParameters()
 
     //
-    // Create a channel from input file provided through params.input
+    // Create a channel from input file provided through input
     //
 
     channel
-        .fromList(samplesheetToList(params.input, "${projectDir}/assets/schema_input.json"))
+        .fromList(samplesheetToList(input, "${projectDir}/assets/schema_input.json"))
         .map {
             meta, fastq_1, fastq_2 ->
                 if (!fastq_2) {
@@ -132,10 +129,10 @@ workflow PIPELINE_INITIALISATION {
     //
     // INPUT: if the user provides --genomeinfo, populate ch_genomeinfo with a table that provides the genomes to filter with sourmash
     //
-    ch_genomeinfo = Channel.empty()
-    if ( params.genomeinfo) {
-        Channel
-            .fromPath(params.genomeinfo)
+    ch_genomeinfo = channel.empty()
+    if ( genomeinfo ) {
+        channel
+            .fromPath(genomeinfo)
             .splitCsv(sep: ',', header: true)
             .map { it -> [
                     accno: it.accno,
@@ -149,18 +146,18 @@ workflow PIPELINE_INITIALISATION {
     //
     // INPUT: genome info from ncbi
     //
-    ch_remote_genome_sources = Channel.empty()
+    ch_remote_genome_sources = channel.empty()
     if ( remote_genome_sources ) {
-        ch_remote_genome_sources = Channel
+        ch_remote_genome_sources = channel
             .of(remote_genome_sources.split(','))
-            .map { file(it) }
+            .map { it -> file(it) }
     }
 
     //
     // Make sure that the directories for genome and annotation storage exists
     //
-    if ( params.genome_store_dir ) {
-        d = new File("${params.genome_store_dir}")
+    if ( genome_store_dir ) {
+        d = new File("${genome_store_dir}")
         if ( ! d.exists() ) { d.mkdirs() }
     }
     if ( params.prokka_store_dir ) {
@@ -171,36 +168,36 @@ workflow PIPELINE_INITIALISATION {
     //
     // INPUT: if the user provides, populate ch_indexes
     //
-    ch_indexes = Channel.empty()
+    ch_indexes = channel.empty()
     if ( indexes ) {
-        ch_indexes = Channel.fromPath(indexes)
+        ch_indexes = channel.fromPath(indexes)
     }
 
     //
     // Take care of genome metadata files
     //
-    ch_gtdb_metadata = Channel.empty()
+    ch_gtdb_metadata = channel.empty()
     if ( gtdb_metadata ) {
-        ch_gtdb_metadata = Channel
+        ch_gtdb_metadata = channel
             .of(gtdb_metadata.split(','))
-            .map { file(it) }
+            .map { it -> file(it) }
     }
 
-    ch_gtdbtk_metadata = Channel.empty()
+    ch_gtdbtk_metadata = channel.empty()
     if ( gtdbtk_metadata ) {
-        ch_gtdbtk_metadata = Channel
+        ch_gtdbtk_metadata = channel
             .of(gtdbtk_metadata.split(','))
-            .map { file(it) }
+            .map { it -> file(it) }
     }
 
-    ch_checkm_metadata = Channel.empty()
+    ch_checkm_metadata = channel.empty()
     if ( checkm_metadata ) {
-        ch_checkm_metadata = Channel
+        ch_checkm_metadata = channel
             .of(checkm_metadata.split(','))
-            .map { file(it) }
+            .map { it -> file(it) }
     }
 
-    ch_features = Channel.of(
+    ch_features = channel.of(
         ['CDS'] + features.split(','))
         .flatten()
         .unique()
@@ -214,7 +211,6 @@ workflow PIPELINE_INITIALISATION {
     gtdbtk_metadata         = ch_gtdbtk_metadata
     checkm_metadata         = ch_checkm_metadata
     features                = ch_features
-    versions                = ch_versions
 }
 
 /*
@@ -231,7 +227,7 @@ workflow PIPELINE_COMPLETION {
     plaintext_email // boolean: Send plain-text email instead of HTML
     outdir          //    path: Path to output directory where results will be published
     monochrome_logs // boolean: Disable ANSI colour codes in log output
-    hook_url        //  string: hook URL for notifications
+    _hook_url       //  string: hook URL for notifications
     multiqc_report  //  string: Path to MultiQC report
 
     main:
@@ -255,9 +251,6 @@ workflow PIPELINE_COMPLETION {
         }
 
         completionSummary(monochrome_logs)
-        if (hook_url) {
-            imNotification(summary_params, hook_url)
-        }
     }
 
     workflow.onError {
@@ -296,7 +289,7 @@ def validateInputSamplesheet(input) {
 //
 // Not implemented, since we don't have a genome param
 //
-def getGenomeAttribute(attribute) {
+def getGenomeAttribute(_attribute) {
     return null
 }
 
