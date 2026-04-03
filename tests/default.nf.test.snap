@@ -80,7 +80,7 @@
                     "trimgalore": "0.6.10"
                 },
                 "Workflow": {
-                    "nf-core/magmap": "v1.0.1dev"
+                    "nf-core/magmap": "v1.1.0"
                 }
             },
             [
@@ -295,10 +295,10 @@
                 "orf\tftype\tlength\tgene\tec_number\tcog\tproduct"
             ]
         ],
-        "timestamp": "2026-03-25T22:11:32.856381955",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.3",
             "nextflow": "25.10.4"
-        }
+        },
+        "timestamp": "2026-04-02T03:29:00.060948573"
     }
 }

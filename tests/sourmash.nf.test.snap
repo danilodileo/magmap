@@ -76,7 +76,7 @@
                     "wget": "1.21.4"
                 },
                 "Workflow": {
-                    "nf-core/magmap": "v1.0.1dev"
+                    "nf-core/magmap": "v1.1.0"
                 }
             },
             [
@@ -231,10 +231,10 @@
                 "orf\tftype\tlength\tgene\tec_number\tcog\tproduct"
             ]
         ],
-        "timestamp": "2026-03-26T06:40:29.568802585",
         "meta": {
-            "nf-test": "0.9.4",
+            "nf-test": "0.9.3",
             "nextflow": "25.10.4"
-        }
+        },
+        "timestamp": "2026-04-02T04:23:07.401594998"
     }
 }
