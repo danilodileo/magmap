@@ -38,7 +38,9 @@ process GENOMES2ORFS {
     """
 
     stub:
+    prefix  = task.ext.prefix ?: "${meta.id}"
+    outfile = "${prefix}.genomes2orfs.tsv.gz"
     """
-    echo /dev/null | gzip -c ${outfile}.gz
+    echo "" | gzip -c > ${outfile}
     """
 }

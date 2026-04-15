@@ -336,9 +336,7 @@ workflow MAGMAP {
         }
 
     COLLECT_FEATURECOUNTS(ch_collect_featurecounts, GENOMES2ORFS.out.genomes2orfs.map { _m, g2orfs -> g2orfs })
-
     ch_fcs_for_stats      = COLLECT_FEATURECOUNTS.out.counts.collect { _meta, tsv -> tsv }.map { it -> [ it ] }
-    //ch_fcs_for_summary    = COLLECT_FEATURECOUNTS.out.counts.map { _meta, tsv -> tsv }
     ch_collect_stats      = ch_collect_stats.combine(ch_fcs_for_stats)
 
     //
