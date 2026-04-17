@@ -15,7 +15,7 @@ process RENAME_CONTIGS {
     tuple val("${task.process}"), val('seqkit'), eval('seqkit version | sed "s/seqkit v//" | sed "s/ Build.*//"'), emit: versions_seqkit, topic: versions
 
     script:
-    def prefix     = task.ext.prefix ?: meta.id
+    prefix     = task.ext.prefix ?: meta.id
     def prefix_md5 = prefix.md5().substring(0,9)
 
     """
