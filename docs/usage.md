@@ -19,7 +19,7 @@
     - [GTDB-Tk metadata](#gtdb-tk-metadata)
     - [CheckM/CheckM2 metadata](#checkmcheckm2-metadata)
   - [Check duplicates](#check-duplicates)
-  - [Remove contaminants from samples] (#remove-contaminants-from-samples)
+  - [Remove contaminants from samples](#remove-contaminants-from-samples)
   - [Sourmash](#sourmash)
   - [Feature calling](#feature-calling)
   - [Multimapping](#Multimapping)
@@ -44,7 +44,7 @@
 **nf-core/magmap** is a workflow designed for mapping metatranscriptomic and metagenomic reads onto a group of genomes.
 The collection of genomes can either be specified directly using a table (see the [`--genomeinfo` parameter](https://nf-co.re/magmap/parameters/#genomeinfo)) or be the result of filtering with Sourmash.
 The latter can use either the genomes specified by `--genomeinfo`, a "sketch index" pointing to genomes available for instance at NCBI (see the [`--indexes` parameter](https://nf-co.re/magmap/parameters/#indexes) or a combination, to identify a smaller set to map to.
-Genome files provided with `--genominfo` must include contigs in fasta format and optionally gff files (Prokka or Bakta format).
+Genome files provided with `--genomeinfo` must include contigs in fasta format and optionally gff files (Prokka or Bakta format).
 Any genome for which a gff file is missing will be annotated with Prokka.
 The pipeline can take output files from CheckM, CheckM2 and GTDB-Tk as input, and will provide processed output from these tools.
 Note that the pipeline can map to any collection of genomes, including single cell genomes and isolates.
@@ -179,7 +179,7 @@ At the moment, **nf-core/magmap** can handle output from CheckM/CheckM2 and GTDB
 
 With this parameter, you can supply a file like the GTDB metadata files provided on their official [website](https://gtdb.ecogenomic.org/), e.g. [`bac120_metadata_r220.tsv.gz`](https://data.ace.uq.edu.au/public/gtdb/data/releases/release220/220.0/bac120_metadata_r220.tsv.gz).
 You can either use their files directly or make a custom one.
-If you want make your own table, fill up the following columns: `accno`, `checkm_completeness`, `checkm_contamination`, `checkm_strain_heterogeneity`, `contig_count`, `genome_size`, `gtdb_genome_representative`,gtdb_representative`, `gtdb_taxonomy`.
+If you want make your own table, fill up the following columns: `accno`, `checkm_completeness`, `checkm_contamination`, `checkm_strain_heterogeneity`, `contig_count`, `genome_size`, `gtdb_genome_representative`, `gtdb_representative`, `gtdb_taxonomy`.
 
 #### (2) GTDB-Tk metadata
 
@@ -198,7 +198,7 @@ This is done to avoid overlapping in the following steps (e.g. same prokka outpu
 ### Remove contaminants from samples
 
 The pipeline can remove potential contaminant sequences (e.g. rRNA sequences with the SILVA database) from samples using BBduk.
-Specify a fasta file, gzipped or not, with the [`--sequence_filter](parameters/#sequence_filter <sequences>.fasta` parameter.
+Specify a fasta file, gzipped or not, with the [`--sequence_filter`](parameters/#sequence_filter) `<sequences>.fasta` parameter.
 For further documentation, see the [BBduk official website](https://jgi.doe.gov/data-and-tools/software-tools/bbtools/bb-tools-user-guide/bbduk-guide/).
 
 ```bash
@@ -214,7 +214,7 @@ nextflow run nf-core/magmap -profile docker --outdir results/ --input samples.cs
 
 With [Sourmash](https://sourmash.readthedocs.io/en/latest/index.html) you can filter the genomes to be used by magmap in the mapping step.
 This function is optional but can speed up the process and is controlled by the [`--skip_sourmash` parameter](parameters/#skip_sourmash) (true by default).
-It can also allow identification of remote genomes that match samples in the run, see [Index input](#index-input) above.
+It can also allow identification of remote genomes that match samples in the run, see [Genome index input](#genome-index-input) above.
 
 > [!NOTE] > `--skip_sourmash` only affects filtering of user-provided genomes. One or more provided indexes will always be evaluated with Sourmash.
 

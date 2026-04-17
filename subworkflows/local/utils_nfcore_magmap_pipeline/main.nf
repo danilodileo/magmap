@@ -174,6 +174,13 @@ workflow PIPELINE_INITIALISATION {
     }
 
     //
+    // Return error if user asks for sourmash filtering but doesn't provide indexes.
+    //
+    if (params.genomeset_mode == 'sample' && !params.indexes) {
+    error("You have asked to run sourmash sample filtering but have not provided any Sourmash indexes. Please provide --indexes or set --skip_sourmash to true.")
+    }
+
+    //
     // Take care of genome metadata files
     //
     ch_gtdb_metadata = channel.empty()

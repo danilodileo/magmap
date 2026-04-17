@@ -16,7 +16,7 @@ process RENAME_CONTIGS {
 
     script:
     prefix     = task.ext.prefix ?: meta.id
-    prefix_md5 = prefix.md5().substring(0,9)
+    def prefix_md5 = prefix.md5().substring(0,9)
 
     """
     seqkit replace -p "^" -r "${prefix_md5}_" $contigs | gzip -c > ${prefix}.renamed.fna.gz

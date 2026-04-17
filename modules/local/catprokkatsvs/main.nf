@@ -31,12 +31,9 @@ process CATPROKKATSVS {
     stub:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    outfile = "${prefix}.prokka-annotations.tsv.gz"
+    outfile = "${prefix}.prokka-annotations.tsv"
     """
     echo $args
-
-    touch ${outfile}
-
-    pigz ${outfile}
+    touch ${outfile}.gz
     """
 }
