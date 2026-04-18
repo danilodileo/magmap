@@ -152,7 +152,7 @@ To save the `.bam` files, use `--bbmap_save_bam` and to save the index, use `--b
   - `<SAMPLE>.<FEATURE>.featureCounts.tsv`: Counts for `SAMPLE` and `FEATURE`
   - `<SAMPLE>.<FEATURE>.featureCounts.tsv.summary`: Summary of counts for `SAMPLE` and `FEATURE`
 
-<details markdown="1">
+</details>
 
 #### Samtools
 
@@ -166,7 +166,7 @@ To save the `.bam` files, use `--bbmap_save_bam` and to save the index, use `--b
   - `<SAMPLE>.idxstats`: Idxstats statistics for `SAMPLE`
   - `<SAMPLE>.stats`: Stats statistics for `SAMPLE`
 
-<details markdown="1">
+</details>
 
 ## Pipeline information
 
