@@ -20,7 +20,6 @@ process COLLECT_FEATURECOUNTS {
 
     script:
     prefix = task.ext.prefix ?: "${meta.id}"
-
     """
     #!/usr/bin/env Rscript
 
